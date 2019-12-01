@@ -1,4 +1,4 @@
-package it.unicam.cs.automoto.pick_a_park;
+package it.unicam.cs.automoto.backend.pick_a_park;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
