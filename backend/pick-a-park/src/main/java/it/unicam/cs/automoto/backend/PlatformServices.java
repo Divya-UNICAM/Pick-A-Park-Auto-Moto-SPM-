@@ -127,4 +127,32 @@ public class PlatformServices {
 		return "";
 		//TODO		
 	}
+	
+	@Path("Status") //Status of the system
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public String Status() 
+	{
+		return "";
+		//TODO		
+	}
+	
+	@Path("Confirm") //Confirmation method
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public String Confirm() 
+	{
+		return "";
+		//TODO		
+	}
+	
+	@Path("Access") 
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public String Access() 
+	{
+		return "";
+		//TODO		
+	}
+	
 }
