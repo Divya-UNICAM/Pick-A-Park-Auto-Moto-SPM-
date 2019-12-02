@@ -1,6 +1,8 @@
 package it.unicam.cs.automoto.backend;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -11,10 +13,10 @@ import javax.ws.rs.core.MediaType;
 @Path("api")
 public class PlatformServices {
 
-	@Path("Management")
+	@Path("Homepage{Token ID/value}") //Main page for web application
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public String Management() 
+	public String Homepage() 
 	{
 		return "";
 		//TODO		
@@ -25,11 +27,11 @@ public class PlatformServices {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String Pay() 
 	{
-		return "";
+		return ""; //Redirect
 		//TODO		
 	}
 	
-	@Path("Login")
+	@Path("Login{User type/string") //Different login access depending on the role selected
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public String Login() 
@@ -38,25 +40,25 @@ public class PlatformServices {
 		//TODO		
 	}
 	
-	@Path("Request")
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
+	@Path("request") //Parking request placed by drivers
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
 	public String Request() 
 	{
 		return "";
 		//TODO		
 	}
 	
-	@Path("Add")
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
+	@Path("Add") //Addition of Parking place and sensor IDs
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
 	public String Add() 
 	{
 		return "";
 		//TODO		
 	}
 	
-	@Path("Position")
+	@Path("Position{driver ID/location}") //Drivers current location tracking
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public String Position() 
@@ -65,7 +67,7 @@ public class PlatformServices {
 		//TODO		
 	}
 	
-	@Path("Notify")
+	@Path("Notify{officerID/value}") //Notify police officers
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public String Notify() 
@@ -74,52 +76,51 @@ public class PlatformServices {
 		//TODO		
 	}
 	
-	@Path("Recieve")
+	@Path("Warn{driverID/value}") //Alert drivers regarding time lapse
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
+	public String Warn() 
+	{
+		return "";
+		//TODO		
+	}
+	
+	@Path("Recieve{Sensor ID/value}") //Retrieving sensor data
+	@GET
 	public String Recieve() 
 	{
 		return "";
 		//TODO		
 	}
 	
-	@Path("Register") //Sign-up
+	@Path("officers{Officer ID/value}") //Retrieve officer data
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
+	public String officers() 
+	{
+		return "";
+		//TODO		
+	}
+	
+	@Path("Register") //Sign-up
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
 	public String Register() 
 	{
 		return "";
 		//TODO		
 	}
 	
-	@Path("Display") //Display the route
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public String Display() 
-	{
-		return "";
-		//TODO		
-	}
-	
-	@Path("Send") //Send Feedback
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
+	@Path("Send") //Feedback from drivers on service provided
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
 	public String Send() 
 	{
 		return "";
 		//TODO		
 	}
 	
-	@Path("Modify") //change parking place
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public String Modify() 
-	{
-		return "";
-		//TODO		
-	}
-	
-	@Path("Subscribe") 
+	@Path("Subscribe") //Subscription for any new explicit offers
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public String Subscribe() 
@@ -132,24 +133,6 @@ public class PlatformServices {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public String Status() 
-	{
-		return "";
-		//TODO		
-	}
-	
-	@Path("Confirm") //Confirmation method
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public String Confirm() 
-	{
-		return "";
-		//TODO		
-	}
-	
-	@Path("Access") 
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public String Access() 
 	{
 		return "";
 		//TODO		
