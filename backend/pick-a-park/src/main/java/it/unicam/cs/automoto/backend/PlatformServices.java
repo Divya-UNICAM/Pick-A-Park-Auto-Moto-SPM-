@@ -1,11 +1,28 @@
 package it.unicam.cs.automoto.backend;
+import it.unicam.cs.automoto.backend.model.Car;
+import it.unicam.cs.automoto.backend.model.Location;
+import it.unicam.cs.automoto.backend.model.ParkingPlace;
+import it.unicam.cs.automoto.backend.model.Request;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.UUID;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
+import org.bson.Document;
+
+import static com.mongodb.client.model.Filters.*;
+import com.mongodb.DB;
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 
 /**
  * Root resource (exposed at "api" path)
@@ -42,11 +59,54 @@ public class PlatformServices {
 	
 	@Path("request") //Parking request placed by drivers
 	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	public String Request() 
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	public String Request(@FormParam("targetLocation") String targetLoc, @FormParam("startingLocation") String startingLoc, @FormParam("duration") double duration, @FormParam("plateNumber") String plateNumber, @FormParam("date") String parkingDate) 
 	{
+		//A token gets generated for further authentication of the driver
+		String token = UUID.randomUUID().toString();
+		
+		//Create the request object from post parameters
+		Request req = null;
+		try {
+			Location targetLocation = new Location(targetLoc, "Camerino");
+			Location startingLocation = new Location(startingLoc, "Rome");
+			Car plateNmb = new Car(plateNumber);
+			Date date = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(parkingDate);
+			req = new Request(targetLocation, startingLocation, duration, plateNmb, date);
+		} catch (Exception e) {
+			//Manage error in creating the request object
+		}
+		
+		if (req == null)
+			return "";
+		
+		MongoClient mongoClient = new MongoClient("localhost", 27017);
+		//Check if location is registered
+		//Retrieve locations from database
+		//Check if location exists
+		MongoDatabase database = mongoClient.getDatabase("locations");
+		// in the database there is a collection for each parking place location
+		// Camerino is a collection
+		//documents in camerino can be le mosse -> 10 parking places
+		//							   colle paradiso -> 20 parking places
+		MongoCollection<Document> parkingPlaces = null;
+		try {
+			parkingPlaces = database.getCollection(req.getTargetLocation().toString());
+		} catch (IllegalArgumentException e) {
+			//handle the fact that the location doesnt exist
+		}
+		
+		if(parkingPlaces == null)
+			return "";
+		//if location exists
+		//check if there are available parking places
+		if (parkingPlaces.countDocuments() == 0)
+			return "";
+		
+		parkingPlaces.find(eq("geocord",req.getTargetLocation())).first();
+		
 		return "";
-		//TODO		
+		
 	}
 	
 	@Path("Add") //Addition of Parking place and sensor IDs
