@@ -17,6 +17,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.bson.Document;
+import org.glassfish.grizzly.http.server.Response;
 
 import static com.mongodb.client.model.Filters.*;
 import com.mongodb.DB;
@@ -76,6 +77,7 @@ public class PlatformServices {
 		} catch (Exception e) {
 			//Manage error in creating the request object
 		}
+		
 		
 		if (req == null)
 			return "";
