@@ -1,4 +1,5 @@
 package it.unicam.cs.automoto.backend;
+import it.unicam.cs.automoto.backend.*;
 import it.unicam.cs.automoto.backend.model.Car;
 import it.unicam.cs.automoto.backend.model.Location;
 import it.unicam.cs.automoto.backend.model.ParkingPlace;
@@ -33,7 +34,8 @@ public class PlatformServices {
 
 	@Path("Homepage{Token ID/value}") //Main page for web application
 	@GET
-	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_HTML)
 	public String Homepage() 
 	{
 		return "";
@@ -61,6 +63,7 @@ public class PlatformServices {
 	@Path("request") //Parking request placed by drivers
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces(MediaType.TEXT_HTML)
 	public String Request(@FormParam("targetLocation") String targetLoc, @FormParam("startingLocation") String startingLoc, @FormParam("duration") double duration, @FormParam("plateNumber") String plateNumber, @FormParam("date") String parkingDate) 
 	{
 		//A token gets generated for further authentication of the driver
@@ -108,6 +111,8 @@ public class PlatformServices {
 		parkingPlaces.find(eq("geocord",req.getTargetLocation())).first();
 		
 		return "";
+		
+		
 		
 	}
 	

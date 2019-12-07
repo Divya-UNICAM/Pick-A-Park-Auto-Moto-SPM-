@@ -6,32 +6,55 @@
 <title>Auto-Moto Registration Form</title>
 </head>
 <body>
-<h1>Registeration Form</h1>
-<form action="api" method="post">
+<h1>Registration Form</h1>
+<form action="request" method="post" onsubmit="return validation();">
 			<table style="with: 50%">
 				<tr>
 					<td>Target Location:</td>
-					<td><input type="text" name="targetLocation" /></td>
+					<td><input type="text" name="targetLocation" id="targetLoc"/></td>
 				</tr>
 				<tr>
 					<td>Starting Location:</td>
-					<td><input type="text" name="startingLocation" /></td>
+					<td><input type="text" name="startingLocation" id="startingLoc"/></td>
 				</tr>
 				<tr>
 					<td>Date:</td>
-					<td><input type="text" class="datepicker" value="" style="border: none; background: none;" /></td>
+					<td><input type="text" class="datepicker" id="date" value="text" style="border: none; background: none;" /></td>
 				</tr>
 					<tr>
 					<td>Plate Number:</td>
-					<td><input type="text" name="plateNumber" /></td>
+					<td><input type="text" name="plateNumber" id="plateNumber" /></td>
 				</tr>
 				<tr>
 					<td>Duration:</td>
-					<td><input type="text" name="duration" /></td>
+					<td><input type="text" name="duration" id="duration" /></td>
 				</tr>
 				<tr>
 	
 				</tr></table>
-			<input type="submit" value="Submit" /></form>
+			<input type="submit" name="submit" value="Book" /></form>
+			
+<script type="text/javascript">
+function validation()
+   {
+	var targetLocation = document.getelementById('targetLoc').value;
+	var startingLocation = document.getelementById('startingLoc').value;
+	var date =document.getelementById('date').value;
+	var plateNumber = document.getelementById('plateNumber').value;
+	var duration = document.getelementById('duration').value;
+	
+	if(targetLocation=='')
+		{
+		doc
+		return false;
+		}
+	else
+		{
+		return true;
+		}
+	
+	}
+
+</script>			
 </body>
 </html>
