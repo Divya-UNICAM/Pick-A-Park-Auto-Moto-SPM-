@@ -157,6 +157,7 @@ hr {
 }
 
 </style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 </head>
 
 <body>
@@ -170,6 +171,10 @@ hr {
   <a href="Login.jsp">Login</a>
   <a href="Register_1.jsp">Book a parking slot</a>
   <a button onclick="document.getElementById('id01').style.display='block'" style="width:auto;">Sign Up </a></button>
+  <button onclick="$.post('/api/pay', (data,status,done) => {
+    console.log(status);
+    done();
+  })">Pay the ticket</button>
   <a href="Contact.jsp" class="right">Contact Us</a>
 </div>
 

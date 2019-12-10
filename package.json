@@ -10,15 +10,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/VincenzoNucci/pick-a-park-api.git"
+    "url": "git+https://github.com/Divya-UNICAM/Pick-A-Park-Auto-Moto-SPM-.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/VincenzoNucci/pick-a-park-api/issues"
+    "url": "https://github.com/Divya-UNICAM/Pick-A-Park-Auto-Moto-SPM-/issues"
   },
-  "homepage": "https://github.com/VincenzoNucci/pick-a-park-api#readme",
+  "homepage": "https://github.com/Divya-UNICAM/Pick-A-Park-Auto-Moto-SPM-#readme",
   "dependencies": {
     "@hapi/joi": "^16.1.8",
     "bcryptjs": "^2.4.3",

@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const Request = require('../db/models/Request');
 const { requestValidation } = require('../validation');
+const payment = require('./payment');
 
 router.post('/', async (req,res) => {
     //Validate the req. data before creating a request

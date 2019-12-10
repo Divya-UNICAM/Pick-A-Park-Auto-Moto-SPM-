@@ -5,16 +5,22 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
+const paypal = require('paypal-rest-sdk');
 
 //Import routes
 const authRoute = require('./routes/auth');
 const postRoute = require('./routes/posts');
 const requestRoute = require('./routes/request');
-const homeRoute = require('./routes/home');
+const paymentRoute = require('./routes/payment');
 
 dotenv.config();
+paypal.configure({
+    mode: 'sandbox', // Sandbox or live
+    client_id: process.env.PAYPAL_CLIENT_ID,
+    client_secret: process.env.PAYPAL_SECRET_ID});
 
-var port = process.env.PORT || 3000
+var port = process.env.PORT || 3001
+process.env.PORT = port
 
 //Init EJS
 app.set('view engine', 'ejs');
@@ -30,6 +36,8 @@ app.use(cors());
 app.use('/api/user', authRoute);
 app.use('/api/post', postRoute);
 app.use('/api/request', requestRoute);
+app.use('/api/pay',paymentRoute);
+
 app.get('/', (req,res) => {
     res.sendFile(path.join(__dirname + '/wwwroot/views/home/index.html'));
 });
