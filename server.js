@@ -1,8 +1,9 @@
 const express = require('express');
 const app = express();
-const mongoose = require('mongoose');
+const db = require('./db/index.js');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 
 //Import routes
 const authRoute = require('./routes/auth');
@@ -11,18 +12,13 @@ const requestRoute = require('./routes/request');
 
 dotenv.config();
 
+var port = process.env.PORT || 3000
+
 //Connect to DB
-mongoose.connect(
-    process.env.MONGO_URI,
-    { 
-        useNewUrlParser : true,
-        useUnifiedTopology : true
-    },
-    () => console.log('Connected to DB!'))
-;
+db.connect().then(() => console.log('Connected to DB!'));
 
 //Use Middlewares
-app.use(express.json()); //Body-parser
+app.use(bodyParser.json()); //Body-parser
 app.use(cors());
 
 //Route Middlewares - where the user will navigate
@@ -30,6 +26,8 @@ app.use('/api/user', authRoute);
 app.use('/api/post', postRoute);
 app.use('/api/request', requestRoute);
 
-app.listen(3000, () => {
+app.listen(port, () => {
     console.log('Server Up and running!');
 });
+
+module.exports = app;

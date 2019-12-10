@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const Request = require('../model/Request');
+const Request = require('../db/models/Request');
 const { requestValidation } = require('../validation');
 
 router.post('/', async (req,res) => {
@@ -12,12 +12,12 @@ router.post('/', async (req,res) => {
         startingLocation : req.body.startingLocation,
         targetLocation : req.body.targetLocation,
         duration : req.body.duration,
-        plateNumber: req.body.plateNumber,
+        licensePlate: req.body.licensePlate,
         status: 'Awaiting payment'
     });
     try{
         const savedRequest = await request.save();
-        res.send({request: request._id});
+        res.send(request);
     }catch(err){
         res.status(400).send(err);
     }

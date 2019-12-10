@@ -41,7 +41,7 @@ const requestValidation = body => {
             .required(),
         duration: Joi.number()
             .required(),
-        plateNumber: Joi.string()
+        licensePlate: Joi.string()
             .required(),
         status: Joi.string()
     });
