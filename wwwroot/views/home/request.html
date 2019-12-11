@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Auto-Moto Request Form</title>
+<link href = "https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel = "stylesheet">
+<script src = "https://code.jquery.com/jquery-1.10.2.js"></script>
+<script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+
+<!-- Javascript for datepicker-->
+      <script>
+         $(function() {
+            $( "#datepicker-13" ).datepicker();
+            //$( "#datepicker-13" ).datepicker("show");
+         });
+      </script>
+
+
+<div id="header">
+ Send Form's data as JSON
+</div>
+</head>
+
+
+<body>
+<form action="#" enctype='application/json' id="my_form" method="post" accept-charset="utf-8">
+  <fieldset>
+    <legend>Parking Registration form  </legend>
+    <p>Please fill out the details</p>
+    <div class="elements">
+      <label for="name">Name:</label>
+      <input  required="required" type="text" id="name" size="20" value="Vincenzo Nucci"  />
+    </div>
+     <div class="elements">
+      <label for="targetLocation">Target Location:</label>
+      <input required="required" type="text" id="targetLocation" name="targetLocation" value="Camerino"/>
+    </div>  
+    <div class="elements">
+      <label for="startingLocation"> Starting Location :</label>
+      <input required="required" type="text" id="startingLocation" name="startingLocation" value="Rome" />
+    </div>      
+    <div class="elements">
+    <label for="date">Select date: </label>
+      <input type = "text" id = "date" name="date" value="12/12/2019" />
+     </div>
+	<div class="elements">
+    <label for="licensePlate">Plate number: </label>
+      <input type = "text" id = "licensePlate" name="licensePlate" value="001"/>
+     </div>
+	<div class="elements">
+    <label for="duration">Required time: </label>
+      <input type = "number" id = "duration" name="duration" value="10"/>
+     </div>
+	
+     <div class="submit">
+       <input type="submit" name="Request" value="Request"/>
+
+    </div>
+    <span class="elements">Press "Ctrl + Shift + J" to see sent JSON in console: <span>
+  </fieldset>
+</form>
+<script>
+
+	var RegisterArray;
+	
+	function onSubmitclicked(){
+        var name = document.getElementById("name").value;
+        var targetlocation = document.getElementById("targetLocation").value;
+        var startinglocation = document.getElementById("startingLocation").value;
+        var date = document.getElementById("date").value;
+        var licenseplate = document.getElementById("licensePlate").value;
+        var duration = document.getElementById("duration").value;
+
+        RegisterArray = '{"date":"'+date+'","targetLocation":"'+targetlocation+'","startingLocation":"'+startinglocation
+            +'","duration":'+duration+',"licensePlate":"'+licenseplate+'"}';
+        //RegisterArray.push(regObj);
+
+	    console.log(JSON.parse(RegisterArray));
+    }
+
+</script>
+
+<script>
+  
+
+async function senddata(){
+try {
+	console.log("sending the data");
+    const data = await postData('https://automoto-pick-a-park-api.herokuapp.com/api/request', RegisterArray);
+    console.log(JSON.stringify(data)); // JSON-string from `response.json()` call
+} catch (error) {
+  console.error(error);
+}
+}
+
+async function postData(url = 'https://automoto-pick-a-park-api.herokuapp.com/api/request', data = {}) {
+  // Default options are marked with *
+  const response = await fetch(url, {
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    mode: 'cors', // no-cors, *cors, same-origin
+    //cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    //credentials: 'same-origin', // include, *same-origin, omit
+    headers: {
+      'Content-Type': 'application/json'
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    //redirect: 'follow', // manual, *follow, error
+    //referrer: 'no-referrer', // no-referrer, *client
+    body: JSON.stringify(data) // body data type must match "Content-Type" header
+  });
+    console.log(response);
+    return await response.json(); // parses JSON response into native JavaScript objects
+	
+}
+senddata();
+</script>
+
+</html>
