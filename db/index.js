@@ -3,17 +3,30 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-function connect() {
-    return mongoose.connect(
-        process.env.MONGO_URI,
-        { 
-            useNewUrlParser : true,
-            useUnifiedTopology : true
-        });
+var connection = null;
+
+function connect(type) {
+    if(connection === null)
+        if(type === 'local')
+            connection = mongoose.connect(
+                process.env.LOCAL_MONGO,
+                { 
+                    useNewUrlParser : true,
+                    useUnifiedTopology : true
+                });
+        else
+            connection = mongoose.connect(
+                process.env.MONGO_URI,
+                { 
+                    useNewUrlParser : true,
+                    useUnifiedTopology : true
+                });
+    return connection;
 };
 
 function close() {
-    return mongoose.disconnect();
+    if(connection !== null)
+        return mongoose.disconnect();
 }
 
-module.exports = { connect, close };
+module.exports = { connect, close, connection };
