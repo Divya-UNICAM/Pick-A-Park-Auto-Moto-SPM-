@@ -10,8 +10,8 @@ router.post('/', (req,res) => {
             "payment_method": "paypal"
         },
         "redirect_urls": {
-            "return_url": "http://0.0.0.0:"+process.env.PORT+"/api/pay/success",
-            "cancel_url": "http://0.0.0.0:"+process.env.PORT+"/api/pay/cancel"
+            "return_url": "http://localhost:"+process.env.PORT+"/api/pay/success",
+            "cancel_url": "http://localhost:"+process.env.PORT+"/api/pay/cancel"
         },
         "transactions": [{
             "item_list": {
@@ -19,12 +19,12 @@ router.post('/', (req,res) => {
                     "name": "parking place",
                     "sku": "001",
                     "price": "20.00",
-                    "currency": "USD",
+                    "currency": "EUR",
                     "quantity": 1
                 }]
             },
             "amount": {
-                "currency": "USD",
+                "currency": "EUR",
                 "total": "20.00"
             },
             "description": "your receipt of the booking of the parking."

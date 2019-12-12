@@ -1,7 +1,6 @@
 process.env.NODE_ENV = 'test';
 
 const expect = require('chai').expect;
-const should = require('chai').should;
 const request = require('supertest');
 const faker = require('faker');
 const Request = require('../../../db/models/Request');
@@ -10,7 +9,7 @@ const server = require('../../../server');
 
 describe('POST /api/request', () => {
     before((done) => {
-        db.connect().then(() => done()).catch((err) => done(err));
+        db.connect('local').then(() => done()).catch((err) => done(err));
     })
     after((done) => {
         db.close().then(() => done()).catch((err) => done(err));
