@@ -3,10 +3,118 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Auto-Moto Request Form</title>
-<link href = "https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel = "stylesheet">
-<script src = "https://code.jquery.com/jquery-1.10.2.js"></script>
-<script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+</head>
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+* {box-sizing: border-box;}
 
+/* Full-width input fields */
+input[type=text], input[type=password] {
+  width: 100%;
+  padding: 15px;
+  margin: 5px 0 22px 0;
+  display: inline-block;
+  border: none;
+  background: #f1f1f1;
+}
+
+/* Add a background color when the inputs get focus */
+input[type=text]:focus, input[type=password]:focus {
+  background-color: #ddd;
+  outline: none;
+}
+
+/* Set a style for all buttons */
+button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  opacity: 0.9;
+}
+
+button:hover {
+  opacity:1;
+}
+
+/* Extra styles for the cancel button */
+.cancelbtn {
+  padding: 14px 20px;
+  background-color: #f44336;
+}
+
+/* Float cancel and signup buttons and add an equal width */
+.cancelbtn, .signupbtn {
+  float: left;
+  width: 50%;
+}
+
+/* Add padding to container elements */
+.container {
+  padding: 16px;
+}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: white;
+  padding-top: 50px;
+}
+
+/* Modal Content/Box */
+.modal-content {
+  background-color: #fefefe;
+  margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
+  border: 1px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* Style the horizontal ruler */
+hr {
+  border: 1px solid #f1f1f1;
+  margin-bottom: 25px;
+}
+ 
+/* The Close Button (x) */
+.close {
+  position: absolute;
+  right: 35px;
+  top: 15px;
+  font-size: 40px;
+  font-weight: bold;
+  color: #f1f1f1;
+}
+
+.close:hover,
+.close:focus {
+  color: #f44336;
+  cursor: pointer;
+}
+
+/* Clear floats */
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+/* Change styles for cancel button and signup button on extra small screens */
+@media screen and (max-width: 300px) {
+  .cancelbtn, .signupbtn {
+     width: 100%;
+  }
+  
+</style>
 <!-- Javascript for datepicker-->
       <script>
          $(function() {
@@ -16,51 +124,78 @@
       </script>
 
 
-<div id="header">
- Send Form's data as JSON
-</div>
-</head>
+<body bgcolor="skyblue">
 
-
-<body>
-<form action="#" enctype='application/json' id="my_form" method="post" accept-charset="utf-8">
+<form action="#" enctype='application/json' id="my_form" method="post" onsubmit="return results();" accept-charset="utf-8">
   <fieldset>
     <legend>Parking Registration form  </legend>
     <p>Please fill out the details</p>
+	
+	<div data-role="content">
+	
+	<div data-role="fieldcontain">
+	
     <div class="elements">
       <label for="name">Name:</label>
-      <input  required="required" type="text" id="name" size="20" value="Vincenzo Nucci"  />
+      <input  required="required" type="text" id="name" size="20" value=""  />
     </div>
      <div class="elements">
       <label for="targetLocation">Target Location:</label>
-      <input required="required" type="text" id="targetLocation" name="targetLocation" value="Camerino"/>
+      <input required="required" type="text" id="targetLocation" name="targetLocation" value=""/>
     </div>  
     <div class="elements">
       <label for="startingLocation"> Starting Location :</label>
-      <input required="required" type="text" id="startingLocation" name="startingLocation" value="Rome" />
+      <input required="required" type="text" id="startingLocation" name="startingLocation" value="" />
     </div>      
     <div class="elements">
     <label for="date">Select date: </label>
-      <input type = "text" id = "date" name="date" value="12/12/2019" />
+      <input type = "text" id = "date" name="date" value="" />
      </div>
 	<div class="elements">
     <label for="licensePlate">Plate number: </label>
-      <input type = "text" id = "licensePlate" name="licensePlate" value="001"/>
+      <input type = "text" id = "licensePlate" name="licensePlate" value=""/>
      </div>
 	<div class="elements">
     <label for="duration">Required time: </label>
-      <input type = "number" id = "duration" name="duration" value="10"/>
+      <input type = "number" id = "duration" name="duration" value=""/>
      </div>
+	</div>
+	</div>
+	</div>
+    </fieldset>
 	
-     <div class="submit">
-       <input type="submit" name="Request" value="Request"/>
+	<button onsubmit="return result()" style="width:auto;" ;>Proceed</button>
+	<button type="button" style="width:auto;" class="cancelbtn";>Cancel</button>
 
-    </div>
-    <span class="elements">Press "Ctrl + Shift + J" to see sent JSON in console: <span>
-  </fieldset>
-</form>
+
 <script>
 
+	function results() {
+		var targetlocation = document.getElementById("targetLocation").value;
+        var startinglocation = document.getElementById("startingLocation").value;
+        var date = document.getElementById("date").value;
+        var licenseplate = document.getElementById("licensePlate").value;
+        var duration = document.getElementById("duration").value;
+		
+		document.write("<h1>Thank you for placing the request with us!</h1>");
+		document.write("<p>Now, Please verify your request data</p>");
+		
+		document.write("<h3>Here is your request:</h3>");
+		
+		document.write("Target Location:" + targetlocation + "<br/>");
+		document.write("Starting Location:" + startinglocation + "<br/>");
+		document.write("Date:" + date + "<br/>");
+		document.write("License Plate :" + licenseplate + "<br/>");
+		document.write("Duration requested:" + duration + "<br/>");
+		
+		document.write("<button><b>Confirm the request<b></button>");
+		document.write("<button><b>Cancel<b></button>");
+		
+		}	
+ 
+</script>
+
+<script type="text/javascript">
 	var RegisterArray;
 	
 	function onSubmitclicked(){
@@ -81,7 +216,6 @@
 </script>
 
 <script>
-  
 
 async function senddata(){
 try {
@@ -114,5 +248,5 @@ async function postData(url = 'https://automoto-pick-a-park-api.herokuapp.com/ap
 }
 senddata();
 </script>
-
+</body>
 </html>
