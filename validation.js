@@ -41,6 +41,8 @@ const requestValidation = body => {
             .required(),
         duration: Joi.number()
             .required(),
+        date: Joi.date()
+            .required(),
         licensePlate: Joi.string()
             .required(),
         status: Joi.string()
