@@ -17,6 +17,10 @@ const requestSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    date: {
+        type: Date,
+        required: true
+    },
     status: {
         type: String
     }
