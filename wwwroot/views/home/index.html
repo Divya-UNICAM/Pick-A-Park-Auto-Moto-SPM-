@@ -215,7 +215,7 @@ hr {
 
       <div class="clearfix">
         <button type="button" onclick="document.getElementById('id01').style.display='none'" class="cancelbtn">Cancel</button>
-        <button type="submit" class="signupbtn">Sign Up</button>
+        <button type="submit" onclick="myFunction()" class="signupbtn">Sign Up</button>
       </div>
     </div>
   </form>
@@ -230,6 +230,33 @@ window.onclick = function(event) {
   if (event.target == modal) {
     modal.style.display = "none";
   }
+}
+</script>
+
+<script type="text/javascript">
+	function myFunction() {
+			var name = document.getElementById("username").value;
+			var email = document.getElementById("email").value;
+			var password = document.getElementById("password").value;
+			var usertype = document.getElementById("usertype").value;
+
+// Returns successful data submission message when the entered information is stored in database.
+var dataString = 'name1=' + username + '&email1=' + email + '&password1=' + password + '&usertype1=' + usertype;
+if (name == '' || email == '' || password == '' || contact == '') {
+alert("Please Fill All Fields");
+} else {
+// AJAX code to submit form.
+$.ajax({
+type: "POST",
+url: "", //TO DO
+data: dataString,
+cache: false,
+success: function(html) {
+alert(html);
+}
+});
+}
+return false;
 }
 </script>
 
