@@ -8,8 +8,8 @@ const payment = require('./payment');
 router.post('/', async (req,res) => {
     console.log(req.body);
     //Validate the req. data before creating a request
-    //const { error } = requestValidation(req.body);
-    //if(error) return res.status(400).send(error.details[0].message);
+    const { error } = requestValidation(req.body);
+    if(error) return res.status(400).send(error.details[0].message);
 
     //Create a new request
     const parkingRequest = new Request({
@@ -22,8 +22,9 @@ router.post('/', async (req,res) => {
     });
     try{
         const savedRequest = await parkingRequest.save();
+        console.log('request saved')
         return request.get(url.resolve('http://localhost:'+process.env.PORT,'api/pay'))
-            .then((body) => res.send(body))
+            .then((body) => res.send(body)) //Return the link to the confirmation payment page
             .catch((err) => res.status(400).send(err))
     }catch(err){
         res.status(400).send(err);

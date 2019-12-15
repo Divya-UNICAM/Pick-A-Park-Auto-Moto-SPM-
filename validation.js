@@ -52,6 +52,23 @@ const requestValidation = body => {
     return schema.validate(body);
 };
 
+//Sensor validation
+const sensorValidation = body => {
+    const schema = Joi.object({
+        location: Joi.object({
+            lat: Joi.number(),
+            lng: Joi.number()
+        })
+        .required(),
+        date: Joi.date()
+            .required(),
+        detected: Joi.number(),
+        status: Joi.string()
+    });
+    return schema.validate(body);
+};
+
 module.exports.registerValidation = registerValidation;
 module.exports.loginValidation = loginValidation;
 module.exports.requestValidation = requestValidation;
+module.exports.sensorValidation = sensorValidation;

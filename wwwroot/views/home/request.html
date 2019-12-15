@@ -239,28 +239,11 @@ post: function(url, data, callback ) {
           "duration":duration
         }
         console.log(json)
-        httpClient.post("http://localhost:3001/api/request",json,(data) => {
-          $("html").html(data.response)
-        })
-        $.ajax({
-          url: window.location.host+'/api/request',
-          type: 'POST',
-          contentType: 'application/json',
-          data: json,
-          success: function(data) {
-            console.log(data)
-          }
+        
+        httpClient.post("http://localhost:3001/api/request",json,(xhr) => {
+          window.location.replace(xhr.response)
         });
-        $.post({
-          url: window.location.host,
-          contentType: 'text/plain',
-          type: 'POST',
-          data: json,
-          success: (data) => {
-            console.log(data)
-          }
-        });
-        console.log('ajax done')
+        
 
 		document.write("<h1>Thank you for placing the request with us!</h1>");
 		document.write("<p>Now, Please verify your request data</p>");

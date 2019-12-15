@@ -12,6 +12,7 @@ const authRoute = require('./routes/auth');
 const postRoute = require('./routes/posts');
 const requestRoute = require('./routes/request');
 const paymentRoute = require('./routes/payment');
+const sensorRoute = require('./routes/sensor');
 
 dotenv.config();
 paypal.configure({
@@ -45,6 +46,7 @@ app.use('/api/user', authRoute);
 app.use('/api/post', postRoute);
 app.use('/api/request', requestRoute);
 app.use('/api/pay',paymentRoute);
+app.use('/api/sensor',sensorRoute);
 
 app.get('/', (req,res) => {
     res.sendFile(path.join(__dirname + '/wwwroot/views/home/index.html'));
