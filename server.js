@@ -27,12 +27,17 @@ app.set('view engine', 'ejs');
 
 //Connect to DB
 if(process.env.NODE_ENV !== 'test')
-db.connect('local')
-    .then(() => console.log('Connected to db'))
-    .catch((err) => { console.log(err); process.exit(); });
+    db.connect('local')
+        .then(() => console.log('Connected to db'))
+        .catch((err) => { console.log(err); process.exit(); });
+else
+    db.connect()
+        .then(() => console.log('Connected to db'))
+        .catch((err) => { console.log(err); process.exit(); });
 
 //Use Middlewares
 app.use(bodyParser.json()); //Body-parser
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
 //Route Middlewares - where the user will navigate
@@ -43,6 +48,10 @@ app.use('/api/pay',paymentRoute);
 
 app.get('/', (req,res) => {
     res.sendFile(path.join(__dirname + '/wwwroot/views/home/index.html'));
+});
+
+app.get('/request', (req,res) => {
+    res.sendFile(path.join(__dirname + '/wwwroot/views/home/request.html'));
 });
 
 app.listen(port, () => {

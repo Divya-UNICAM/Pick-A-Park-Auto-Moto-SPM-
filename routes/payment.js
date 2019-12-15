@@ -1,9 +1,12 @@
 const router = require('express').Router();
 const dotenv = require('dotenv');
+const Request = require('../db/models/Request');
+const { requestValidation } = require('../validation');
 const paypal = require('paypal-rest-sdk');
 dotenv.config();
 
-router.post('/', (req,res) => {
+router.get('/', async (req,res) => {
+
     const create_payment_json = {
         "intent": "sale",
         "payer": {

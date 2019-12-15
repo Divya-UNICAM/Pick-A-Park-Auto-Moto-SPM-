@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Auto-Moto Request Form</title>
 </head>
@@ -115,20 +116,71 @@ hr {
   .cancelbtn, .signupbtn {
      width: 100%;
   }
+}
   
 </style>
 <!-- Javascript for datepicker-->
-      <script>
-         $(function() {
-            $( "#datepicker-13" ).datepicker();
-            //$( "#datepicker-13" ).datepicker("show");
-         });
-      </script>
+     <script>
+     var httpClient = {
+
+get: function( url, data, callback ) {
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function () {
+        var readyState = xhr.readyState;
+
+        if (readyState == 4) {
+            callback(xhr);
+        }
+    };
+
+    var queryString = '';
+    if (typeof data === 'object') {
+        for (var propertyName in data) {
+            queryString += (queryString.length === 0 ? '' : '&') + propertyName + '=' + encodeURIComponent(data[propertyName]);
+        }
+    }
+
+    if (queryString.length !== 0) {
+        url += (url.indexOf('?') === -1 ? '?' : '&') + queryString;
+    }
+
+    xhr.open('GET', url, true);
+    xhr.withCredentials = true;
+    xhr.send(null);
+},
+
+post: function(url, data, callback ) {
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function () {
+        var readyState = xhr.readyState;
+
+        if (readyState == 4) {
+            callback(xhr);
+        }
+    };
+
+    var queryString='';
+    if (typeof data === 'object') {
+        for (var propertyName in data) {
+            queryString += (queryString.length === 0 ? '' : '&') + propertyName + '=' + encodeURIComponent(data[propertyName]);
+        }
+    } else {
+        queryString=data
+    }
+
+    xhr.open('POST', url, true);
+    xhr.withCredentials = true;
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.send(queryString);
+}
+};
+     </script>
 
 
 <body bgcolor="skyblue">
 
-<form action="#" enctype='application/json' id="my_form" method="post" onsubmit="return results();" accept-charset="utf-8">
   <fieldset>
     <legend>Parking Registration form  </legend>
     <p>Please fill out the details</p>
@@ -166,8 +218,8 @@ hr {
 	</div>
     </fieldset>
 	
-	<button onsubmit="return result()" style="width:auto;" ;>Proceed</button>
-	<button type="button" style="width:auto;" class="cancelbtn";>Cancel</button>
+	<button onclick="return results()" style="width:auto;" >Proceed</button>
+	<button type="button" style="width:auto;" class="cancelbtn">Cancel</button>
 
 
 <script>
@@ -178,7 +230,38 @@ hr {
         var date = document.getElementById("date").value;
         var licenseplate = document.getElementById("licensePlate").value;
         var duration = document.getElementById("duration").value;
-		
+    
+        var json = {
+          "targetLocation":targetlocation,
+          "startingLocation":startinglocation,
+          "date": date,
+          "licensePlate":licenseplate,
+          "duration":duration
+        }
+        console.log(json)
+        httpClient.post("http://localhost:3001/api/request",json,(data) => {
+          $("html").html(data.response)
+        })
+        $.ajax({
+          url: window.location.host+'/api/request',
+          type: 'POST',
+          contentType: 'application/json',
+          data: json,
+          success: function(data) {
+            console.log(data)
+          }
+        });
+        $.post({
+          url: window.location.host,
+          contentType: 'text/plain',
+          type: 'POST',
+          data: json,
+          success: (data) => {
+            console.log(data)
+          }
+        });
+        console.log('ajax done')
+
 		document.write("<h1>Thank you for placing the request with us!</h1>");
 		document.write("<p>Now, Please verify your request data</p>");
 		
@@ -248,7 +331,6 @@ async function postData(url = 'https://automoto-pick-a-park-api.herokuapp.com/ap
     return await response.json(); // parses JSON response into native JavaScript objects
 	
 }
-senddata();
 </script>
 
 </body>

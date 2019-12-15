@@ -44,9 +44,8 @@ describe('POST /api/pay', () => {
     it('OK, sending a payment request works', (done) => {
         request(server).post('/api/pay')
             .set('content-type','application/json')
-            .send(create_payment_json)
             .then((res) => {
-                expect(res).to.have.property('status',301);
+                expect(res).to.have.property('status',200);
                 // const body = res.body;
                 // expect(body).to.contain.property('_id');
                 // expect(body).to.contain.property('startingLocation');
