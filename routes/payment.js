@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const Request = require('../db/models/Request');
 const { requestValidation } = require('../validation');
 const paypal = require('paypal-rest-sdk');
+
 dotenv.config();
 
 router.get('/', async (req,res) => {
@@ -40,13 +41,14 @@ router.get('/', async (req,res) => {
         } else {
             for(let i = 0; i < payment.links.length; i++){
                 if(payment.links[i].rel === 'approval_url') {
-                    res.status(301).redirect(payment.links[i].href);
+                    res.send(payment.links[i].href);
                 }
             }
         }
     });
 });
 
+//After confirming the payment method in paypal, payment will apply
 router.get('/success', (req,res) => {
     const payerId = req.query.PayerID;
     const paymentId = req.query.paymentId;
