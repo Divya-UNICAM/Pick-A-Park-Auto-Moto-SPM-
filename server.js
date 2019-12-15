@@ -27,14 +27,9 @@ process.env.PORT = port
 app.set('view engine', 'ejs');
 
 //Connect to DB
-if(process.env.NODE_ENV !== 'test')
-    db.connect('local')
-        .then(() => console.log('Connected to db'))
-        .catch((err) => { console.log(err); process.exit(); });
-else
-    db.connect()
-        .then(() => console.log('Connected to db'))
-        .catch((err) => { console.log(err); process.exit(); });
+db.connect()
+    .then((done) => console.log('Connected to DB'))
+    .catch((err) => console.log(err));
 
 //Use Middlewares
 app.use(bodyParser.json()); //Body-parser
@@ -54,6 +49,10 @@ app.get('/', (req,res) => {
 
 app.get('/request', (req,res) => {
     res.sendFile(path.join(__dirname + '/wwwroot/views/home/request.html'));
+});
+
+app.get('/route', (req,res) => {
+    res.sendFile(path.join(__dirname + '/wwwroot/views/maps/route.html'));
 });
 
 app.listen(port, () => {
