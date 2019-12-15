@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema({
+const parkingPlaceSchema = new mongoose.Schema({
+    id: {
+        type: String,
+        required: true,
+        max: 255
+    },
     name : {
         type : String,
         required : true,
@@ -23,11 +28,11 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    user: {
+    type: {
         type: String,
         default: 'Parking company',
         required: true
     }
 });
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('ParkingPlace', parkingPlaceSchema);
