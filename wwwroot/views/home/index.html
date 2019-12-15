@@ -158,6 +158,7 @@ hr {
 
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="Pick-A-Park-Auto-Moto-SPM-\wwwroot\js\httpclient.js"></script>
 </head>
 
 <body>
@@ -215,7 +216,7 @@ hr {
 
       <div class="clearfix">
         <button type="button" onclick="document.getElementById('id01').style.display='none'" class="cancelbtn">Cancel</button>
-        <button type="submit" onclick="myFunction()" class="signupbtn">Sign Up</button>
+        <button type="submit" onclick="return userdata()" class="signupbtn">Sign Up</button>
       </div>
     </div>
   </form>
@@ -233,33 +234,45 @@ window.onclick = function(event) {
 }
 </script>
 
-<script type="text/javascript">
-	function myFunction() {
-			var name = document.getElementById("username").value;
-			var email = document.getElementById("email").value;
-			var password = document.getElementById("password").value;
-			var usertype = document.getElementById("usertype").value;
+<script>
 
-// Returns successful data submission message when the entered information is stored in database.
-var dataString = 'name1=' + username + '&email1=' + email + '&password1=' + password + '&usertype1=' + usertype;
-if (name == '' || email == '' || password == '' || contact == '') {
-alert("Please Fill All Fields");
-} else {
-// AJAX code to submit form.
-$.ajax({
-type: "POST",
-url: "", //TO DO
-data: dataString,
-cache: false,
-success: function(html) {
-alert(html);
-}
-});
-}
-return false;
-}
+	function userdata() {
+		var name = document.getElementById("username").value;
+		var email = document.getElementById("email").value;
+		var password = document.getElementById("password").value;
+		var usertype = document.getElementById("usertype").value;
+    
+        var json = {
+          "name":username,
+          "email":email,
+          "password":password,
+          "usertype":usertype
+        }
+        console.log(json)
+        httpClient.post("http://localhost:3001/api/sign-up",json,(data) => {
+          $("html").html(data.response)
+        })
+        $.ajax({
+          url: window.location.host+'/api/sign-up',
+          type: 'POST',
+          contentType: 'application/json',
+          data: json,
+          success: function(data) {
+            console.log(data)
+          }
+        });
+        $.post({
+          url: window.location.host,
+          contentType: 'text/plain',
+          type: 'POST',
+          data: json,
+          success: (data) => {
+            console.log(data)
+          }
+        });
+        console.log('ajax done')
+      }
+
 </script>
-
-
 </body>
 </html>
