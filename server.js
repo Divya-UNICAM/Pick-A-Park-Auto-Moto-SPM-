@@ -58,6 +58,10 @@ app.get('/route', (req,res) => {
     res.sendFile(path.join(__dirname + '/wwwroot/views/maps/route.html'));
 });
 
+app.get('/login', (req,res) => {
+    res.sendFile(path.join(__dirname + '/wwwroot/views/home/login.html'));
+});
+
 app.listen(port, () => {
     console.log('Server Up and running!');
 });

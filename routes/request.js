@@ -35,10 +35,10 @@ router.post('/', async (req,res) => {
     //reverse geocode the target location
     //Address is already validate
     targetLoction = JSON.parse(await reverseGeolocate(req.body.targetLocation));
-    let hashedLat = await bcrypt.hash(targetLoction.lat+"",salt)
+    hashedLat = await bcrypt.hash(targetLoction.lat+"",salt)
         .then((data) => {return data;})
         .catch((err) => {return err;})
-    let hashedLng = await bcrypt.hash(targetLoction.lon+"",salt)
+    hashedLng = await bcrypt.hash(targetLoction.lon+"",salt)
         .then((data) => {return data;})
         .catch((err) => {return err;})
     let targetLocation = {
@@ -58,7 +58,7 @@ router.post('/', async (req,res) => {
     try{
         const savedRequest = await parkingRequest.save();
         //Process the payment
-        return request.get(url.resolve('http://'+window.location.host+process.env.PORT,'api/pay'))
+        return request.get(url.resolve('http://localhost:'+process.env.PORT,'/api/pay'))
             .then((body) => res.send(body)) //Return the link to the confirmation payment page
             .catch((err) => res.status(400).send(err))
     }catch(err){
