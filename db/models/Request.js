@@ -2,11 +2,11 @@ const mongoose = require('mongoose');
 
 const requestSchema = new mongoose.Schema({
     startingLocation: {
-        type: String,
+        type: Object,
         required: true
     },
     targetLocation: {
-        type: String,
+        type: Object,
         required: true
     },
     duration: {

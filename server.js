@@ -6,6 +6,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 const paypal = require('paypal-rest-sdk');
+const hasher = require('./utils/salt');
 
 //Import routes
 const authRoute = require('./routes/auth');
@@ -14,6 +15,8 @@ const requestRoute = require('./routes/request');
 const paymentRoute = require('./routes/payment');
 const sensorRoute = require('./routes/sensor');
 
+//Configurations
+hasher.generateSalt();
 dotenv.config();
 paypal.configure({
     mode: 'sandbox', // Sandbox or live
