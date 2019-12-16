@@ -38,8 +38,6 @@ const requestValidation = body => {
         
         targetLocation: Joi.string()
             .required(),
-            startingLocation: Joi.string()
-            .required(),
             date: Joi.date()
             .required(),
             licensePlate: Joi.string()
