@@ -202,7 +202,7 @@ hr {
 <div class="navbar">
   <a href="Login.jsp">Login</a>
   <a href="/request">Book a parking slot</a>
-  <a button onclick="document.getElementById('id01').style.display='block'" style="width:auto;">Sign Up </a></button>
+  <a><button onclick="document.getElementById('id01').style.display='block'" style="width:auto;"> Sign Up</button></a>
   <a href="Contact.jsp" class="right">Contact Us</a>
 </div>
 
@@ -215,17 +215,17 @@ hr {
       <hr>
 
       <label for="username"><b>User Name: </b></label>
-      <input type="text" placeholder="Enter user name" id="username" name="username" required></br>
+      <input type="text" placeholder="Enter user name" id="username" name="username" required>
 
       <label for="email"><b>Email: </b></label>
-      <input type="text" placeholder="Enter Email" id="email" name="email" required></br>
+      <input type="text" placeholder="Enter Email" id="email" name="email" required><br>
 
       <label><b>Select Usertype: </b></label>
              <select id = "usertype">
                <option value = "1">Auto-Moto Admin</option>
                <option value = "2">Municipality Admin</option>
                <option value = "3">Police officer</option>
-			</select></br></br>
+			</select><br>
 			
        <div class="field-wrapper">
       <label for="password2"><b>Password:</b></label>
@@ -248,7 +248,9 @@ hr {
         <button type="submit" class="signupbtn" id="btnSubmit" onclick="return userdata()">Sign Up </button>
       </div>
     </div>
-  </form>
+</form>
+</div>
+
 
 
 

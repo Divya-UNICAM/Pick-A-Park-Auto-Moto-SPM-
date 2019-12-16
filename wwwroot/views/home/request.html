@@ -197,10 +197,7 @@ post: function(url, data, callback ) {
       <label for="targetLocation">Target Location:</label>
       <input required="required" type="text" id="targetLocation" name="targetLocation" value=""/>
     </div>  
-    <div class="elements">
-      <label for="startingLocation"> Starting Location :</label>
-      <input required="required" type="text" id="startingLocation" name="startingLocation" value="" />
-    </div>      
+       
     <div class="elements">
     <label for="date">Select date: </label>
       <input type = "text" id = "date" name="date" value="" />
@@ -215,7 +212,6 @@ post: function(url, data, callback ) {
      </div>
 	</div>
 	</div>
-	</div>
     </fieldset>
 	
 	<button onclick="return results()" style="width:auto;" >Proceed</button>
@@ -225,15 +221,13 @@ post: function(url, data, callback ) {
 <script>
 
 	function results() {
-		var targetlocation = document.getElementById("targetLocation").value;
-        var startinglocation = document.getElementById("startingLocation").value;
+		    var targetlocation = document.getElementById("targetLocation").value;
         var date = document.getElementById("date").value;
         var licenseplate = document.getElementById("licensePlate").value;
         var duration = document.getElementById("duration").value;
     
         var json = {
           "targetLocation":targetlocation,
-          "startingLocation":startinglocation,
           "date": date,
           "licensePlate":licenseplate,
           "duration":duration
@@ -251,7 +245,6 @@ post: function(url, data, callback ) {
 		document.write("<h3>Here is your request:</h3>");
 		
 		document.write("Target Location:" + targetlocation + "<br/>");
-		document.write("Starting Location:" + startinglocation + "<br/>");
 		document.write("Date:" + date + "<br/>");
 		document.write("License Plate :" + licenseplate + "<br/>");
 		document.write("Duration requested:" + duration + "<br/>");

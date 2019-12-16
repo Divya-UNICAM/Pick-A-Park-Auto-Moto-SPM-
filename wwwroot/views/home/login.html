@@ -5,24 +5,24 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 <!--===============================================================================================-->	
-	<link rel="icon" type="image/png" href="Pick-A-Park-Auto-Moto-SPM-/wwwroot/images/icons/favicon.ico">
+	<link type="image/png" href="wwwroot/images/icons/favicon.ico">
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-/wwwroot/vendor/bootstrap/css/bootstrap.min.css">
+	<link type="text/css" href="wwwroot/vendor/bootstrap/css/bootstrap.min.css">
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-/wwwroot/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+	<link type="text/css" href="wwwroot/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-/wwwroot/vendor/animate/animate.css">
+	<link type="text/css" href="wwwroot/vendor/animate/animate.css">
 <!--===============================================================================================-->	
-	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-/wwwroot/vendor/css-hamburgers/hamburgers.min.css">
+	<link type="text/css" href="wwwroot/vendor/css-hamburgers/hamburgers.min.css">
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-/wwwroot/vendor/select2/select2.min.css">
+	<link type="text/css" href="wwwroot/vendor/select2/select2.min.css">
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-/wwwroot/static/css/util.css">
-	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-/wwwroot/static/css/main.css">
+	<link type="text/css" href="wwwroot/static/css/util.css">
+	<link type="text/css" href="wwwroot/static/css/main.css">
 <!--===============================================================================================-->
 </head>
 <body>
-	
+	<form name="loginform">
 	<div class="limiter">
 		<div class="container-login100">
 			<div class="wrap-login100">
@@ -50,9 +50,20 @@
 							<i class="fa fa-lock" aria-hidden="true"></i>
 						</span>
 					</div>
+
+					<div class="wrap-input100 validate-input" data-validate = "Password is required">
+						<input name="usertype">
+						<label><b>Select Usertype: </b></label>
+						<select id = "usertype">
+						  <option value = "1">Auto-Moto Admin</option>
+						  <option value = "2">Municipality Admin</option>
+						  <option value = "3">Police officer</option>
+					   </select>
+						
+					</div>
 					
 					<div class="container-login100-form-btn">
-						<button class="login100-form-btn">
+						<button class="login100-form-btn" onsubmit="validateForm();">
 							Login
 						</button>
 					</div>
@@ -76,26 +87,27 @@
 			</div>
 		</div>
 	</div>
-	
+</form>
+
 	<!--===============================================================================================-->	
-	<script src="Pick-A-Park-Auto-Moto-SPM-/wwwroot/vendor/jquery/jquery-3.2.1.min.js"></script>
+	<script src="wwwroot/vendor/jquery/jquery-3.2.1.min.js"></script>
 <!--===============================================================================================-->
-	<script src="Pick-A-Park-Auto-Moto-SPM-/wwwroot/vendor/bootstrap/js/popper.js"></script>
-	<script src="Pick-A-Park-Auto-Moto-SPM-/wwwroot/vendor/bootstrap/js/bootstrap.min.js"></script>
+	<script src="wwwroot/vendor/bootstrap/js/popper.js"></script>
+	<script src="wwwroot/vendor/bootstrap/js/bootstrap.min.js"></script>
 <!--===============================================================================================-->
-	<script src="Pick-A-Park-Auto-Moto-SPM-/wwwroot/vendor/select2/select2.min.js"></script>
+	<script src="wwwroot/vendor/select2/select2.min.js"></script>
 <!--===============================================================================================-->
-	<script src="Pick-A-Park-Auto-Moto-SPM-/wwwroot/vendor/tilt/tilt.jquery.min.js"></script>
+	<script src="wwwroot/vendor/tilt/tilt.jquery.min.js"></script>
 	<script >
 		$('.js-tilt').tilt({
 			scale: 1.1
 		})
 	</script>
 <!--===============================================================================================-->
-	<script src="Pick-A-Park-Auto-Moto-SPM-/wwwroot/jsmain.js"></script>
+	<script src="wwwroot/jsmain.js"></script>
 
-	<script src="Pick-A-Park-Auto-Moto-SPM-/wwwroot/js/httpclient.js"></script>
-	
+	<script src="wwwroot/js/httpclient.js"></script>
+
 	<script>
 
 	function userdata() {
@@ -118,8 +130,8 @@
           contentType: 'application/json',
           data: json,
           success: function(data) {
-		    console.log(data)
-			}
+		    console.log(data);
+		  }
         });
         $.post({
           url: window.location.host,
@@ -134,5 +146,48 @@
 	}
 
 </script>	
+
+<script>
+    function validateForm() {
+        var mail = document.loginform.email.value;
+		var pwd = document.loginform.password.value;
+		var type = document.loginform.usertype.value;
+        var email = "email"; 
+		var password = "password";
+		var usertype = "usertype"
+
+		var attempt = 3;
+        if ((mail == email) && (pwd == password) && type == "Auto-Moto Admin") {
+			window.location = "Auto-Moto.html";
+			alert ("Login Successful");
+            return false;
+        }
+        else {
+			attempt --;
+            alert ("Login was unsuccessful, please check your username and password");
+		}
+		
+		if ((mail == email) && (pwd == password) && type == "Municipality Admin") {
+			window.location = "Municipality.html";
+			alert ("Login Successful");
+            return false;
+        }
+        else {
+			attempt --;
+			alert ("Login was unsuccessful, please check your username and password");
+		}
+
+		if ((mail == email) && (pwd == password) && type == "Police officer") {
+			window.location = "Police.html";
+			alert ("Login Successful");
+            return false;
+        }
+        else {
+			attempt --;
+			alert ("Login was unsuccessful, please check your username and password");
+		}
+
+      }
+</script>
 </body>
 </html>
