@@ -1,24 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<title>Login</title>
+	<title>Auto-Moto Login</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 <!--===============================================================================================-->	
-	<link rel="icon" type="image/png" href="Pick-A-Park-Auto-Moto-SPM-\wwwroot\images\icons\favicon.ico">
+	<link rel="icon" type="image/png" href="Pick-A-Park-Auto-Moto-SPM-/wwwroot/images/icons/favicon.ico">
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-\wwwroot\vendor\bootstrap\css\bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-/wwwroot/vendor/bootstrap/css/bootstrap.min.css">
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-\wwwroot\fonts\font-awesome-4.7.0\css\font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-/wwwroot/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-\wwwroot\vendor\animate\animate.css">
+	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-/wwwroot/vendor/animate/animate.css">
 <!--===============================================================================================-->	
-	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-\wwwroot\vendor\css-hamburgers\hamburgers.min.css">
+	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-/wwwroot/vendor/css-hamburgers/hamburgers.min.css">
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-\wwwroot\vendor\select2\select2.min.css">
+	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-/wwwroot/vendor/select2/select2.min.css">
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-\wwwroot\static\css\util.css">
-	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-\wwwroot\static\css\main.css">
+	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-/wwwroot/static/css/util.css">
+	<link rel="stylesheet" type="text/css" href="Pick-A-Park-Auto-Moto-SPM-/wwwroot/static/css/main.css">
 <!--===============================================================================================-->
 </head>
 <body>
@@ -67,7 +67,7 @@
 					</div>
 
 					<div class="text-center p-t-136">
-						<a class="txt2" href="#">
+						<a class="txt2" href="/sign-up">
 							Create your Account
 							<i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
 						</a>
@@ -78,27 +78,27 @@
 	</div>
 	
 	<!--===============================================================================================-->	
-	<script src="Pick-A-Park-Auto-Moto-SPM-\wwwroot/vendor/jquery/jquery-3.2.1.min.js"></script>
+	<script src="Pick-A-Park-Auto-Moto-SPM-/wwwroot/vendor/jquery/jquery-3.2.1.min.js"></script>
 <!--===============================================================================================-->
-	<script src="Pick-A-Park-Auto-Moto-SPM-\wwwroot\vendor\bootstrap\js\popper.js"></script>
-	<script src="Pick-A-Park-Auto-Moto-SPM-\wwwroot\vendor\bootstrap\js\bootstrap.min.js"></script>
+	<script src="Pick-A-Park-Auto-Moto-SPM-/wwwroot/vendor/bootstrap/js/popper.js"></script>
+	<script src="Pick-A-Park-Auto-Moto-SPM-/wwwroot/vendor/bootstrap/js/bootstrap.min.js"></script>
 <!--===============================================================================================-->
-	<script src="Pick-A-Park-Auto-Moto-SPM-\wwwroot\vendor\select2\select2.min.js"></script>
+	<script src="Pick-A-Park-Auto-Moto-SPM-/wwwroot/vendor/select2/select2.min.js"></script>
 <!--===============================================================================================-->
-	<script src="Pick-A-Park-Auto-Moto-SPM-\wwwroot\vendor\tilt\tilt.jquery.min.js"></script>
+	<script src="Pick-A-Park-Auto-Moto-SPM-/wwwroot/vendor/tilt/tilt.jquery.min.js"></script>
 	<script >
 		$('.js-tilt').tilt({
 			scale: 1.1
 		})
 	</script>
 <!--===============================================================================================-->
-	<script src="Pick-A-Park-Auto-Moto-SPM-\wwwroot\js\main.js"></script>
+	<script src="Pick-A-Park-Auto-Moto-SPM-/wwwroot/jsmain.js"></script>
 
-	<script src="Pick-A-Park-Auto-Moto-SPM-\wwwroot\js\httpclient.js"></script>
+	<script src="Pick-A-Park-Auto-Moto-SPM-/wwwroot/js/httpclient.js"></script>
 	
 	<script>
+
 	function userdata() {
-	
 		var email = document.getElementById("email").value;
 		var password = document.getElementById("password").value;
 		var usertype = document.getElementById("usertype").value;
@@ -108,8 +108,7 @@
           "password":password,
           "usertype":usertype
         }
-		
-		console.log(json)
+        console.log(json)
         httpClient.post("http://localhost:3001/api/login",json,(data) => {
           $("html").html(data.response)
         })
@@ -132,8 +131,8 @@
           }
         });
 		console.log('ajax done')
-		
-	}	
+	}
+
 </script>	
 </body>
 </html>
