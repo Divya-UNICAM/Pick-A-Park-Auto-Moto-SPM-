@@ -15,13 +15,13 @@ const municipalitySchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    zip : {
+    postcode : {
         type: String,
         required: true,
         min: 5,
         max: 5
     },
-    sensors : {
+    parkingPlaces: {
         type: Array
     },
     policeofficers : {

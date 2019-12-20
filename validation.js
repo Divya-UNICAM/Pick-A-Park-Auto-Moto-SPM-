@@ -35,16 +35,19 @@ const loginValidation = body => {
 //Request validation
 const requestValidation = body => {
     const schema = Joi.object({
-        startingLocation: Joi.string()
+        startingLocation: Joi.object({
+            lat: Joi.string().required(),
+            lng: Joi.string().required()
+        }).required(),
+        targetLocation: Joi.object({
+            lat: Joi.string().required(),
+            lng: Joi.string().required()
+        }).required(),
+        date: Joi.date()
             .required(),
-        targetLocation: Joi.string()
+        licensePlate: Joi.string()
             .required(),
-            date: Joi.date()
-            .required(),
-            licensePlate: Joi.string()
-            .required(),
-        
-            duration: Joi.number()
+        duration: Joi.number()
             .required(),
         status: Joi.string()
     });
