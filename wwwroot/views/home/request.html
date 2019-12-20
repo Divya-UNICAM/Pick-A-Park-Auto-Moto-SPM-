@@ -2,6 +2,11 @@
 <html>
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <!-- Javascript for client -->
+    <script src="../../static/js/js/httpclient.js"></script>
+    <!-- Date picked -->
+       <script src="../../static/js/js/jquery.datetimepicker.js"></script>
+       
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Auto-Moto Request Form</title>
 </head>
@@ -119,68 +124,8 @@ hr {
 }
   
 </style>
-<!-- Javascript for datepicker-->
-     <script>
-     var httpClient = {
-
-get: function( url, data, callback ) {
-    var xhr = new XMLHttpRequest();
-
-    xhr.onreadystatechange = function () {
-        var readyState = xhr.readyState;
-
-        if (readyState == 4) {
-            callback(xhr);
-        }
-    };
-
-    var queryString = '';
-    if (typeof data === 'object') {
-        for (var propertyName in data) {
-            queryString += (queryString.length === 0 ? '' : '&') + propertyName + '=' + encodeURIComponent(data[propertyName]);
-        }
-    }
-
-    if (queryString.length !== 0) {
-        url += (url.indexOf('?') === -1 ? '?' : '&') + queryString;
-    }
-
-    xhr.open('GET', url, true);
-    xhr.withCredentials = true;
-    xhr.send(null);
-},
-
-post: function(url, data, callback ) {
-    var xhr = new XMLHttpRequest();
-
-    xhr.onreadystatechange = function () {
-        var readyState = xhr.readyState;
-
-        if (readyState == 4) {
-            callback(xhr);
-        }
-    };
-
-    var queryString='';
-    if (typeof data === 'object') {
-        for (var propertyName in data) {
-            queryString += (queryString.length === 0 ? '' : '&') + propertyName + '=' + encodeURIComponent(data[propertyName]);
-        }
-    } else {
-        queryString=data
-    }
-
-    xhr.open('POST', url, true);
-    xhr.withCredentials = true;
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.send(queryString);
-}
-};
-     </script>
-
 
 <body bgcolor="skyblue">
-
   <fieldset>
     <legend>Parking Registration form  </legend>
     <p>Please fill out the details</p>
@@ -217,28 +162,30 @@ post: function(url, data, callback ) {
 	<button onclick="return results()" style="width:auto;" >Proceed</button>
 	<button type="button" style="width:auto;" class="cancelbtn">Cancel</button>
 
-
 <script>
 
 	function results() {
+        let pos = locate();
 		    var targetlocation = document.getElementById("targetLocation").value;
         var date = document.getElementById("date").value;
         var licenseplate = document.getElementById("licensePlate").value;
         var duration = document.getElementById("duration").value;
     
         var json = {
-          "targetLocation":targetlocation,
+          "startingLocation": pos !== null ? JSON.parse(pos) : { lat: 0, lng: 0 },
+          "targetLocation": targetlocation,
           "date": date,
-          "licensePlate":licenseplate,
-          "duration":duration
+          "licensePlate": licenseplate,
+          "duration": duration
         }
         console.log(json)
         
         httpClient.post("http://localhost:3001/api/request",json,(xhr) => {
-          window.location.replace(xhr.response)
+          window.location.replace(xhr.response) //manual redirect to paypal webiste
         });
         
 
+    //This must become a popup div like for signup
 		document.write("<h1>Thank you for placing the request with us!</h1>");
 		document.write("<p>Now, Please verify your request data</p>");
 		
@@ -256,57 +203,26 @@ post: function(url, data, callback ) {
  
 </script>
 
-<script type="text/javascript">
-	var RegisterArray;
-	
-	function onSubmitclicked(){
-        var name = document.getElementById("name").value;
-        var targetlocation = document.getElementById("targetLocation").value;
-        var startinglocation = document.getElementById("startingLocation").value;
-        var date = document.getElementById("date").value;
-        var licenseplate = document.getElementById("licensePlate").value;
-        var duration = document.getElementById("duration").value;
-
-        RegisterArray = '{"date":"'+date+'","targetLocation":"'+targetlocation+'","startingLocation":"'+startinglocation
-            +'","duration":'+duration+',"licensePlate":"'+licenseplate+'"}';
-        //RegisterArray.push(regObj);
-
-	    console.log(JSON.parse(RegisterArray));
-    }
-
-</script>
-
 <script>
+  var pos = null;
+  function locate() {
+      // Try HTML5 geolocation.
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          let pos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
 
-async function senddata(){
-try {
-	console.log("sending the data");
-    const data = await postData('https://automoto-pick-a-park-api.herokuapp.com/api/request', RegisterArray);
-    console.log(JSON.stringify(data)); // JSON-string from `response.json()` call
-} catch (error) {
-  console.error(error);
-}
-}
-
-async function postData(url = 'https://automoto-pick-a-park-api.herokuapp.com/api/request', data = {}) {
-  // Default options are marked with *
-  const response = await fetch(url, {
-    method: 'POST', // *GET, POST, PUT, DELETE, etc.
-    mode: 'cors', // no-cors, *cors, same-origin
-    //cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-    //credentials: 'same-origin', // include, *same-origin, omit
-    headers: {
-      'Content-Type': 'application/json'
-      // 'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    //redirect: 'follow', // manual, *follow, error
-    //referrer: 'no-referrer', // no-referrer, *client
-    body: JSON.stringify(data) // body data type must match "Content-Type" header
-  });
-    console.log(response);
-    return await response.json(); // parses JSON response into native JavaScript objects
-	
-}
+        }, function() {
+          
+        });
+      } else {
+        // Browser doesn't support Geolocation
+        alert('browser doesn\'t support geolocation\nyou need to input your starting location manually');
+      }
+      return pos;
+    }
 </script>
 
 </body>

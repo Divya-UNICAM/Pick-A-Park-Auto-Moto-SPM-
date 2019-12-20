@@ -282,7 +282,7 @@ window.onclick = function(event) {
           "usertype":usertype
         }
         console.log(json)
-        httpClient.post("http://localhost:3001/api/sign-up",json,(data) => {
+        httpClient.post("http://localhost:3001/api/register",json,(data) => {
           $("html").html(data.response)
         })
         $.ajax({
