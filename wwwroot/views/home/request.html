@@ -166,13 +166,23 @@ hr {
 
 	function results() {
         let pos = locate();
-		    var targetlocation = document.getElementById("targetLocation").value;
+        let sl = null;
+        try {
+          //pos is a json
+          sl = JSON.parse(pos);
+        } catch (e) {
+          //pos is a string
+          sl = pos;
+        }
+        var targetlocation = document.getElementById("targetLocation").value;
         var date = document.getElementById("date").value;
         var licenseplate = document.getElementById("licensePlate").value;
         var duration = document.getElementById("duration").value;
-    
+
+
+
         var json = {
-          "startingLocation": pos !== null ? JSON.parse(pos) : { lat: 0, lng: 0 },
+          "startingLocation": sl, //sl will either be a json or a string. if it's a string must be geolocated server side
           "targetLocation": targetlocation,
           "date": date,
           "licensePlate": licenseplate,
