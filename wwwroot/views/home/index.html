@@ -285,25 +285,7 @@ window.onclick = function(event) {
         httpClient.post("http://localhost:3001/api/register",json,(data) => {
           $("html").html(data.response)
         })
-        $.ajax({
-          url: window.location.host+'/api/sign-up',
-          type: 'POST',
-          contentType: 'application/json',
-          data: json,
-          success: function(data) {
-		    console.log(data)
-			}
-        });
-        $.post({
-          url: window.location.host,
-          contentType: 'text/plain',
-          type: 'POST',
-          data: json,
-          success: (data) => {
-          console.log(data)
-          }
-        });
-        console.log('ajax done')
+        
 
 </script>
 

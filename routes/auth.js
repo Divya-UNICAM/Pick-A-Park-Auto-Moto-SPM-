@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { registerValidation, loginValidation } = require('../validation');
 
+//Add a user - both driver sign-ups and root admin additions follow the same structure
 router.post('/register', async (req, res) => {
 
     //Validate the req. data before creating a user
@@ -32,7 +33,7 @@ router.post('/register', async (req, res) => {
     }
 });
 
-//Login
+//Authenticate a user
 router.post('/login', async (req,res) => {
 
     //Validate the req. data before creating a user
@@ -49,7 +50,43 @@ router.post('/login', async (req,res) => {
 
     //Create and assign a token
     const token = jwt.sign({id: user._id},process.env.TOKEN_SECRET);
-    res.header('auth-token',token).send(token);
+    res.cookie('auth_token',token).send('http://localhost:3001/dashboard');
+});
+
+//Delete a user
+router.delete('/delete', (req,res) => {
+    //check from which user the request comes based on the cookie token
+    try {
+        let c = req.cookies.auth_token;
+        let userHasPrivileges = false;
+        if(c) {
+            id = jwt.verify(c,process.env.TOKEN_SECRET);
+            User.findById(id).lean().exec((err,doc) => {
+                if(err) {
+                    res.status(400).send(err);
+                }
+                
+                switch(doc.usertype) {
+                    case 'Driver':
+                    case 'Parking company':
+                        userHasPrivileges = true;
+                    break;
+                    default:
+                        userHasPrivileges = false;
+                    break;
+                }
+            });
+            //User found
+            if(userHasPrivileges) {
+                const removedUser = User.remove({_id: id});
+                res.send(removedUser);
+            }
+        }
+    } catch (error) {
+        
+    }
+    //if the request comes from the user itself, delete the user
+    //if the request comes from the root admin, delete the user
 });
 
 module.exports = router;
