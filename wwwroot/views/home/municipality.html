@@ -1,77 +1,162 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="utf-8">
-<title>Auto-Moto</title>
-<meta name="description" content="Bootstrap Metro Dashboard">
-<meta name="author" content="Dennis Ji">
-<meta name="keyword"
-	content="Metro, Metro UI, Dashboard, Bootstrap, Admin, Template, Theme, Responsive, Fluid, Retina">
-
-<!-- start: Mobile Specific -->
+<title>Municipality home page </title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- end: Mobile Specific -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+body {
+  font-family: "Lato", sans-serif;
+}
 
-<!-- start: CSS -->
-<link id="bootstrap-style" href="css/bootstrap.min.css" rel="stylesheet">
-<link href="css/bootstrap-responsive.min.css" rel="stylesheet">
-<link id="base-style" href="css/style.css" rel="stylesheet">
-<link id="base-style-responsive" href="css/style-responsive.css"
-	rel="stylesheet">
-<link
-	href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&subset=latin,cyrillic-ext,latin-ext'
-	rel='stylesheet' type='text/css'>
-<!-- end: CSS -->
+/* Fixed sidenav, full height */
+.sidenav {
+	
+  height: 100%;
+  width: 200px;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #E59866;
+  border-color: #2196F3;
+  overflow-x: hidden;
+  padding-top: 25px;
+}
 
+/* Style the sidenav links and the dropdown button */
+.sidenav a, .dropdown-btn {
+  padding: 6px 8px 6px 16px;
+  text-decoration: none;
+    font-size: 28px;
+  color: #2C3E50;
+  display: block;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
 
-<!-- start: Favicon -->
-<link rel="shortcut icon" href="images/favicon.ico">
-<!-- end: Favicon -->
+/* On mouse-over */
+.sidenav a:hover, .dropdown-btn:hover {
+  color: #f1f1f1;
+}
+
+/* Main content */
+.main {
+  margin-left: 200px; /* Same as the width of the sidenav */
+  font-size: 20px; /* Increased text to enable scrolling */
+  padding: 0px 10px;
+}
+
+/* Add an active class to the active dropdown button */
+.active {
+  background-color: #EC7063 ;
+  color: white;
+}
+
+/* Dropdown container (hidden by default). Optional: add a lighter background color and some left padding to change the design of the dropdown content */
+.dropdown-container {
+  display: none;
+  background-color: #D5F5E3 ;
+  padding-left: 8px;
+}
+
+/* Optional: Style the caret down icon */
+.fa-caret-down {
+  float: right;
+  padding-right: 8px;
+}
+
+/* Some media queries for responsiveness */
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+#header {
+    background-color:#BDB76B;
+    color: Black;
+    text-align:center;
+    padding:4px;
+}
+
+#footer {
+    background-color:black;
+    color:black;
+    clear:both;
+    text-align:center;
+	padding:5px;	 	 
+}
+
+</style>
 </head>
+<body>
 
-	<!-- start: Header -->
-	<div class="navbar">
-		<!-- <div id="stuck_container"> class="isStuck move" -->
-		<div class="navbar-inner">
-			<div class="container-fluid">
-				<a class="btn btn-navbar" data-toggle="collapse"
-					data-target=".top-nav.nav-collapse,.sidebar-nav.nav-collapse">
-					<span class="icon-bar"></span> <span class="icon-bar"></span> <span
-					class="icon-bar"></span>
-				</a>
-				<!-- <a class="brand1" href="#"><span>Auto-Moto</span></a> -->
+<div id="header">
+<h1><i>Welcome!! Municipality Admin<i></h1>
+</div>
 
-				<!-- start: Header Menu -->
-				<div class="nav-no-collapse header-nav">
+<div class="sidenav">
 
-					<ul class="nav pull-left">
-						<li><img src="wwwroot/images/municip.png" height=100 width=100></img></li>
-					</ul>
-					<ul class="nav pull-right">
+	
+  <a href="#about">About</a>
+  
+  <button class="dropdown-btn">Services</a>
+  <i class="fa fa-caret-down"></i>
+  </button>
+  <div class="dropdown-container">
+    <a href="#">Link 1</a>
+    <a href="#">Link 2</a>
+    <a href="#">Link 3</a>
+  </div>
+  
+  <button class="dropdown-btn">Clients</a>
+  <i class="fa fa-caret-down"></i>
+  </button>
+  <div class="dropdown-container">
+    <a href="#">Link 1</a>
+    <a href="#">Link 2</a>
+    <a href="#">Link 3</a>
+  </div>
+  
+    <button class="dropdown-btn">Dashboard 
+    <i class="fa fa-caret-down"></i>
+  </button>
+  <div class="dropdown-container">
+    <a href="#">Link 1</a>
+    <a href="#">Link 2</a>
+    <a href="#">Link 3</a>
+  </div>
+  <a href="#contact"><i class="fa fa-search">Search</i></a>
+  <a href="#contact">Calender</a>
+</div>
 
-						<!-- start: User Dropdown -->
-						<li class="dropdown"><a class="btn dropdown-toggle"
-							data-toggle="dropdown" href="#"> <i
-                                class="halflings-icon white user"></i> 
-                                <span class="caret"></span>
-						</a>
-							<ul class="dropdown-menu">
-								<li class="dropdown-menu-title"><span>Account
-										Settings</span></li>
-								<li><a href="#"><i class="halflings-icon user"></i>
-										Profile</a></li>
-								<li><a href="Logout.html"><i class="halflings-icon off"></i>
-										Logout</a></li>
-							</ul></li>
-						<!-- end: User Dropdown -->
-					</ul>
-				</div>
-				<!-- end: Header Menu -->
+<div class="main">
+  <h2>Introduction</h2>
+  <p>Click on the dropdown button to open the dropdown menu inside the side navigation.</p>
+  <p>This sidebar is of full height (100%) and always shown.</p>
+  <p>Some random text..</p>
+</div>
 
-			</div>
-		</div>
-	</div>
+<script>
+/* Loop through all dropdown buttons to toggle between hiding and showing its dropdown content - This allows the user to have multiple dropdowns without any conflict */
+var dropdown = document.getElementsByClassName("dropdown-btn");
+var i;
 
+for (i = 0; i < dropdown.length; i++) {
+  dropdown[i].addEventListener("click", function() {
+  this.classList.toggle("active");
+  var dropdownContent = this.nextElementSibling;
+  if (dropdownContent.style.display === "block") {
+  dropdownContent.style.display = "none";
+  } else {
+  dropdownContent.style.display = "block";
+  }
+  });
+}
+</script>
 
 </body>
-</html>
+</html> 
