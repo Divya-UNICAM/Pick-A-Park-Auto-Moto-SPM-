@@ -38,11 +38,11 @@ const requestValidation = body => {
         startingLocation: Joi.object({
             lat: Joi.string().required(),
             lng: Joi.string().required()
-        }).required(),
-        targetLocation: Joi.object({
-            lat: Joi.string().required(),
-            lng: Joi.string().required()
-        }).required(),
+        }).optional(),
+        startingLocation: Joi.string()
+            .optional(),
+        targetLocation: Joi.string()
+            .required(),
         date: Joi.date()
             .required(),
         licensePlate: Joi.string()

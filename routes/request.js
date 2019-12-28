@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const Request = require('../db/models/Request');
 const { requestValidation } = require('../validation');
 const payment = require('./payment');
-const { geolocate, geolocatev2, geolocatev3 } = require('../utils/geolocator');
+const { geolocate, geolocatev2, geolocatev3, reverseGeolocatev1 } = require('../utils/geolocator');
 const { extractIp } = require('../utils/extract-ip');
 const hasher = require('../utils/salt');
 const faker = require('faker');
@@ -15,24 +15,26 @@ router.post('/', async (req,res) => {
     //Validate the req. data before creating a request
     const { error } = requestValidation(req.body);
     if(error) return res.status(400).send(error.details[0].message);
+    let loction = null;
+    //Request came from non HTML5 browser, geolocation must be done manually
+    if (typeof req.body.startingLocation === 'string' || req.body.startingLocation instanceof String) {
+        //Detect location of user from request ip address
+        let ip = extractIp(req);
+        loction = JSON.parse(await geolocatev3(ip));
+    } else {
+        loction = req.body.startingLocation
+    }
 
-    //Detect location of user from request ip address
-    //let ip = extractIp(req);
-    //console.log(ip)
-    //let ip = faker.internet.ip();
-    //console.log(ip)
-    //let loction = JSON.parse(await geolocatev3(ip));
-    //console.log(loction)
     let startingLoc = {
-        lat: hasher.encrypt(43.140362+""),
-        lng: hasher.encrypt(13.068770+"")
+        lat: hasher.encrypt(loction.lat+""),
+        lng: hasher.encrypt(loction.lng+"")
     }
     //reverse geocode the target location
     //Address is already validate
-    // targetLoction = JSON.parse(await reverseGeolocate(req.body.targetLocation));
+    targetLoction = await reverseGeolocatev1(req.body.targetLocation);
     let targetLoc = {
-        lat: hasher.encrypt(41.902782+""),
-        lng: hasher.encrypt(12.496365+"")
+        lat: hasher.encrypt(targetLoction[1]+""),
+        lng: hasher.encrypt(targetLoction[0]+"")
     } 
     
     //Create a new request
