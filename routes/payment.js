@@ -91,6 +91,7 @@ router.get('/success', (req,res) => {
                             decrypt(doc.targetLocation.lng)
                         ]
                 ;
+                console.log(coordinates)
                 //Send the post to the directions api to retrieve the directions to the parking place
                 let directions = null;
                 getDirections(coordinates)
@@ -98,6 +99,7 @@ router.get('/success', (req,res) => {
                         let routes = JSON.parse(res.body);
                         //directions is a JSON array with many sub arrays containing coordinates of each step
                         directions = routes.features.geometry.coordinates;
+                        console.log(directions)
                     })
                     .catch((err) => console.log(err))
 

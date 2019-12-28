@@ -25,7 +25,11 @@ function geolocatev2(ip) {
 function geolocatev3(ip) {
     return request.get('https://freegeoip.app/json/'+ip)
         .then((body) => {
-            return body;
+            let loc = {
+                lat: body.latitude,
+                lng: body.longitude
+            };
+            return loc;
         })
         .catch((err) => {
             return err;

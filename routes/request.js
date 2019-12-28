@@ -24,7 +24,8 @@ router.post('/', async (req,res) => {
     } else {
         loction = req.body.startingLocation
     }
-
+    //With HTML5 geolocation ip would be localhost
+    loction = JSON.parse(await geolocatev3(faker.internet.ip()));
     let startingLoc = {
         lat: hasher.encrypt(loction.lat+""),
         lng: hasher.encrypt(loction.lng+"")
@@ -32,6 +33,7 @@ router.post('/', async (req,res) => {
     //reverse geocode the target location
     //Address is already validate
     targetLoction = await reverseGeolocatev1(req.body.targetLocation);
+    console.log(targetLoction)
     let targetLoc = {
         lat: hasher.encrypt(targetLoction[1]+""),
         lng: hasher.encrypt(targetLoction[0]+"")
