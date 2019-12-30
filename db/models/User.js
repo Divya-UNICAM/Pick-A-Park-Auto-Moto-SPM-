@@ -25,11 +25,10 @@ const userSchema = new mongoose.Schema({
     },
     usertype: {
         type: String,
-        default: 'Parking company',
-        required: true
+        default: 'Parking company'
     },
     privileges: {
-        type: String,
+        type: Number,
         default: "1" //1 is simple user
     }
 });
