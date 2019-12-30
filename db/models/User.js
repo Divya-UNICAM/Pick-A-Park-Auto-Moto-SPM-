@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: 'Parking company',
         required: true
+    },
+    privileges: {
+        type: String,
+        default: "1" //1 is simple user
     }
 });
 
