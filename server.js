@@ -64,7 +64,7 @@ app.get('/login', (req,res) => {
 });
 
 app.get('/dashboard', (req,res) => {
-    res.sendFile(path.join(__dirname + '/wwwroot/views/home/municipality.html'));
+    res.sendFile(path.join(__dirname + '/wwwroot/views/home/dashboard.html'));
 });
 
 app.listen(port, () => {

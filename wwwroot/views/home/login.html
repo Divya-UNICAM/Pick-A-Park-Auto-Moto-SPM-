@@ -112,7 +112,7 @@
           "usertype":usertype
 		}
 		
-        httpClient.post("http://localhost:3001/api/login",json,(xhr) => {
+        httpClient.post("http://localhost:3001/api/users/login",json,(xhr) => {
           window.location.replace(xhr.response); //return the url to the dashboard page
         })
 	}

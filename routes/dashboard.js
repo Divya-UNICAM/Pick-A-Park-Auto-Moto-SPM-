@@ -1,0 +1,119 @@
+const router = require('express').Router();
+const Sensor = require('../db/models/Sensor');
+const ParkingPlace = require('../db/models/ParkingPlace');
+const PoliceOfficer = require('../db/models/PoliceOfficer');
+const Municipality = require('../db/models/Municipality');
+const { sensorValidation } = require('../validation');
+
+//retrieve all parking places in the system and display their status
+router.get('/parkingplaces', async (req,res) => {
+    res.send(ParkingPlace.find().lean());
+});
+
+//retrieve all police officers working on the municipality
+//id is the municipality id
+router.get('/police/:mid', async (req,res) => {
+    const munId = req.params.mid;
+    try{
+        const requestedMunicipality = Municipality.findById(munId, function(err,doc) {
+            res.send(doc.policeofficers);
+        });
+        
+    }catch(err) {
+        res.send(err);
+    }
+    
+});
+
+//add a new parking place in the system
+//id is the municipality id
+router.post('/parkingplaces/:mid', async (req,res) => {
+    const { error } = parkingPlaceValidation(req.body);
+    if(error) return res.status(400).send(error.details[0].message);
+    const parkingPlaceToAdd = req.body;
+    const munId = req.params.mid;
+    try{
+        const addedParkingPlace = Municipality.findByIdAndUpdate(munId,{
+            $push: { parkingplaces: parkingPlaceToAdd }
+        });
+        res.send(addedParkingPlace);
+
+    }catch(err) {
+        res.status(400).send(err);
+    }
+});
+
+//Update and exisisting parking place
+router.put('/parkingplaces/:{mid}')
+
+//Delete an existing parking place
+router.delete('/parkingplaces/:{mid}')
+
+//add a new police officer in the system
+//id is the municipality id
+router.post('/police/:{mid}', async (req,res) => {
+    const { error } = policeOfficerValidation(req.body);
+    if(error) return res.status(400).send(error.details[0].message);
+    const policeOfficerToAdd = req.body;
+    const munId = req.params.mid;
+    try{
+        const addedPoliceOfficer = Municipality.findByIdAndUpdate(munId,{
+            $push: { policeofficers: policeOfficerToAdd }
+        });
+        res.send(addedPoliceOfficer);
+
+    }catch(err) {
+        res.status(400).send(err);
+    }
+});
+
+//Update an exisiting police officer
+router.put('/police/:{mid}/:{pid}')
+
+//Delete an exisisting police officer
+router.delete('/police/:{mid}/:{pid}')
+
+//id is police officer id, assign a new task to an existing police officer
+router.post('/police/:mid/:pid/job', async (req,res) => {
+    const { error } = jobValidation(req.body);
+    if(error) return res.status(400).send(error.details[0].message);
+    const jobToAdd = req.body;
+    const munId = req.params.mid;
+    const polId = req.params.pid;
+    try{
+        const modifiedPoliceOfficer = PoliceOfficer.findOneAndUpdate({_id: polId, municipality: munId},{
+            $push: { jobs: jobToAdd }
+        });
+        res.send(modifiedPoliceOfficer);
+
+    }catch(err) {
+        res.status(400).send(err);
+    }
+});
+
+//receive update from a single parking place
+//each sensor in a parking place can detect a car parking
+//it will then read the plate number and send it to this service
+router.post('/parkingplaces/:mid/update/:parkid', async (req,res) => {
+    const { error } = parkingUpdateValidation(req.body);
+    if(error) return res.status(400).send(error.details[0].message);
+    const parkingUpdate = req.body;
+    //check if plate number is legit or there is a running violation
+    ParkingPlace.findOne({})
+    const munId = req.params.mid;
+    const parkId = req.params.parkid;
+    try{
+        const modifiedPoliceOfficer = ParkingPlace.findOneAndUpdate({_id: parkId, municipality: munId, "sensors.id": parkingUpdate.id},{
+            $push: { "sensors.$.updates": parkingUpdate }
+        });
+        res.send(modifiedPoliceOfficer);
+
+    }catch(err) {
+        res.status(400).send(err);
+    }
+});
+
+//receive updates from all parking places in the specificed municipality
+router.get('/parkingplaces/:{mid}/updates')
+
+module.exports = router;
