@@ -24,7 +24,7 @@ const municipalitySchema = new mongoose.Schema({
     parkingPlaces: {
         type: Array
     },
-    policeofficers : {
+    policeOfficers : {
         type: Array
     },
     date: {

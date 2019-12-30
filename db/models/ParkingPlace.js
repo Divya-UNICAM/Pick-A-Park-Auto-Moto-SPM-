@@ -4,6 +4,16 @@ const parkingPlaceSchema = new mongoose.Schema({
     municipality: {
         type: Object
     },
+    location: {
+        lat: {
+            type: String,
+            required: true
+        },
+        lng: {
+            type: String,
+            required: true
+        }
+    },
     sensors :{
         type : Array
     },
