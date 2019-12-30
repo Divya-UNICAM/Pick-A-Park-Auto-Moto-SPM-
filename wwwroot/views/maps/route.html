@@ -34,7 +34,21 @@
 	L.marker([51.5, -0.09]).addTo(mymap)
 		.bindPopup("<b>Hello world!</b><br />I am a popup.").openPopup();
 
-  var latlngs = document.cookie; //I get the directions from the cookie passed with the redirect from payment
+  //I get the directions from the querystring passed with the redirect from payment
+  function getDirections() {
+	const urlParams = new URLSearchParams(window.location.search);
+	const coordinates = [
+		[
+			urlParams.get("slat"),
+			urlParams.get("slng")
+		],
+		[
+			urlParams.get("tlat"),
+			urlParams.get("tlng")
+		]
+	];
+  }
+  	
   var polyline = L.polyline(latlngs, {color: 'red'}).addTo(map);
   // zoom the map to the polyline
   map.fitBounds(polyline.getBounds());

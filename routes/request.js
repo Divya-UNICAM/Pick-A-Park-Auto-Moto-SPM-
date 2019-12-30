@@ -11,7 +11,6 @@ const hasher = require('../utils/salt');
 const faker = require('faker');
 
 router.post('/', async (req,res) => {
-    console.log(req.body);
     //Validate the req. data before creating a request
     const { error } = requestValidation(req.body);
     if(error) return res.status(400).send(error.details[0].message);

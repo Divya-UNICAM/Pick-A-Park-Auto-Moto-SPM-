@@ -1,10 +1,11 @@
 const router = require('express').Router();
+const querystring = require('querystring');
 const dotenv = require('dotenv');
 const Request = require('../db/models/Request');
 const { requestValidation } = require('../validation');
 const paypal = require('paypal-rest-sdk');
 const request = require('request-promise');
-const { decrypt } = require('../utils/salt');
+const { decrypt, encrypt } = require('../utils/salt');
 const { getDirections } = require('../utils/directions');
 
 dotenv.config();
@@ -103,8 +104,14 @@ router.get('/success', (req,res) => {
                     })
                     .catch((err) => console.log(err))
 
-                //Return map with directions
-                res.cookie('directions',directions).redirect('http://localhost:3001/route');
+                //Return map with locations and from the js will ask directions
+                const query = querystring.stringify({
+                    "slat": coordinates[0][0],
+                    "slng": coordinates[0][1],
+                    "tlat": coordinates[1][0],
+                    "tlng": coordinates[1][1]
+                });
+                res.redirect('http://localhost:3001/route?'+query);
                 //Redirect to a successful checkout page and send invoice
             });
         }

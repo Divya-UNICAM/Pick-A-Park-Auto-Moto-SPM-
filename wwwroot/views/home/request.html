@@ -164,47 +164,17 @@ hr {
   
   <div id="id01" class="modal">
     <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">&times;</span>
-    <form id="details" class="modal-content" action="" onsubmit="checkPassword(this)" method="post" >
-      <div class="container">
-        <h1>Auto-Moto Sign Up form</h1>
-        <p>Please fill in this form to create an account.</p>
-        <hr>
-  
-        <label for="username"><b>User Name: </b></label>
-        <input type="text" placeholder="Enter user name" id="username" name="username" required>
-  
-        <label for="email"><b>Email: </b></label>
-        <input type="text" placeholder="Enter Email" id="email" name="email" required><br>
-  
-        <label><b>Select Usertype: </b></label>
-               <select id = "usertype">
-                 <option value = "1">Auto-Moto Admin</option>
-                 <option value = "2">Municipality Admin</option>
-                 <option value = "3">Police officer</option>
-        </select><br>
-        
-         <div class="field-wrapper">
-        <label for="password2"><b>Password:</b></label>
-              <input type="password" name="password" id="password2" onkeyup="checkPass();">
-          </div>
-          <div class="field-wrapper">
-              <label for="confirm2"><b>Confirm Password:</b></label>
-              <input type="password" name="confirm" id="confirm2" onkeyup="checkPass();">
-              <span id="confirm-message2" class="confirm-message"></span>
-          </div>
-        
-        <label>
-          <input type="checkbox" checked="checked" name="remember" style="margin-bottom:15px"> Remember me
-        </label>
-  
-        <p>By creating an account you agree to our <a href="#" style="color:dodgerblue">Terms & Privacy</a>.</p>
-  
-        <div class="clearfix">
-          <button type="button" onclick="document.getElementById('id01').style.display='none'" class="cancelbtn">Cancel</button>
-          <button type="submit" class="signupbtn" id="btnSubmit" onclick="return userdata()">Sign Up </button>
-        </div>
-      </div>
-  </form>
+    <h1>Thank you for placing the request with us!</h1>
+		<p>Now, Please verify your request data</p>
+		
+		<h3>Here is your request:</h3>
+		
+		<div id="id01tl"></div>
+		<div id="id01dt"></div>
+		<div id="id01lp"></div>
+		<div id="id01dr"></div>
+		
+    <div>You will be soon redirected to the payment page</div>
   </div>
 
 <script>
@@ -218,12 +188,15 @@ hr {
           //pos is a string
           sl = pos;
         }
-        alert(sl);
         var targetlocation = document.getElementById("targetLocation").value;
         var date = document.getElementById("date").value;
         var licenseplate = document.getElementById("licensePlate").value;
         var duration = document.getElementById("duration").value;
 
+        $('#id01tl').html('Target location: '+ targetlocation);
+        $('#id01dt').html('Date: '+ date);
+        $('#id01lp').html('License Plate: ' + licenseplate);
+        $('#id01dr').html('Duration: ' + duration);
 
 
         var json = {
@@ -233,27 +206,15 @@ hr {
           "licensePlate": licenseplate,
           "duration": duration
         }
-        console.log(json)
         
         httpClient.post("http://localhost:3001/api/request",json,(xhr) => {
           window.location.replace(xhr.response) //manual redirect to paypal webiste
         });
         
 
-    //This must become a popup div like for signup
+    //This now is a popup div like for signup
     document.getElementById('id01').style.display="block";
-		//document.write("<h1>Thank you for placing the request with us!</h1>");
-		//document.write("<p>Now, Please verify your request data</p>");
 		
-		//document.write("<h3>Here is your request:</h3>");
-		
-		//document.write("Target Location:" + targetlocation + "<br/>");
-		//document.write("Date:" + date + "<br/>");
-		//document.write("License Plate :" + licenseplate + "<br/>");
-		//document.write("Duration requested:" + duration + "<br/>");
-		
-		//document.write("<button><b>Confirm the request<b></button>");
-		//document.write("<button><b>Cancel<b></button>");
 		
 	}	
  
@@ -280,6 +241,7 @@ hr {
       return pos;
     }
 
+    //try to geolocate the user as soon he/she asks for a request
     $(window).on('load',function(){
       locate();
     });
