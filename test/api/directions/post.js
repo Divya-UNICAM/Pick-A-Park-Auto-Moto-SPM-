@@ -26,11 +26,11 @@ describe('get directions', () => {
             name: "Camerino",
             province: "MC",
             region: "Marche",
-            postcode: 60032,
+            postcode: 62032,
             parkingPlaces: [
-                ParkingPlace.create({
+                new ParkingPlace({
                     sensors: [ 
-                        Sensor.create({
+                        new Sensor({
                             location: {
                                 lat: faker.address.latitude(),
                                 lng: faker.address.longitude()
@@ -38,7 +38,7 @@ describe('get directions', () => {
                             date: faker.date(),
                             detected: 0,
                             status: "FREE"
-                        }),Sensor.create({
+                        }),new Sensor({
                             location: {
                                 lat: faker.address.latitude(),
                                 lng: faker.address.longitude()
@@ -46,7 +46,7 @@ describe('get directions', () => {
                             date: faker.date(),
                             detected: 0,
                             status: "FREE"
-                        }),Sensor.create({
+                        }),new Sensor({
                             location: {
                                 lat: faker.address.latitude(),
                                 lng: faker.address.longitude()
