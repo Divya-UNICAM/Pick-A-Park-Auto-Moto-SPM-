@@ -41,8 +41,3 @@ describe('GET /api/sensor', () => {
         .catch((err) => done(err))
     })
 })
-
-after((done) => {
-
-    db.close();
-})

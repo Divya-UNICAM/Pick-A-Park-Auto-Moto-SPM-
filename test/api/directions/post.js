@@ -13,9 +13,6 @@ const server = require('../../../server');
 before((done) => {
     db.connect('local').then(() => done()).catch((err) => done(err));
 })
-after((done) => {
-    db.close().then(() => done()).catch((err) => done(err));
-})
 
 describe('get directions', () => {
     beforeEach((done) => {

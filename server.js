@@ -30,9 +30,10 @@ process.env.PORT = port
 app.set('view engine', 'ejs');
 
 //Connect to DB
-db.connect()
-    .then((done) => console.log('Connected to DB'))
-    .catch((err) => console.log(err));
+if(process.env.NODE_ENV !== 'test')
+    db.connect()
+        .then((done) => console.log('Connected to DB'))
+        .catch((err) => console.log(err));
 
 //Use Middlewares
 app.use(bodyParser.json()); //Body-parser
