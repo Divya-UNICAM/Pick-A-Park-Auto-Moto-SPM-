@@ -98,6 +98,21 @@ router.delete('/parkingplaces/:mid/:pid', async (req,res) => {
     }
 });
 
+//adding a new sensor to a municipality
+router.post('sensors/:mid', async (req,res) => {
+    const munId = req.params.mid;
+    const sensorParameters = req.body;
+    const sensorToAdd = new Sensor(sensorParameters);
+    try {
+        const addedSensor = Municipality.findByIdAndUpdate(munId,{
+            $push: { sensors: sensorToAdd }
+        });
+        res.send(addedSensor);
+    } catch (err) {
+        res.status(400).send(err);
+    }
+});
+
 //add a new police officer in the system
 //id is the municipality id
 router.post('/police/:{mid}', async (req,res) => {
