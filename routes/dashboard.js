@@ -26,6 +26,24 @@ router.get('/police/:mid', async (req,res) => {
     
 });
 
+//retrieve a single parking place from the specified municipality
+router.get('/parkingplaces/:mid/:id', async (req,res) => {
+    const munId = req.params.mid;
+    const parkId = req.params.id;
+    try {
+        ParkingPlace.findOne({
+            municipality: Municipality.findById(munId).lean(),
+            _id: id
+        }, (err, doc) => {
+            if(err)
+                return res.status(400).send(err);
+            res.send(doc);
+        })
+    } catch (error) {
+        res.status(400).send(error);
+    }
+});
+
 //add a new parking place in the system
 //id is the municipality id
 router.post('/parkingplaces/:mid', async (req,res) => {
