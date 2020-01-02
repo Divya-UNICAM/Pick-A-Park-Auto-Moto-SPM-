@@ -63,7 +63,22 @@ router.post('/parkingplaces/:mid', async (req,res) => {
 });
 
 //Update and exisisting parking place
-router.put('/parkingplaces/:{mid}')
+router.put('/parkingplaces/:mid/:pid', async (req,res) => {
+    const munId = req.params.mid;
+    const parkId = req.params.pid;
+    const toUpdate = req.body;
+    try {
+        const munObj = Municipality.findOne({
+            _id: munId,
+            parkingplaces: ParkingPlace.findById(parkId)
+        });
+        var parkPlace = munObj.parkingplaces;
+        const updated = await parkPlace.set(toUpdate).save();
+        res.send(updated);
+    } catch (err) {
+        res.status(400).send(err);
+    }
+});
 
 //Delete an existing parking place
 router.delete('/parkingplaces/:{mid}')
