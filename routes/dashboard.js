@@ -138,6 +138,18 @@ router.get('/parkingplaces/:{mid}/updates', async (req,res) => {
 
 });
 
+//retrieve all sensors from the current municipality
+router.get('/sensors/:mid', async (req,res) => {
+    const munId = req.params.mid;
+    try {
+        Municipality.findById(munId, (err,doc) => {
+            return res.send(doc.sensors.lean());
+        })
+    } catch (err) {
+        res.status(400).send(err);
+    }
+});
+
 //retrieve a sensor from the specfied municiaplity
 router.get('sensors/:mid/:sid',async (req,res) => {
     const munId = req.params.mid;
