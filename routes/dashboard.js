@@ -138,6 +138,25 @@ router.get('/parkingplaces/:{mid}/updates', async (req,res) => {
 
 });
 
+//retrieve a sensor from the specfied municiaplity
+router.get('sensors/:mid/:sid',async (req,res) => {
+    const munId = req.params.mid;
+    const sensId = req.params.sid;
+    try {
+        Municipality.findById(munId, (err,doc) => {
+            if(err)
+                return res.status(400).send(err);
+            for(let i = 0; i < doc.sensors.length;i++) {
+                if(doc.sensors[i]._id === sensId) {
+                    return res.send(doc.sensors[i]);
+                }
+            }
+        })
+    } catch (error) {
+        res.status(400).send(error);
+    }
+});
+
 //Add a new municipality user to the platform
 router.post('/municipality/admin', async (req,res) => {
     const body = req.body;
