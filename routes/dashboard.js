@@ -113,6 +113,23 @@ router.post('sensors/:mid', async (req,res) => {
     }
 });
 
+router.put('sensors/:mid/:sid', async (req,res) => {
+    const munId = req.params.mid;
+    const sensorId = req.params.sid;
+    const toUpdate = req.body;
+    try {
+        const munObj = Municipality.findOne({
+            _id: munId,
+            sensors: Sensor.findById(sensorId)
+        });
+        var sensors = munObj.sensors;
+        const updated = await sensors.set(toUpdate).save();
+        res.send(updated);
+    } catch (err) {
+        res.status(400).send(err);
+    }
+});
+
 //add a new police officer in the system
 //id is the municipality id
 router.post('/police/:{mid}', async (req,res) => {
