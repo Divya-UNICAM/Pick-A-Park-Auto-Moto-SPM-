@@ -81,7 +81,22 @@ router.put('/parkingplaces/:mid/:pid', async (req,res) => {
 });
 
 //Delete an existing parking place
-router.delete('/parkingplaces/:{mid}')
+router.delete('/parkingplaces/:mid/:pid', async (req,res) => {
+    const munId = req.params.mid;
+    const parkId = req.params.pid;
+    const toUpdate = req.body;
+    try {
+        const munObj = Municipality.findOne({
+            _id: munId,
+            parkingplaces: ParkingPlace.findById(parkId)
+        });
+        var parkPlace = munObj.parkingplaces;
+        const deleted = parkPlace.remove();
+        res.send(deleted);
+    } catch (err) {
+        res.status(400).send(err);
+    }
+});
 
 //add a new police officer in the system
 //id is the municipality id
