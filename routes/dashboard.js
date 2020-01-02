@@ -3,6 +3,7 @@ const Sensor = require('../db/models/Sensor');
 const ParkingPlace = require('../db/models/ParkingPlace');
 const PoliceOfficer = require('../db/models/PoliceOfficer');
 const Municipality = require('../db/models/Municipality');
+const User = require('../db/models/User');
 const { sensorValidation } = require('../validation');
 
 //retrieve all parking places in the system and display their status
@@ -114,6 +115,25 @@ router.post('/parkingplaces/:mid/update/:parkid', async (req,res) => {
 });
 
 //receive updates from all parking places in the specificed municipality
-router.get('/parkingplaces/:{mid}/updates')
+//when the service is called, the parking places are requested info
+router.get('/parkingplaces/:{mid}/updates', async (req,res) => {
+
+});
+
+//Add a new municipality user to the platform
+router.post('/municipality/admin', async (req,res) => {
+    const body = req.body;
+    try{
+        const addedAMunicipalityAdmin = await new User({
+            name: body.name,
+            email: body.email,
+            password: body.password,
+            privileges: 3
+        }).save();
+        res.send(addedAMunicipalityAdmin);
+    } catch(err) {
+        res.status(400).send(err);
+    }
+});
 
 module.exports = router;
