@@ -2,6 +2,7 @@ const router = require('express').Router();
 const querystring = require('querystring');
 const dotenv = require('dotenv');
 const Request = require('../db/models/Request');
+const Cost = require('../db/models/Cost');
 const { requestValidation } = require('../validation');
 const paypal = require('paypal-rest-sdk');
 const request = require('request-promise');
@@ -12,6 +13,10 @@ dotenv.config();
 
 router.get('/', async (req,res) => {
     id = req.headers.cookie;
+    let price = Cost.find().lean().pricePerMinute;
+    price = Request.findById(id, (err, doc) => {
+        price = price * doc.duration;
+    });
     const create_payment_json = {
         "intent": "sale",
         "payer": {
@@ -26,14 +31,14 @@ router.get('/', async (req,res) => {
                 "items": [{
                     "name": "parking place",
                     "sku": "001",
-                    "price": "10.00",
+                    "price": price,
                     "currency": "EUR",
                     "quantity": 1
                 }]
             },
             "amount": {
                 "currency": "EUR",
-                "total": "10.00"
+                "total": price
             },
             "description": "your receipt of the booking of the parking."
         }]
@@ -62,7 +67,7 @@ router.get('/success', (req,res) => {
         "transactions": [{
             "amount": {
                 "currency": "EUR",
-                "total": "10.00"
+                "total": price
             }
         }]
     };
