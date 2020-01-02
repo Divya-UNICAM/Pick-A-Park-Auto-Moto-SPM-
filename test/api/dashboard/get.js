@@ -13,9 +13,7 @@ const server = require('../../../server');
 before((done) => {
     db.connect('local').then(() => done()).catch((err) => done(err));
 })
-after((done) => {
-    db.close().then(() => done()).catch((err) => done(err));
-})
+
 
 describe('GET /api/dashboard/parkingplaces', () => {
     it('should return all parking places', (done) => {

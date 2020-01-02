@@ -4,7 +4,8 @@ const request = require('request-promise');
 const server = require('../server');
 const Municipality = require('../db/models/Municipality');
 
-class Sensor {
+
+module.exports = class Sensor {
     constructor(lat, lng, ) {
         this.lat = lat;
         this.lng = lng;
@@ -47,7 +48,7 @@ class Sensor {
         return new Promise(resolve => setTimeout(resolve,ms));
     }
 
-    simulateDetection() {
+    async simulateDetection() {
         while(true) {
             let interval = Math.floor(Math.random()*1000);
             await this.sleep(interval);
@@ -55,5 +56,3 @@ class Sensor {
         }
     }
 }
-
-module.exports = Sensor;

@@ -12,7 +12,7 @@ const hasher = require('./utils/salt');
 const authRoute = require('./routes/auth');
 const requestRoute = require('./routes/request');
 const paymentRoute = require('./routes/payment');
-const sensorRoute = require('./routes/sensor');
+//const sensorRoute = require('./routes/sensor');
 const directionsRoute = require('./routes/directions');
 
 //Configurations
@@ -45,7 +45,7 @@ app.use('/static', express.static(__dirname + '/wwwroot/static'));
 app.use('/api/users', authRoute);
 app.use('/api/request', requestRoute);
 app.use('/api/pay',paymentRoute);
-app.use('/api/sensor',sensorRoute);
+//app.use('/api/sensor',sensorRoute);
 app.use('/api/directions',directionsRoute);
 
 app.get('/', (req,res) => {
