@@ -4,6 +4,7 @@ const ParkingPlace = require('../db/models/ParkingPlace');
 const PoliceOfficer = require('../db/models/PoliceOfficer');
 const Municipality = require('../db/models/Municipality');
 const User = require('../db/models/User');
+const Cost = require('../db/models/Cost');
 const { sensorValidation } = require('../validation');
 
 //retrieve all parking places in the system and display their status
@@ -165,10 +166,10 @@ router.post('/police/:{mid}', async (req,res) => {
 });
 
 //Update an exisiting police officer
-router.put('/police/:{mid}/:{pid}')
+//router.put('/police/:{mid}/:{pid}')
 
 //Delete an exisisting police officer
-router.delete('/police/:{mid}/:{pid}')
+//router.delete('/police/:{mid}/:{pid}')
 
 //id is police officer id, assign a new task to an existing police officer
 router.post('/police/:mid/:pid/job', async (req,res) => {
@@ -275,6 +276,17 @@ router.post('/parkingcompany/admin', async (req,res) => {
         }).save();
         res.send(addedParkingCompanyAdmin);
     } catch(err) {
+        res.status(400).send(err);
+    }
+});
+
+router.put('/price', async (req,res) => {
+    const toUpdate = req.body;
+    try {
+        const currentCost = Cost.find();
+        const updated = await currentCost.set(toUpdate).save();
+        res.send(updated);
+    } catch (err) {
         res.status(400).send(err);
     }
 });
