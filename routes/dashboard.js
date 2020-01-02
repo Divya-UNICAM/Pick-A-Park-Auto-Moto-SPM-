@@ -136,4 +136,20 @@ router.post('/municipality/admin', async (req,res) => {
     }
 });
 
+//Add a new parking company user to the platform
+router.post('/parkingcompany/admin', async (req,res) => {
+    const body = req.body;
+    try{
+        const addedParkingCompanyAdmin = await new User({
+            name: body.name,
+            email: body.email,
+            password: body.password,
+            privileges: 4
+        }).save();
+        res.send(addedParkingCompanyAdmin);
+    } catch(err) {
+        res.status(400).send(err);
+    }
+});
+
 module.exports = router;
