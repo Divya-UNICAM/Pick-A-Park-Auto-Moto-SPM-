@@ -4,6 +4,18 @@ const policeOfficerSchema = new mongoose.Schema({
     municipality: {
         type: String
     },
+    name: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
     jobs :{
         type : Array
     },
