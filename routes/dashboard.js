@@ -69,7 +69,24 @@ router.get('/officers/:postcode', async (req,res) => {
 });
 
 //retrieve a single police officer in the specified municipality
-router.get('/officers/:postcode')
+router.get('/officers/:postcode/:pid', async (req,res) => {
+	const munPostcode = req.params.postcode;
+	const officerId = req.params.pid;
+	try {
+		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
+		if(!requestedMunicipality)
+			return res.status(404).send('Municipality not found');
+		const requestedOfficer = await PoliceOfficer.findOne({
+			municipality: requestedMunicipality._id,
+			_id: officerId
+		});
+		if(!requestedOfficer)
+			return res.status(404).send('Police officer not found');
+		res.send(requestedOfficer);
+	} catch (err) {
+		res.status(500).send(err);
+	}
+});
 
 //retrieve a single parking place from the specified municipality in the specified address
 router.get('/parkingplaces/:postcode/:address', async (req,res) => {
@@ -203,18 +220,28 @@ router.post('sensors/:postcode/:address', async (req,res) => {
     }
 });
 
-router.put('sensors/:mid/:sid', async (req,res) => {
-    const munId = req.params.mid;
+//update an existing sensor in the specified municipality
+router.put('sensors/:postcode/:address/:sid', async (req,res) => {
+	const { error } = sensorValidation(req.body);
+	if(error) return res.send(400).send(error.details[0].message);
+	const munPostcode = req.params.postcode;
+	const parkAddress = req.params.address.toLowerCase();
     const sensorId = req.params.sid;
-    const toUpdate = req.body;
     try {
-        const munObj = Municipality.findOne({
-            _id: munId,
-            sensors: Sensor.findById(sensorId)
-        });
-        var sensors = munObj.sensors;
-        const updated = await sensors.set(toUpdate).save();
-        res.send(updated);
+        const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
+		if(!requestedMunicipality)
+			return res.status(404).send('Municipality not found');
+		const requestedParkingPlace = await ParkingPlace.findOne({
+			municipality: requestedMunicipality._id,
+			location: {
+				address: parkAddress
+			}
+		});
+		if(!requestedParkingPlace)
+			return res.status(404).send('Parking place not found');
+		let requestedSensor = await Sensor.findOneAndUpdate({parkingPlace: requestedParkingPlace._id},
+			req.body,{new:true});
+        res.send(requestedSensor);
     } catch (err) {
         res.status(400).send(err);
     }
