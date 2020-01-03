@@ -70,7 +70,29 @@ const sensorValidation = body => {
     return schema.validate(body);
 };
 
+//Municipality Validation
+const municipalityValidation = body => {
+    const schema = Joi.object({
+        name: Joi.string()
+            .required(),
+        province: Joi.string()
+            .required(),
+        region: Joi.string()
+            .required(),
+        postcode: Joi.string()
+            .required(),
+        location: Joi.object({
+            lat: Joi.number().required(),
+            lng: Joi.number().required()
+        }),
+        policeOfficers: Joi.array(),
+        date: Joi.date()
+    });
+    return schema.validate(body);
+};
+
 module.exports.registerValidation = registerValidation;
 module.exports.loginValidation = loginValidation;
 module.exports.requestValidation = requestValidation;
 module.exports.sensorValidation = sensorValidation;
+module.exports.municipalityValidation = municipalityValidation;
