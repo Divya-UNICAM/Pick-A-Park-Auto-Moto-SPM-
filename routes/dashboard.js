@@ -174,14 +174,29 @@ router.delete('/parkingplaces/:postcode/:address', async (req,res) => {
 });
 
 //adding a new sensor to a municipality
-router.post('sensors/:postcode', async (req,res) => {
-    const munId = req.params.mid;
-    const sensorParameters = req.body;
-    const sensorToAdd = new Sensor(sensorParameters);
+router.post('sensors/:postcode/:address', async (req,res) => {
+	const { error } = sensorValidation(req.body);
+	if(error) return res.status(400).send(error.details[0].message);
+	const munPostcode = req.params.postcode;
+	const parkAddress = req.params.address;
     try {
-        const addedSensor = Municipality.findByIdAndUpdate(munId,{
-            $push: { sensors: sensorToAdd }
-        });
+		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
+		if(!requestedMunicipality)
+			return res.send(404).send('Municipality not found');
+		const munId = requestedMunicipality._id;
+		const addedSensor = await new Sensor({
+			municipality: munId,
+			location: {
+				lat: req.body.location.lat,
+				lng: req.body.location.lng,
+				address: req.body.location.address.toLowerCase()
+			},
+			update: req.body.update,
+			date: req.body.date,
+			detect: req.body.detect,
+			status: req.body.status
+		}).save();
+		console.log('Sensor added');
         res.send(addedSensor);
     } catch (err) {
         res.status(400).send(err);
