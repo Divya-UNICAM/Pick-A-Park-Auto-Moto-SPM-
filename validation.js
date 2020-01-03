@@ -79,6 +79,8 @@ const parkingPlaceValidation = body => {
             lat: Joi.number()
                 .required(),
             lng: Joi.number()
+                .required(),
+            address: Joi.string()
                 .required()
         }),
         sensors: Joi.array(),
