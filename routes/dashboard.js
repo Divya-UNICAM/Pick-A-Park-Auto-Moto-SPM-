@@ -97,12 +97,12 @@ router.get('/parkingplaces/:postcode/:address', async (req,res) => {
 
 //add a new parking place in the system
 // name is the municipality name
-router.post('/parkingplaces/:name', async (req,res) => {
+router.post('/parkingplaces/:postcode', async (req,res) => {
     const { error } = parkingPlaceValidation(req.body);
     if(error) return res.status(400).send(error.details[0].message);
-	const munName = req.params.name.toLowerCase();
+	const munPostcode = req.params.postcode;
     try{
-		const requestedMunicipality = await Municipality.findOne({name: munName});
+		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
 			return res.status(404).send('Municipality not found');
         const addedAParkingPlace = await new ParkingPlace({
@@ -119,7 +119,7 @@ router.post('/parkingplaces/:name', async (req,res) => {
             date: req.body.date,
             status: req.body.status
         }).save();
-        console.log('Added a new parking place in' + munName);
+        console.log('Added a new parking place');
         res.send(addedAParkingPlace);
 
     }catch(err) {
