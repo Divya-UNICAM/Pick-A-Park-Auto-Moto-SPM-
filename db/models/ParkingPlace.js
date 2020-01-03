@@ -12,6 +12,10 @@ const parkingPlaceSchema = new mongoose.Schema({
         lng: {
             type: String,
             required: true
+        },
+        address: {
+            type: String,
+            required: true
         }
     },
     sensors :{
