@@ -6,6 +6,7 @@ const Municipality = require('../db/models/Municipality');
 const User = require('../db/models/User');
 const Cost = require('../db/models/Cost');
 const { sensorValidation, municipalityValidation, parkingPlaceValidation } = require('../validation');
+const { reverseGeolocatev1 } = require('../utils/geolocator');
 
 //add a new municipality in the system (municipality purchased the service)
 router.post('/municipalities', async (req,res) => {
@@ -29,10 +30,10 @@ router.post('/municipalities', async (req,res) => {
 });
 
 //retrieve all parking places in the system and display their status
-router.get('/parkingplaces/:name', async (req,res) => {
-	const munName = req.params.name.toLowerCase();
+router.get('/parkingplaces/:postcode', async (req,res) => {
+	const munPostcode = req.params.postcode;
 	try {
-		const mun = await Municipality.findOne({name: munName});
+		const mun = await Municipality.findOne({postcode: munPostcode});
 		if(!mun)
 			return res.status(404).send('Municipality not found');
 		const munId = mun._id;
@@ -62,19 +63,25 @@ router.get('/police/:mid', async (req,res) => {
     
 });
 
-//retrieve a single parking place from the specified municipality
-router.get('/parkingplaces/:mid/:id', async (req,res) => {
-    const munId = req.params.mid;
-    const parkId = req.params.id;
+//retrieve a single parking place from the specified municipality in the specified address
+router.get('/parkingplaces/:postcode/:address', async (req,res) => {
+	//Client side must validate the address with google maps Places API
+	const munPostcode = req.params.postcode;
+	const parkAddress = req.params.address.toLowerCase();
     try {
-        ParkingPlace.findOne({
-            municipality: Municipality.findById(munId).lean(),
-            _id: id
-        }, (err, doc) => {
-            if(err)
-                return res.status(400).send(err);
-            res.send(doc);
-        })
+		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
+		if(!requestedMunicipality)
+			return res.status(404).send('Municipality not found');
+		const munId = requestedMunicipality._id;
+        const requestedParkingPlace = await ParkingPlace.findOne({
+            municipality: munId,
+            location: {
+				address: parkAddress
+			}
+		});
+		if(!requestedParkingPlace)
+			return res.status(404).send('Parking place not found');
+		res.send(requestedParkingPlace);
     } catch (error) {
         res.status(400).send(error);
     }
@@ -91,16 +98,20 @@ router.post('/parkingplaces/:name', async (req,res) => {
 		if(!requestedMunicipality)
 			return res.status(404).send('Municipality not found');
         const addedAParkingPlace = await new ParkingPlace({
-            municipality: requestedMunicipality._id,
-            location: req.body.location,
+			municipality: requestedMunicipality._id,
+			//lat and lng are defined by the client issuing the request
+			//given that you must issue the address of the pkplace
+			//the client (browser) will also call the geolocation service
+            location: {
+				lat: req.body.location.lat,
+				lng: req.body.location.lng,
+				address: req.body.location.address.toLowerCase()
+			},
             sensors: req.body.sensors,
             date: req.body.date,
             status: req.body.status
         }).save();
         console.log('Added a new parking place in' + munName);
-        // const addedParkingPlace = Municipality.findOneAndUpdate({ name: munName },{
-        //     $push: { parkingplaces: parkingPlaceToAdd }
-        // });
         res.send(addedAParkingPlace);
 
     }catch(err) {
@@ -109,25 +120,29 @@ router.post('/parkingplaces/:name', async (req,res) => {
 });
 
 //Update and exisisting parking place
-router.put('/parkingplaces/:mid/:pid', async (req,res) => {
-    const munId = req.params.mid;
-    const parkId = req.params.pid;
+router.put('/parkingplaces/:postcode/:address', async (req,res) => {
+    const munPostcode = req.params.postcode;
+    const parkAddress = req.params.address;
     const toUpdate = req.body;
     try {
-        const munObj = Municipality.findOne({
-            _id: munId,
-            parkingplaces: ParkingPlace.findById(parkId)
-        });
-        var parkPlace = munObj.parkingplaces;
+		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
+		if(!requestedMunicipality)
+			return res.status(404).send('Municipality not found');
+		const munId = requestedMunicipality._id;
+        let parkPlace = await ParkingPlace.findOne({
+			municipality: munId,
+			location: { address: parkAddress }
+		});
         const updated = await parkPlace.set(toUpdate).save();
-        res.send(updated);
+		console.log('Parking place updated');
+		res.send(updated);
     } catch (err) {
-        res.status(400).send(err);
+        return res.status(500).send(err);
     }
 });
 
 //Delete an existing parking place
-router.delete('/parkingplaces/:mid/:pid', async (req,res) => {
+router.delete('/parkingplaces/:postcode/:address', async (req,res) => {
     const munId = req.params.mid;
     const parkId = req.params.pid;
     const toUpdate = req.body;
@@ -145,7 +160,7 @@ router.delete('/parkingplaces/:mid/:pid', async (req,res) => {
 });
 
 //adding a new sensor to a municipality
-router.post('sensors/:mid', async (req,res) => {
+router.post('sensors/:postcode', async (req,res) => {
     const munId = req.params.mid;
     const sensorParameters = req.body;
     const sensorToAdd = new Sensor(sensorParameters);
