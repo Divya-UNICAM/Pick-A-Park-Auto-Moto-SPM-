@@ -14,6 +14,7 @@ const requestRoute = require('./routes/request');
 const paymentRoute = require('./routes/payment');
 //const sensorRoute = require('./routes/sensor');
 const directionsRoute = require('./routes/directions');
+const dashboardRoute = require('./routes/dashboard');
 
 //Configurations
 hasher.generateSalt();
@@ -47,6 +48,7 @@ app.use('/api/request', requestRoute);
 app.use('/api/pay',paymentRoute);
 //app.use('/api/sensor',sensorRoute);
 app.use('/api/directions',directionsRoute);
+app.use('/api/dashboard', dashboardRoute);
 
 app.get('/', (req,res) => {
     res.sendFile(path.join(__dirname + '/wwwroot/views/home/index.html'));
