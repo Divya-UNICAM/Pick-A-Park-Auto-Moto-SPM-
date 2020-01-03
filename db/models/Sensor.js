@@ -2,22 +2,8 @@ const mongoose = require('mongoose');
 const Municipality = require('./Municipality');
 
 const sensorSchema = new mongoose.Schema({
-    municipality: {
+    parkingPlace: {
         type: String
-    },
-    location : {
-        lat: {
-            type: Number,
-            required: true
-        },
-        lng: {
-            type: Number,
-            required: true
-        },
-        address: {
-            type: String,
-            required: true
-        }
     },
     update: {
         type: String

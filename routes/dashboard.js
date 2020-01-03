@@ -201,13 +201,12 @@ router.post('sensors/:postcode/:address', async (req,res) => {
 		if(!requestedMunicipality)
 			return res.send(404).send('Municipality not found');
 		const munId = requestedMunicipality._id;
+		const requestedParkingPlace = await ParkingPlace.findOne({municipality: munId, location:{address: parkAddress}});
+		if(!requestedParkingPlace)
+			return res.status(404).send('Parking place not found');
 		const addedSensor = await new Sensor({
 			municipality: munId,
-			location: {
-				lat: req.body.location.lat,
-				lng: req.body.location.lng,
-				address: req.body.location.address.toLowerCase()
-			},
+			parkingPlace: requestedParkingPlace._id,
 			update: req.body.update,
 			date: req.body.date,
 			detect: req.body.detect,
@@ -239,7 +238,7 @@ router.put('sensors/:postcode/:address/:sid', async (req,res) => {
 		});
 		if(!requestedParkingPlace)
 			return res.status(404).send('Parking place not found');
-		let requestedSensor = await Sensor.findOneAndUpdate({parkingPlace: requestedParkingPlace._id},
+		let requestedSensor = await Sensor.findOneAndUpdate({_id: sensorId, parkingPlace: requestedParkingPlace._id},
 			req.body,{new:true});
         res.send(requestedSensor);
     } catch (err) {
@@ -247,17 +246,28 @@ router.put('sensors/:postcode/:address/:sid', async (req,res) => {
     }
 });
 
-router.delete('sensors/:mid/:sid', async (req,res) => {
-    const munId = req.params.mid;
+router.delete('sensors/:postcode/:address/:sid', async (req,res) => {
+    const { error } = sensorValidation(req.body);
+	if(error) return res.send(400).send(error.details[0].message);
+	const munPostcode = req.params.postcode;
+	const parkAddress = req.params.address.toLowerCase();
     const sensorId = req.params.sid;
     try {
-        const munObj = Municipality.findOne({
-            _id: munId,
-            sensors: Sensor.findById(sensorId)
-        });
-        var sensors = munObj.sensors;
-        const deleted = sensors.remove();
-        res.send(deleted);
+        const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
+		if(!requestedMunicipality)
+			return res.status(404).send('Municipality not found');
+		const requestedParkingPlace = await ParkingPlace.findOne({
+			municipality: requestedMunicipality._id,
+			location: {
+				address: parkAddress
+			}
+		});
+		if(!requestedParkingPlace)
+			return res.status(404).send('Parking place not found');
+		const requestedSensor = await Sensor.deleteOne({_id: sensorId, parkingPlace: requestedParkingPlace._id});
+		if(!requestedSensor)
+			return res.status(404).send('Sensor not found');
+		res.send(requestedSensor);
     } catch (err) {
         res.status(400).send(err);
     }
