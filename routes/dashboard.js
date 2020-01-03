@@ -55,17 +55,23 @@ router.get('/parkingplaces/:mid/:id', async (req,res) => {
 });
 
 //add a new parking place in the system
-//id is the municipality id
-router.post('/parkingplaces/:mid', async (req,res) => {
+// name is the municipality name
+router.post('/parkingplaces/:name', async (req,res) => {
     const { error } = parkingPlaceValidation(req.body);
     if(error) return res.status(400).send(error.details[0].message);
-    const parkingPlaceToAdd = req.body;
-    const munId = req.params.mid;
+    const munName = req.params.name;
     try{
-        const addedParkingPlace = Municipality.findByIdAndUpdate(munId,{
-            $push: { parkingplaces: parkingPlaceToAdd }
-        });
-        res.send(addedParkingPlace);
+        const addedAParkingPlace = await new ParkingPlace({
+            municipality: (await Municipality.findOne({name: munName}))._id,
+            location: req.body.location,
+            sensors: req.body.sensors,
+            date: req.body.date,
+            status: req.body.status
+        }).save();
+        // const addedParkingPlace = Municipality.findOneAndUpdate({ name: munName },{
+        //     $push: { parkingplaces: parkingPlaceToAdd }
+        // });
+        res.send(addedAParkingPlace);
 
     }catch(err) {
         res.status(400).send(err);
