@@ -49,19 +49,27 @@ router.get('/parkingplaces/:postcode', async (req,res) => {
 });
 
 //retrieve all police officers working on the municipality
-//id is the municipality id
-router.get('/police/:mid', async (req,res) => {
-    const munId = req.params.mid;
+router.get('/officers/:postcode', async (req,res) => {
+    const munPostcode = req.params.postcode;
     try{
-        const requestedMunicipality = Municipality.findById(munId, function(err,doc) {
-            res.send(doc.policeofficers);
-        });
+        const mun = await Municipality.findOne({postcode: munPostcode});
+		if(!mun)
+			return res.status(404).send('Municipality not found');
+		const munId = mun._id;
+		const requestedPoliceOfficers = await PoliceOfficer.find({municipality: munId});
+		if(!requestedPoliceOfficers)
+			return res.status(404).send('No police officers found in specified municipality');
+		console.log('Retrieved all police officers');
+		res.send(requestedParkingPlaces);
         
     }catch(err) {
-        res.send(err);
+        return res.status(500).send(err);
     }
     
 });
+
+//retrieve a single police officer in the specified municipality
+router.get('/officers/:postcode')
 
 //retrieve a single parking place from the specified municipality in the specified address
 router.get('/parkingplaces/:postcode/:address', async (req,res) => {
