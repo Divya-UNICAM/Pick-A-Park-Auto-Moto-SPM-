@@ -86,6 +86,7 @@ const parkingPlaceValidation = body => {
         date: Joi.date(),
         status: Joi.string()
     });
+    return schema.validate(body);
 };
 
 //Municipality Validation
