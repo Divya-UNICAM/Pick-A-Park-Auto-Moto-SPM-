@@ -16,9 +16,6 @@ const policeOfficerSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    jobs :{
-        type : Array
-    },
     date: {
         type: Date,
         default: Date.now

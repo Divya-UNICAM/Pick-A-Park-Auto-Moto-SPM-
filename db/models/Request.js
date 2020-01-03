@@ -6,8 +6,9 @@ const requestSchema = new mongoose.Schema({
         required: true
     },
     targetLocation: {
-        type: Object,
-        required: true
+        parkingPlace: {
+            type: String
+        }
     },
     duration: {
         type: Number,

@@ -1,7 +1,10 @@
 const router = require('express').Router();
+const request = require('request-promise');
+const Request = require('../db/models/Request');
 const Sensor = require('../db/models/Sensor');
 const ParkingPlace = require('../db/models/ParkingPlace');
 const PoliceOfficer = require('../db/models/PoliceOfficer');
+const Job = require('../db/models/Job');
 const Municipality = require('../db/models/Municipality');
 const User = require('../db/models/User');
 const Cost = require('../db/models/Cost');
@@ -305,18 +308,30 @@ router.post('/officers/:postcode', async (req,res) => {
 //Delete an exisisting police officer
 //router.delete('/police/:{mid}/:{pid}')
 
-//id is police officer id, assign a new task to an existing police officer
-router.post('/police/:mid/:pid/job', async (req,res) => {
+//assign a new task to an existing police officer
+router.post('/officers/:postcode/:address/:pid/job', async (req,res) => {
     const { error } = jobValidation(req.body);
     if(error) return res.status(400).send(error.details[0].message);
-    const jobToAdd = req.body;
-    const munId = req.params.mid;
-    const polId = req.params.pid;
+    const munPostcode = req.params.postcode;
+    const officerId = req.params.pid;
     try{
-        const modifiedPoliceOfficer = PoliceOfficer.findOneAndUpdate({_id: polId, municipality: munId},{
-            $push: { jobs: jobToAdd }
-        });
-        res.send(modifiedPoliceOfficer);
+		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
+		if(!requestedMunicipality)
+			return res.status(404).send('Municipality not found');
+		const requestedParkingPlace = await ParkingPlace.findOne({municipality: requestedMunicipality._id, location:{address: parkAddress}});
+		if(!requestedParkingPlace)
+			return res.status(404).send('Parking place not found');
+		const requestedPoliceOfficer = await PoliceOfficer.findOne({municipality: requestedMunicipality._id, _id: officerId});
+		if(!requestedPoliceOfficer)
+			return res.status(404).send('Police officer not found');
+		const jobToAdd = new Job({
+			municipality: requestedMunicipality.id,
+			parkingPlace: requestedParkingPlace.id,
+			policeOfficer: requestedPoliceOfficer.id,
+			date: req.body.date,
+			status: req.body.status
+		}).save();
+        res.send(jobToAdd);
 
     }catch(err) {
         res.status(400).send(err);
@@ -324,35 +339,48 @@ router.post('/police/:mid/:pid/job', async (req,res) => {
 });
 
 //receive update from a single parking place
-//each sensor in a parking place can detect a car parking
-//it will then read the plate number and send it to this service
-router.post('/parkingplaces/:mid/update/:parkid', async (req,res) => {
+//when a sensor detects a change in the parking place will send its data to this service
+//data will be then checked and if there is a violation, a new job will be added
+router.post('/parkingplaces/:postcode/:address/update', async (req,res) => {
     const { error } = parkingUpdateValidation(req.body);
     if(error) return res.status(400).send(error.details[0].message);
     const parkingUpdate = req.body;
     //check if plate number is legit or there is a running violation
-    ParkingPlace.findOne({})
-    const munId = req.params.mid;
-    const parkId = req.params.parkid;
+    
+    const munPostcode = req.params.postcode;
+    const parkAddress = req.params.address;
     try{
-        const modifiedPoliceOfficer = ParkingPlace.findOneAndUpdate({_id: parkId, municipality: munId, "sensors.id": parkingUpdate.id},{
-            $push: { "sensors.$.updates": parkingUpdate }
-        });
-        res.send(modifiedPoliceOfficer);
-
+        const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
+		if(!requestedMunicipality)
+			return res.status(404).send('Municipality not found');
+		const requestedParkingPlace = await ParkingPlace.findOne({municipality: requestedMunicipality._id, location:{address: parkAddress}});
+		if(!requestedParkingPlace)
+			return res.status(404).send('Parking place not found');
+		const requestedRequest = Request.findOne({targetLocation:{parkingPlace:requestedParkingPlace.id}});
+		if(!requestedRequest)
+			return res.status(404).send('Request not found');
+		if(requestedRequest.plateNumber !== req.body.plateNumber) {
+			const requestedPoliceOfficer = await PoliceOfficer.findOne();
+			if(!requestedPoliceOfficer)
+				return res.status(404).send('No police officers available for dispatch');
+			const jobToSend = await new Job({
+				municipality: requestedMunicipality.id,
+				parkingPlace: requestedParkingPlace.id,
+				policeOfficer: requestedPoliceOfficer.id,
+				date: Date.now(),
+				status: "VIOLATION"
+			}).save();
+			res.send(jobToSend);
+		} else {
+			res.send('Car is legit');
+		}
     }catch(err) {
-        res.status(400).send(err);
+        res.status(500).send(err);
     }
 });
 
-//receive updates from all parking places in the specificed municipality
-//when the service is called, the parking places are requested info
-router.get('/parkingplaces/:{mid}/updates', async (req,res) => {
-
-});
-
 //retrieve all sensors from the current municipality
-router.get('/sensors/:mid', async (req,res) => {
+router.get('/sensors/:postcode', async (req,res) => {
     const munId = req.params.mid;
     try {
         Municipality.findById(munId, (err,doc) => {
@@ -381,6 +409,8 @@ router.get('sensors/:mid/:sid',async (req,res) => {
         res.status(400).send(error);
     }
 });
+
+//SERVICES FOR ADMINS AND TESTING PURPOSES
 
 //Add a new municipality user to the platform
 router.post('/municipality/admin', async (req,res) => {
