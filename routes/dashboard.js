@@ -214,20 +214,28 @@ router.delete('sensors/:mid/:sid', async (req,res) => {
 });
 
 //add a new police officer in the system
-//id is the municipality id
-router.post('/police/:{mid}', async (req,res) => {
+router.post('/officers/:postcode', async (req,res) => {
     const { error } = policeOfficerValidation(req.body);
     if(error) return res.status(400).send(error.details[0].message);
-    const policeOfficerToAdd = req.body;
-    const munId = req.params.mid;
+    const munPostcode = req.params.postcode;
     try{
-        const addedPoliceOfficer = Municipality.findByIdAndUpdate(munId,{
-            $push: { policeofficers: policeOfficerToAdd }
-        });
+        const requestedMunicipality = await Municipality.findOne({name: munPostcode});
+		if(!requestedMunicipality)
+			return res.status(404).send('Municipality not found');
+        const addedPoliceOfficer = await new PoliceOfficer({
+			municipality: requestedMunicipality._id,
+			name: req.body.name,
+			email: req.body.email,
+			password: req.body.password,
+			jobs: req.body.jobs,
+            date: req.body.date,
+            status: req.body.status
+        }).save();
+        console.log('Added a new police officer');
         res.send(addedPoliceOfficer);
 
     }catch(err) {
-        res.status(400).send(err);
+        return res.status(500).send(err);
     }
 });
 
