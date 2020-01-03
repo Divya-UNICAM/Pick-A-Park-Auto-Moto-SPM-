@@ -21,11 +21,19 @@ const municipalitySchema = new mongoose.Schema({
         min: 5,
         max: 5
     },
-    parkingPlaces: {
-        type: Array
+    location: {
+        lat: {
+            type: Number,
+            required: true
+        },
+        lng: {
+            type: Number,
+            required: true
+        }
     },
     policeOfficers : {
-        type: Array
+        type: Array,
+        default: []
     },
     date: {
         type: Date,

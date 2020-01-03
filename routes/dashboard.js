@@ -5,7 +5,16 @@ const PoliceOfficer = require('../db/models/PoliceOfficer');
 const Municipality = require('../db/models/Municipality');
 const User = require('../db/models/User');
 const Cost = require('../db/models/Cost');
-const { sensorValidation } = require('../validation');
+const { sensorValidation, municipalityValidation } = require('../validation');
+
+//add a new municipality in the system (municipality purchased the service)
+router.post('/municipalities', async (req,res) => {
+    const { error } = municipalityValidation(req.body);
+    if(error) return res.status(400).send(error.details[0].message);
+    const addedMunicipality = await new Municipality(req.body).save();
+    console.log(addedMunicipality);
+    res.send(addedMunicipality);
+});
 
 //retrieve all parking places in the system and display their status
 router.get('/parkingplaces', async (req,res) => {
