@@ -70,6 +70,24 @@ const sensorValidation = body => {
     return schema.validate(body);
 };
 
+//Parking place validation
+const parkingPlaceValidation = body => {
+    const schema = Joi.object({
+        municipality: Joi.string()
+            .hex()
+            .required(),
+        location: Joi.object({
+            lat: Joi.number()
+                .required(),
+            lng: Joi.number()
+                .required()
+        }),
+        sensors: Joi.array(),
+        date: Joi.date(),
+        status: Joi.string()
+    });
+};
+
 //Municipality Validation
 const municipalityValidation = body => {
     const schema = Joi.object({
@@ -95,4 +113,5 @@ module.exports.registerValidation = registerValidation;
 module.exports.loginValidation = loginValidation;
 module.exports.requestValidation = requestValidation;
 module.exports.sensorValidation = sensorValidation;
+module.exports.parkingPlaceValidation = parkingPlaceValidation;
 module.exports.municipalityValidation = municipalityValidation;
