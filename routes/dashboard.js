@@ -5,7 +5,7 @@ const PoliceOfficer = require('../db/models/PoliceOfficer');
 const Municipality = require('../db/models/Municipality');
 const User = require('../db/models/User');
 const Cost = require('../db/models/Cost');
-const { sensorValidation, municipalityValidation } = require('../validation');
+const { sensorValidation, municipalityValidation, parkingPlaceValidation } = require('../validation');
 
 //add a new municipality in the system (municipality purchased the service)
 router.post('/municipalities', async (req,res) => {
