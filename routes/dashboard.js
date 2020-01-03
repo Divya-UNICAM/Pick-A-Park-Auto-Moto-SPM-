@@ -133,6 +133,8 @@ router.put('/parkingplaces/:postcode/:address', async (req,res) => {
 			municipality: munId,
 			location: { address: parkAddress }
 		});
+		if(!parkPlace)
+			return res.status(404).send('Parking place not found');
         const updated = await parkPlace.set(toUpdate).save();
 		console.log('Parking place updated');
 		res.send(updated);
@@ -143,19 +145,23 @@ router.put('/parkingplaces/:postcode/:address', async (req,res) => {
 
 //Delete an existing parking place
 router.delete('/parkingplaces/:postcode/:address', async (req,res) => {
-    const munId = req.params.mid;
-    const parkId = req.params.pid;
-    const toUpdate = req.body;
+    const munPostcode = req.params.postcode;
+    const parkAddress = req.params.address;
     try {
-        const munObj = Municipality.findOne({
-            _id: munId,
-            parkingplaces: ParkingPlace.findById(parkId)
-        });
-        var parkPlace = munObj.parkingplaces;
-        const deleted = parkPlace.remove();
-        res.send(deleted);
+        const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
+		if(!requestedMunicipality)
+			return res.status(404).send('Municipality not found');
+		const munId = requestedMunicipality._id;
+        const deletedParkPlace = await ParkingPlace.deleteOne({
+			municipality: munId,
+			location: { address: parkAddress }
+		});
+		if(!parkPlace)
+			return res.status(404).send('Parking place not found');
+		console.log('Parking place deleted');
+		res.send(deletedParkPlace);
     } catch (err) {
-        res.status(400).send(err);
+        return res.status(500).send(err);
     }
 });
 
