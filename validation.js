@@ -74,8 +74,7 @@ const sensorValidation = body => {
 const parkingPlaceValidation = body => {
     const schema = Joi.object({
         municipality: Joi.string()
-            .hex()
-            .required(),
+            .hex(),
         location: Joi.object({
             lat: Joi.number()
                 .required(),

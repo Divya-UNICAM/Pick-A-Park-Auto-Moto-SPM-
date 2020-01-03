@@ -10,15 +10,41 @@ const { sensorValidation, municipalityValidation, parkingPlaceValidation } = req
 //add a new municipality in the system (municipality purchased the service)
 router.post('/municipalities', async (req,res) => {
     const { error } = municipalityValidation(req.body);
-    if(error) return res.status(400).send(error.details[0].message);
-    const addedMunicipality = await new Municipality(req.body).save();
-    console.log(addedMunicipality);
-    res.send(addedMunicipality);
+	if(error) return res.status(400).send(error.details[0].message);
+	try {
+		const addedMunicipality = await new Municipality({
+			name: req.body.name.toLowerCase(),
+			province: req.body.province.toUpperCase(),
+			region: req.body.region.toLowerCase(),
+			postcode: req.body.postcode,
+			location: req.body.location,
+			policeOfficers: req.body.policeOfficers,
+			date: req.body.date
+		}).save();
+		console.log('Added a new municipality');
+		res.send(addedMunicipality);	
+	} catch (err) {
+		return res.status(500).send(err);
+	}
 });
 
 //retrieve all parking places in the system and display their status
-router.get('/parkingplaces', async (req,res) => {
-    res.send(ParkingPlace.find().lean());
+router.get('/parkingplaces/:name', async (req,res) => {
+	const munName = req.params.name.toLowerCase();
+	try {
+		const mun = await Municipality.findOne({name: munName});
+		if(!mun)
+			return res.status(404).send('Municipality not found');
+		const munId = mun._id;
+		const requestedParkingPlaces = await ParkingPlace.find({municipality: munId});
+		if(!requestedParkingPlaces)
+			return res.status(404).send('No parking places found in specified municipality');
+		console.log('Retrieved all parking places');
+		res.send(requestedParkingPlaces);
+	} catch (err) {
+		return res.status(500).send(err);
+	}
+    res.send(ParkingPlace.find());
 });
 
 //retrieve all police officers working on the municipality
@@ -59,15 +85,19 @@ router.get('/parkingplaces/:mid/:id', async (req,res) => {
 router.post('/parkingplaces/:name', async (req,res) => {
     const { error } = parkingPlaceValidation(req.body);
     if(error) return res.status(400).send(error.details[0].message);
-    const munName = req.params.name;
+	const munName = req.params.name.toLowerCase();
     try{
+		const requestedMunicipality = await Municipality.findOne({name: munName});
+		if(!requestedMunicipality)
+			return res.status(404).send('Municipality not found');
         const addedAParkingPlace = await new ParkingPlace({
-            municipality: (await Municipality.findOne({name: munName}))._id,
+            municipality: requestedMunicipality._id,
             location: req.body.location,
             sensors: req.body.sensors,
             date: req.body.date,
             status: req.body.status
         }).save();
+        console.log('Added a new parking place in' + munName);
         // const addedParkingPlace = Municipality.findOneAndUpdate({ name: munName },{
         //     $push: { parkingplaces: parkingPlaceToAdd }
         // });
