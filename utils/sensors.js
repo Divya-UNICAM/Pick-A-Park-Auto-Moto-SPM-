@@ -1,30 +1,21 @@
 //Sensor class used to simulate sensors in a real application
-
-const request = require('request-promise');
+const request = require('supertest');
 const server = require('../server');
 const Municipality = require('../db/models/Municipality');
+const SensorModel = require('../db/models/Sensor');
 
 
 module.exports = class Sensor {
-    constructor(lat, lng, ) {
-        this.lat = lat;
-        this.lng = lng;
-        this.detect = 0;
-        this.updates = [];
-        this.date = Date.now();
-        this.status = "FREE";
-        this.plateNumber = "";
+    constructor() {
+        this.sensors = await SensorModel.find();
     }
 
     
     obtainMunicipalityID() {
-        const mun = Municipality.findOne({
-            sensors: Sensor.findOne({
-                lat: this.lat,
-                lng: this.lng
-            })
-        });
-        return mun.lean()._id;
+        const mun = await this.sensors.find((index) => Math.floor(Math.random()))
+        if(!mun)
+            return 0;
+        return mun[0].id;
     }
 
     sendUpdate() {
@@ -35,7 +26,7 @@ module.exports = class Sensor {
             this.status = "FREE";
             this.plateNumber = "";
         }
-        return request('http://localhost:3001/api/dashboard/parkingplaces/'+this.obtainMunicipalityID()+'/update/:parkid', JSON.parse(this))
+        return request(server).post('/api/dashboard/parkingplaces/'+this.obtainMunicipalityID()+'/'+'Le mosse, 23'+'/update', JSON.parse(this))
             .then((body) => {
                 return body;
             })

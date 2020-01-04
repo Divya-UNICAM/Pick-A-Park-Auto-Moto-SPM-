@@ -308,7 +308,7 @@ router.post('/officers/:postcode', async (req,res) => {
 //router.delete('/police/:{mid}/:{pid}')
 
 //retrieve all tasks assigned to police officers
-router.get('officers/:postcode/:address/job', async (req,res) => {
+router.get('officers/:postcode/:address/jobs', async (req,res) => {
 	const munPostcode = req.params.postcode;
     const officerId = req.params.pid;
     try{
@@ -369,7 +369,7 @@ router.post('/parkingplaces/:postcode/:address/update', async (req,res) => {
     //check if plate number is legit or there is a running violation
     
     const munPostcode = req.params.postcode;
-    const parkAddress = req.params.address;
+    const parkAddress = btoa(req.params.address.toLowerCase());
     try{
         const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
