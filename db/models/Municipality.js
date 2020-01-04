@@ -31,10 +31,6 @@ const municipalitySchema = new mongoose.Schema({
             required: true
         }
     },
-    policeOfficers : {
-        type: Array,
-        default: []
-    },
     date: {
         type: Date,
         default: Date.now

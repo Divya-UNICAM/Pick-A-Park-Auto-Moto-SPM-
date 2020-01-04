@@ -58,9 +58,8 @@ router.get('/officers/:postcode', async (req,res) => {
         const mun = await Municipality.findOne({postcode: munPostcode});
 		if(!mun)
 			return res.status(404).send('Municipality not found');
-		const munId = mun._id;
-		const requestedPoliceOfficers = await PoliceOfficer.find({municipality: munId});
-		if(!requestedPoliceOfficers)
+		const requestedPoliceOfficers = await PoliceOfficer.find({municipality: mun.id});
+		if(requestedPoliceOfficers.length <= 0)
 			return res.status(404).send('No police officers found in specified municipality');
 		console.log('Retrieved all police officers');
 		res.send(requestedParkingPlaces);
@@ -308,10 +307,32 @@ router.post('/officers/:postcode', async (req,res) => {
 //Delete an exisisting police officer
 //router.delete('/police/:{mid}/:{pid}')
 
+//retrieve all tasks assigned to police officers
+router.get('officers/:postcode/:address/job', async (req,res) => {
+	const munPostcode = req.params.postcode;
+    const officerId = req.params.pid;
+    try{
+		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
+		if(!requestedMunicipality)
+			return res.status(404).send('Municipality not found');
+		const requestedParkingPlace = await ParkingPlace.findOne({municipality: requestedMunicipality._id, location:{address: parkAddress}});
+		if(!requestedParkingPlace)
+			return res.status(404).send('Parking place not found');
+		const jobs = Job.find({
+			municipality: requestedMunicipality.id,
+			parkingPlace: requestedParkingPlace.id,
+		});
+        res.send(jobs);
+
+    }catch(err) {
+        res.status(500).send(err);
+    }
+});
+
 //assign a new task to an existing police officer
 router.post('/officers/:postcode/:address/:pid/job', async (req,res) => {
-    const { error } = jobValidation(req.body);
-    if(error) return res.status(400).send(error.details[0].message);
+    //const { error } = jobValidation(req.body);
+    //if(error) return res.status(400).send(error.details[0].message);
     const munPostcode = req.params.postcode;
     const officerId = req.params.pid;
     try{
@@ -334,7 +355,7 @@ router.post('/officers/:postcode/:address/:pid/job', async (req,res) => {
         res.send(jobToAdd);
 
     }catch(err) {
-        res.status(400).send(err);
+        res.status(500).send(err);
     }
 });
 
@@ -342,9 +363,9 @@ router.post('/officers/:postcode/:address/:pid/job', async (req,res) => {
 //when a sensor detects a change in the parking place will send its data to this service
 //data will be then checked and if there is a violation, a new job will be added
 router.post('/parkingplaces/:postcode/:address/update', async (req,res) => {
-    const { error } = parkingUpdateValidation(req.body);
-    if(error) return res.status(400).send(error.details[0].message);
-    const parkingUpdate = req.body;
+    //const { error } = parkingUpdateValidation(req.body);
+    //if(error) return res.status(400).send(error.details[0].message);
+    //const parkingUpdate = req.body;
     //check if plate number is legit or there is a running violation
     
     const munPostcode = req.params.postcode;

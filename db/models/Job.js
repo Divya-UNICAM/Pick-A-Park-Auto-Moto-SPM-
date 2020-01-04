@@ -20,4 +20,4 @@ const jobSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('Job', sensorSchema);
+module.exports = mongoose.model('Job', jobSchema);
