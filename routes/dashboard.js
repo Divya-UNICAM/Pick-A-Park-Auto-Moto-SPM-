@@ -8,7 +8,8 @@ const Job = require('../db/models/Job');
 const Municipality = require('../db/models/Municipality');
 const User = require('../db/models/User');
 const Cost = require('../db/models/Cost');
-const { sensorValidation, municipalityValidation, parkingPlaceValidation } = require('../validation');
+const bcrypt = require('bcryptjs');
+const { policeOfficerValidation, sensorValidation, municipalityValidation, parkingPlaceValidation } = require('../validation');
 const { reverseGeolocatev1 } = require('../utils/geolocator');
 
 //add a new municipality in the system (municipality purchased the service)
@@ -305,17 +306,23 @@ router.post('/officers/:postcode', async (req,res) => {
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
     try{
-        const requestedMunicipality = await Municipality.findOne({name: munPostcode});
+        const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
 			return res.status(404).send('Municipality not found');
+		//Check if the user is already in the database
+		const emailExists = await PoliceOfficer.findOne({email: req.body.email});
+		if(emailExists) return res.status(400).send('Email already exists');
+	
+		//Hash the password
+		const salt = await bcrypt.genSalt(10);
+		const hashedPassword = await bcrypt.hash(req.body.password, salt);
+
         const addedPoliceOfficer = await new PoliceOfficer({
 			municipality: requestedMunicipality._id,
 			name: req.body.name,
 			email: req.body.email,
-			password: req.body.password,
-			jobs: req.body.jobs,
-            date: req.body.date,
-            status: req.body.status
+			password: hashedPassword,
+			badge: req.body.badge
         }).save();
         console.log('Added a new police officer');
         res.send(addedPoliceOfficer);
@@ -326,10 +333,14 @@ router.post('/officers/:postcode', async (req,res) => {
 });
 
 //Update an exisiting police officer
-//router.put('/police/:{mid}/:{pid}')
+router.put('/officers/:postcode/:badge', async (req,res) => {
+
+});
 
 //Delete an exisisting police officer
-//router.delete('/police/:{mid}/:{pid}')
+router.delete('/officers/:postcode/:badge', async (req,res) => {
+
+});
 
 //retrieve all tasks assigned to police officers
 router.get('officers/:postcode/jobs', async (req,res) => {

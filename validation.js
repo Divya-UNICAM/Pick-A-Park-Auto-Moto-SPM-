@@ -107,7 +107,7 @@ const municipalityValidation = body => {
     return schema.validate(body);
 };
 
-//Municipality Validation
+//Police officers Validation
 const policeOfficerValidation = body => {
     const schema = Joi.object({
         name: Joi.string()
