@@ -110,15 +110,24 @@ const municipalityValidation = body => {
 //Police officers Validation
 const policeOfficerValidation = body => {
     const schema = Joi.object({
-        name: Joi.string()
-            .required(),
-        email: Joi.string().email()
-            .required(),
-        password: Joi.string()
-            .required(),
-        badge: Joi.string()
-            .required()
-        });
+        name: Joi.string(),
+        email: Joi.string().email(),
+        password: Joi.string(),
+        badge: Joi.string(),
+        status: Joi.string()
+    });
+    return schema.validate(body);
+};
+
+//Job Validation
+const jobValidation = body => {
+    const schema = Joi.object({
+        municipality: Joi.string(),
+        policeOfficer: Joi.string(),
+        parkingPlace: Joi.string(),
+        date: Joi.date(),
+        status: Joi.string()
+    });
     return schema.validate(body);
 };
 
@@ -129,3 +138,4 @@ module.exports.sensorValidation = sensorValidation;
 module.exports.parkingPlaceValidation = parkingPlaceValidation;
 module.exports.municipalityValidation = municipalityValidation;
 module.exports.policeOfficerValidation = policeOfficerValidation;
+module.exports.jobValidation = jobValidation;
