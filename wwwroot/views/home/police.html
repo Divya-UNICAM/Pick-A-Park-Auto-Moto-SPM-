@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Addition of police officers</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+		
+		body{
+			margin: 0;
+			font-family: sans-serif;
+		}
+		
+		h1{
+		  color: white;
+		  text-align: center;
+		  }
+		
+		label{
+			width: 450px;
+			display: block;
+			float: left;
+			}
+		
+		input{
+				width: 200px;
+			}
+		
+		header,footer,aside{
+			display: block;
+		}
+		
+		button{
+			font-size: 14px;
+			padding: 5px;
+			border-radius: 2px;
+			background: #ff0033;
+			color: #ffffff;
+			float: left;
+			width: 100px;
+			}
+		
+		table{
+			width: 400px;
+			border-collapse: collapse;
+			}
+			
+		th, td{
+			width: 10px;
+			border: 2px solid black;
+		}
+			
+		.container{
+				width: 1000px;
+				margin: 0 auto;
+				}
+		
+		.headerbar{
+				width: 1000px;
+				float: left;
+				}
+				
+		.headerbar.top{
+			background: #003333;
+			min-height: 100px;
+			}
+		
+		.headerbar.bottom{
+			background: #333300;
+			min-height: 100px;
+			}
+			
+		.leftbar{
+				width: 500px;
+				background: #009999;
+				min-height: 600px;
+				float: left;
+				min-height: 100vh;
+				}
+		
+		.rightbar{
+				width: 500px;
+				background: #ccccff;
+				min-height: 600px;
+				float: left;
+				min-height: 100vh;
+				}
+		</style>
+        
+</head>
+
+    <body>
+        
+        <div class="container">
+            <header class="headerbar top"><h1>Inclusion of Police officers</h1></header>
+			<aside class="leftbar">
+				<div>
+		
+				<fieldset>
+				<label>Name :</label>
+				<input type="text" placeholder="entry of name" name="name" id="name">
+				</fieldset>
+				
+				<fieldset>
+                <label>Designation :</label>
+				<input type="text" name="designation" id="designation">
+				</fieldset>
+				
+				<fieldset>
+                <label>Phone Number :</label>
+				<input type="number" name="number" id="number">
+				</fieldset>
+				
+				<fieldset>
+				<label>E-mail :</label>
+				<input type="email" name="email" id="email">
+				</fieldset>
+				
+				<fieldset>
+				<label>Municipality :</label>
+				<input type="text" name="municipality" id="municipality">
+				</fieldset>
+								
+				<button id="submit" onclick="onaddPressed()">Add</button>
+				
+			</div>
+			
+			</aside>
+			
+			<aside class="rightbar">
+			<table id="policetable">
+				<thead>
+			        <tr>
+                        <th> Name </th>
+                        <th> Designation </th>
+                        <th> Phone Number</th>
+						<th> E-mail </th>
+						<th> Municipality </th>
+					</tr>
+				</thead>
+            </table>
+			</aside>
+ 		
+			<footer class="headerbar bottom"></footer>
+</div>
+
+</body>
+
+<script>
+
+	var policeArray= [];
+
+	function onaddPressed(){
+	
+	var Name = document.getElementById("name").value;
+    var Designation = document.getElementById("designation").value;
+    var Number = document.getElementById("number").value;
+	var Email = document.getElementById("email").value;
+	var Municipality = document.getElementById("municipality").value;
+	
+	var policeobj = {name:Name,designation:Designation,number:Number,email:Email,municipality:Municipality};
+	
+	
+	console.log(policeArray);
+	policeArray.push(policeobj);
+	policeArray = JSON.parse(localStorage.getItem("policeobj")) || [];
+	
+	localStorage.setItem("policeobj",JSON.stringify(policeArray));
+	policeArray = localStorage.getItem("policeobj");
+	policeArray = JSON.parse(policeArray);
+	prepareTableCell(Name,Designation,Number,Email,Municipality);
+	
+	
+	//clear fields
+	document.getElementById("name").value = "";
+	document.getElementById("designation").value = "";
+	document.getElementById("number").value = "";
+	document.getElementById("email").value = "";
+	document.getElementById("municipality").value = "";
+	
+    } 
+	function prepareTableCell(Name,Designation,Number,Email,Municipality){
+	var table = document.getElementById("policetable");
+	var row = table.insertRow();
+	var NameCell = row.insertCell(0);
+	var DesignationCell = row.insertCell(1);
+	var NumberCell = row.insertCell(2);
+	var EmailCell = row.insertCell(3);
+	var MunicipalityCell = row.insertCell(4);
+	
+	NameCell.innerHTML = Name;
+    DesignationCell.innerHTML = Designation;
+    NumberCell.innerHTML = Number;
+	EmailCell.innerHTML = Email;
+	MunicipalityCell.innerHTML = Municipality;
+		
+	}
+</script>
+
+
+</html>
