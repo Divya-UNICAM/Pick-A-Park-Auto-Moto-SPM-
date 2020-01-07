@@ -57,13 +57,10 @@ const requestValidation = body => {
 //Sensor validation
 const sensorValidation = body => {
     const schema = Joi.object({
-        location: Joi.object({
-            lat: Joi.number(),
-            lng: Joi.number()
-        })
-        .required(),
-        date: Joi.date()
-            .required(),
+        parkingPlace: Joi.string().hex(),
+        position: Joi.number().required(),
+        update: Joi.string(),
+        date: Joi.date(),
         detected: Joi.number(),
         status: Joi.string()
     });
@@ -83,7 +80,6 @@ const parkingPlaceValidation = body => {
             address: Joi.string()
                 .required()
         }),
-        sensors: Joi.array(),
         date: Joi.date(),
         status: Joi.string()
     });
