@@ -107,9 +107,25 @@ const municipalityValidation = body => {
     return schema.validate(body);
 };
 
+//Municipality Validation
+const policeOfficerValidation = body => {
+    const schema = Joi.object({
+        name: Joi.string()
+            .required(),
+        email: Joi.string().email()
+            .required(),
+        password: Joi.string()
+            .required(),
+        badge: Joi.string()
+            .required()
+        });
+    return schema.validate(body);
+};
+
 module.exports.registerValidation = registerValidation;
 module.exports.loginValidation = loginValidation;
 module.exports.requestValidation = requestValidation;
 module.exports.sensorValidation = sensorValidation;
 module.exports.parkingPlaceValidation = parkingPlaceValidation;
 module.exports.municipalityValidation = municipalityValidation;
+module.exports.policeOfficerValidation = policeOfficerValidation;
