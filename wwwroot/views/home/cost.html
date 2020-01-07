@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Cost management</title>
+    <meta name="view-port" content="width=device-width, initial-scale=1.0">
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" >
+    <style>
+
+*{margin: 0px;padding: 0px;}
+.heading{
+color: #fff;
+background: #337AB7;
+text-transform: uppercase;
+padding: 20px;
+font-size: 16px;
+letter-spacing: 1px;
+margin-bottom: 50px;
+}
+.btn, .form-control{
+  border-radius: 0px;
+  width:80%;
+}
+p{color:#337AB7;}
+
+</style>
+</head>
+
+  <body>
+    <div class="container">
+      <h2 class="heading">Cost management</h2>
+
+    <div class="addcost">
+      <!-- add user -->
+      <div class="row">
+        <div class="col-md-12">
+        <p>Cost Per hour</p>
+      </div>
+        <div class="col-md-10">
+          <input type="text" class="form-control" id="data">
+        </div>
+        <div class="col-md-2">
+          <button type="button" class="btn btn-primary" id="addUser" onclick="addcost();">Add cost</button>
+        </div>
+      </div>
+      <div class="row">
+      <div class="col-md-12">
+        <br>
+        <p>Current cost assigned</p><p>&#8364;</p>
+      </div>
+    </div>
+      <div class="user" id="costList" &#8364;>
+      </div>
+    </div>
+    </div>
+	
+<script>
+
+var data = document.getElementById('data');
+var costList = document.getElementById('costList');
+
+// add user code
+var counter = 0;
+function addcost(){
+  var inputdata = document.getElementById('data').value;
+  var html =  '<div class="row" id="data'+counter+'" style="margin-bottom:15px;">'+
+    '<div class="col-md-6 col-sm-12 col-xs-12">'+
+      '<input type="text" class="form-control" value="'+inputdata+'" disabled>'+
+    '</div>'+
+    '<div class="col-md-2 col-sm-4 col-xs-4">'+
+      '<button type="button" class="btn btn-success" onclick="edit(this.id)" id="edit'+counter+'">Edit</button>'+
+    '</div>'+
+
+    '<div class="col-md-2 col-sm-4 col-xs-4">'+
+      '<button type="button" class="btn btn-success" onclick="update(this.id)" id="update'+counter+'">Update</button>'+
+    '</div>'+
+    '<div class="col-md-2 col-sm-4 col-xs-4">'+
+      '<button type="button" class="btn btn-danger" onclick="remove(this.id)" id="delete'+counter+'">Delete</button>'+
+    '</div>'+
+  '</div>';
+
+  document.getElementById('costList').insertAdjacentHTML('beforeend', html);
+    counter++;
+
+}
+
+function edit(editId){
+  var parent =   document.getElementById(editId).parentNode.parentNode;
+  var child = parent.firstChild.firstChild;
+  child.removeAttribute('disabled');
+  console.log(child);
+}
+
+function update(updateId){
+  var parent =   document.getElementById(updateId).parentNode.parentNode;
+  var child = parent.firstChild.firstChild;
+  child.setAttribute("disabled",'disabled');
+  console.log(child);
+}
+
+function remove(deleteId){
+  var parent =   document.getElementById(deleteId).parentNode.parentNode;
+  parent.remove();
+  console.log(parent);
+}
+</script>
+
+</body>
+</html>
