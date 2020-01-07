@@ -9,6 +9,10 @@ const sensorSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    ipAddress: { //Each sensor that is part of the same ParkingPlace shares the same Ip address
+        type: String,
+        required:true
+    },
     update: {
         type: String,
         default: ""

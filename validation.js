@@ -59,6 +59,7 @@ const sensorValidation = body => {
     const schema = Joi.object({
         parkingPlace: Joi.string().hex(),
         position: Joi.number().required(),
+        ipAddress: Joi.string().ip().required(),
         update: Joi.string(),
         date: Joi.date(),
         detected: Joi.number(),
