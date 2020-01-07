@@ -130,39 +130,43 @@ router.post('/parkingplaces/:postcode', async (req,res) => {
     const { error } = parkingPlaceValidation(req.body);
     if(error) return res.status(400).send(error.details[0].message);
 	const munPostcode = req.params.postcode;
+	console.log(munPostcode)
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
     try{
 		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
 			return res.status(404).send('Municipality not found');
+		console.log((req.body.location.address));
         const addedAParkingPlace = await new ParkingPlace({
-			municipality: requestedMunicipality._id,
+			municipality: requestedMunicipality.id,
 			//lat and lng are defined by the client issuing the request
 			//given that you must issue the address of the pkplace
 			//the client (browser) will also call the geolocation service
             location: {
 				lat: req.body.location.lat,
 				lng: req.body.location.lng,
-				address: btoa(req.body.location.address.toLowerCase())
-			},
-            sensors: req.body.sensors,
-            date: req.body.date,
-            status: req.body.status
+				address: req.body.location.address.toLowerCase()
+			}
         }).save();
         console.log('Added a new parking place');
         res.send(addedAParkingPlace);
 
     }catch(err) {
-        res.status(400).send(err);
+        res.status(500).send(err);
     }
 });
 
 //Update and exisisting parking place
 router.put('/parkingplaces/:postcode/:address', async (req,res) => {
-    const munPostcode = req.params.postcode;
-    const parkAddress = req.params.address; //already in base64
-	const toUpdate = req.body;
+	const { error } = parkingPlaceValidation(req.body);
+	if(error) return res.status(400).send(error.details[0].message);
+	const munPostcode = req.params.postcode;
+	//each address used in these services comes from the Google Maps Places API
+	//so each address is "true and verified", at least it will encoded to escape special characters in URL
+	//when issueing the request, the address will be put in URL as is, just escaped characters
+	const parkAddress = decodeURI(req.params.address.toLowerCase());
+	console.log(parkAddress);
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
     try {
@@ -172,11 +176,11 @@ router.put('/parkingplaces/:postcode/:address', async (req,res) => {
 		const munId = requestedMunicipality._id;
         let parkPlace = await ParkingPlace.findOne({
 			municipality: munId,
-			location: { address: parkAddress }
+			'location.address': parkAddress
 		});
 		if(!parkPlace)
 			return res.status(404).send('Parking place not found');
-        const updated = await parkPlace.set(toUpdate).save();
+        const updated = await parkPlace.set(req.body).save();
 		console.log('Parking place updated');
 		res.send(updated);
     } catch (err) {
@@ -197,7 +201,7 @@ router.delete('/parkingplaces/:postcode/:address', async (req,res) => {
 		const munId = requestedMunicipality._id;
         const deletedParkPlace = await ParkingPlace.deleteOne({
 			municipality: munId,
-			location: { address: parkAddress }
+			'location.address': parkAddress
 		});
 		if(!parkPlace)
 			return res.status(404).send('Parking place not found');
