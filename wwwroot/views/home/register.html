@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Auto-Moto Login</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--===============================================================================================-->	
+	<link type="image/png" href="../../images/icons/favicon.ico">
+<!--===============================================================================================-->
+	<link type="text/css" href="../../vendor/bootstrap/css/bootstrap.min.css">
+<!--===============================================================================================-->
+	<link type="text/css" href="../../fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+<!--===============================================================================================-->
+	<link type="text/css" href="../../vendor/animate/animate.css">
+<!--===============================================================================================-->	
+	<link type="text/css" href="../../vendor/css-hamburgers/hamburgers.min.css">
+<!--===============================================================================================-->
+	<link type="text/css" href="../../vendor/select2/select2.min.css">
+<!--===============================================================================================-->
+	<link type="text/css" href="../../static/css/util.css">
+	<link type="text/css" href="../../static/css/main.css">
+<!--===============================================================================================-->
+</head>
+<body>
+	<form name="loginform">
+	<div class="limiter">
+		<div class="container-login100">
+			<div class="wrap-login100">
+				<div class="login100-pic js-tilt" data-tilt>
+					<img src="../../images/img-01.png" alt="IMG">
+				</div>
+
+				<form class="login100-form validate-form">
+					<span class="login100-form-title">
+						Member Login
+					</span>
+
+					<div class="wrap-input100 validate-input" data-validate = "Valid email is required: ex@abc.xyz">
+						<input class="input100" type="text" name="email" id="email" placeholder="Email">
+						<span class="focus-input100"></span>
+						<span class="symbol-input100">
+							<i class="fa fa-envelope" aria-hidden="true"></i>
+						</span>
+					</div>
+
+					<div class="wrap-input100 validate-input" data-validate = "Password is required">
+						<input class="input100" type="password" name="password" id="password" placeholder="Password">
+						<span class="focus-input100"></span>
+						<span class="symbol-input100">
+							<i class="fa fa-lock" aria-hidden="true"></i>
+						</span>
+					</div>
+
+					<div class="wrap-input100 validate-input" data-validate = "Password is required">
+						<input name="usertype">
+						<label><b>Select Usertype: </b></label>
+						<select id = "usertype">
+						  <option value = "1">Auto-Moto Admin</option>
+						  <option value = "2">Municipality Admin</option>
+						  <option value = "3">Police officer</option>
+					   </select>
+						
+					</div>
+					
+					<div class="container-login100-form-btn">
+						<button class="login100-form-btn" onsubmit="validateForm();">
+							Login
+						</button>
+					</div>
+
+					<div class="text-center p-t-12">
+						<span class="txt1">
+							Forgot
+						</span>
+						<a class="txt2" href="#">
+							Username / Password?
+						</a>
+					</div>
+
+					<div class="text-center p-t-136">
+						<a class="txt2" href="/register">
+							Create your Account
+							<i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
+						</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</form>
+
+	<!--===============================================================================================-->	
+	<script src="../../vendor/jquery/jquery-3.2.1.min.js"></script>
+<!--===============================================================================================-->
+	<script src="../../vendor/bootstrap/js/popper.js"></script>
+	<script src="../../vendor/bootstrap/js/bootstrap.min.js"></script>
+<!--===============================================================================================-->
+	<script src="../../vendor/select2/select2.min.js"></script>
+<!--===============================================================================================-->
+	<script src="../../vendor/tilt/tilt.jquery.min.js"></script>
+	<script >
+		$('.js-tilt').tilt({
+			scale: 1.1
+		})
+	</script>
+<!--===============================================================================================-->
+	<script src="../../js/main.js"></script>
+
+	<script src="../../js/httpclient.js"></script>
+
+	<script>
+
+	function userdata() {
+		var email = document.getElementById("email").value;
+		var password = document.getElementById("password").value;
+		var usertype = document.getElementById("usertype").value;
+    
+        var json = {
+          "email":email,
+          "password":password,
+          "usertype":usertype
+		}
+		
+        httpClient.post("http://localhost:3001/api/login",json,(xhr) => {
+          window.location.replace(xhr.response); //return the url to the dashboard page
+        })
+	}
+
+</script>	
+
+<script>
+    function validateForm() {
+        var mail = document.loginform.email.value;
+		var pwd = document.loginform.password.value;
+		var type = document.loginform.usertype.value;
+        var email = "email"; 
+		var password = "password";
+		var usertype = "usertype"
+
+		var attempt = 3;
+        if ((mail == email) && (pwd == password) && type == "Auto-Moto Admin") {
+			window.location = "Auto-Moto.html";
+			alert ("Login Successful");
+            return false;
+        }
+        else {
+			attempt --;
+            alert ("Login was unsuccessful, please check your username and password");
+		}
+		
+		if ((mail == email) && (pwd == password) && type == "Municipality Admin") {
+			window.location = "Municipality.html";
+			alert ("Login Successful");
+            return false;
+        }
+        else {
+			attempt --;
+			alert ("Login was unsuccessful, please check your username and password");
+		}
+
+		if ((mail == email) && (pwd == password) && type == "Police officer") {
+			window.location = "Police.html";
+			alert ("Login Successful");
+            return false;
+        }
+        else {
+			attempt --;
+			alert ("Login was unsuccessful, please check your username and password");
+		}
+
+		userdata();
+	}
+
+	  
+	  
+</script>
+</body>
+</html>

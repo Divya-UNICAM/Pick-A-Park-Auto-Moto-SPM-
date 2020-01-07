@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <script src="../../static/js/js/httpclient.js"></script>
 <title> Auto-Moto HomePage</title>
 <meta charset="ISO-8859-1">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -208,7 +209,6 @@ hr {
 
 <div id="id01" class="modal">
   <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">&times;</span>
-  <form id="details" class="modal-content" action="" onsubmit="checkPassword(this)" method="post" >
     <div class="container">
       <h1>Auto-Moto Sign Up form</h1>
       <p>Please fill in this form to create an account.</p>
@@ -248,7 +248,6 @@ hr {
         <button type="submit" class="signupbtn" id="btnSubmit" onclick="return userdata()">Sign Up </button>
       </div>
     </div>
-</form>
 </div>
 
 
@@ -278,32 +277,14 @@ window.onclick = function(event) {
         var json = {
           "name":username,
           "email":email,
-          "password":password2,
-          "usertype":usertype
+          "password":password2
         }
         console.log(json)
-        httpClient.post("http://localhost:3001/api/register",json,(data) => {
+        httpClient.post("http://localhost:3001/api/users/register",json,(data) => {
           $("html").html(data.response)
         })
-        $.ajax({
-          url: window.location.host+'/api/sign-up',
-          type: 'POST',
-          contentType: 'application/json',
-          data: json,
-          success: function(data) {
-		    console.log(data)
-			}
-        });
-        $.post({
-          url: window.location.host,
-          contentType: 'text/plain',
-          type: 'POST',
-          data: json,
-          success: (data) => {
-          console.log(data)
-          }
-        });
-        console.log('ajax done')
+      }
+        
 
 </script>
 
@@ -359,7 +340,6 @@ $(function(){
         }
     });
 });
-  }
 </script>
 		
 </body>

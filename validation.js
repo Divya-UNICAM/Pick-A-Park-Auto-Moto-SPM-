@@ -35,16 +35,19 @@ const loginValidation = body => {
 //Request validation
 const requestValidation = body => {
     const schema = Joi.object({
+        startingLocation: Joi.object({
+            lat: Joi.string().required(),
+            lng: Joi.string().required()
+        }).optional(),
         startingLocation: Joi.string()
-            .required(),
+            .optional(),
         targetLocation: Joi.string()
             .required(),
-            date: Joi.date()
+        date: Joi.date()
             .required(),
-            licensePlate: Joi.string()
+        licensePlate: Joi.string()
             .required(),
-        
-            duration: Joi.number()
+        duration: Joi.number()
             .required(),
         status: Joi.string()
     });
@@ -67,7 +70,50 @@ const sensorValidation = body => {
     return schema.validate(body);
 };
 
+//Parking place validation
+const parkingPlaceValidation = body => {
+    const schema = Joi.object({
+        municipality: Joi.string()
+            .hex(),
+        location: Joi.object({
+            lat: Joi.number()
+                .required(),
+            lng: Joi.number()
+                .required(),
+            address: Joi.string()
+                .required()
+        }),
+        sensors: Joi.array(),
+        date: Joi.date(),
+        status: Joi.string()
+    });
+    return schema.validate(body);
+};
+
+//Municipality Validation
+const municipalityValidation = body => {
+    const schema = Joi.object({
+        name: Joi.string()
+            .required(),
+        province: Joi.string()
+            .required(),
+        region: Joi.string()
+            .required(),
+        postcode: Joi.string()
+            .required(),
+        location: Joi.object({
+            lat: Joi.number().required(),
+            lng: Joi.number().required()
+        }),
+        policeOfficers: Joi.array(),
+        date: Joi.date()
+    });
+    return schema.validate(body);
+};
+
 module.exports.registerValidation = registerValidation;
 module.exports.loginValidation = loginValidation;
 module.exports.requestValidation = requestValidation;
 module.exports.sensorValidation = sensorValidation;
+module.exports.parkingPlaceValidation = parkingPlaceValidation;
+module.exports.municipalityValidation = municipalityValidation;

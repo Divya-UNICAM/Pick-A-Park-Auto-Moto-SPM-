@@ -11,9 +11,6 @@ describe('POST /api/request', () => {
     before((done) => {
         db.connect('local').then(() => done()).catch((err) => done(err));
     })
-    after((done) => {
-        db.close().then(() => done()).catch((err) => done(err));
-    })
     it('OK, sending a request works', (done) => {
         request(server).post('/api/request')
             .set('content-type','application/json')

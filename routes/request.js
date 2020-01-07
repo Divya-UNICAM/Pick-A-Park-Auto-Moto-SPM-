@@ -5,62 +5,57 @@ const bcrypt = require('bcryptjs');
 const Request = require('../db/models/Request');
 const { requestValidation } = require('../validation');
 const payment = require('./payment');
-const { geolocate } = require('../utils/geolocator');
+const { geolocate, geolocatev2, geolocatev3, reverseGeolocatev1 } = require('../utils/geolocator');
 const { extractIp } = require('../utils/extract-ip');
 const hasher = require('../utils/salt');
 const faker = require('faker');
 
 router.post('/', async (req,res) => {
-    console.log(req.body);
     //Validate the req. data before creating a request
     const { error } = requestValidation(req.body);
     if(error) return res.status(400).send(error.details[0].message);
-
-    //Detect location of user from request ip address
-    //let ip = extractIp(req);
-    //console.log(ip)
-    let salt = hasher.getSalt();
-    let ip = faker.internet.ip();
-    let loction = JSON.parse(await geolocate(ip));
-    let hashedLat = await bcrypt.hash(loction.lat+"",salt)
-        .then((data) => {return data;})
-        .catch((err) => {return err;})
-    let hashedLng = await bcrypt.hash(loction.lon+"",salt)
-        .then((data) => {return data;})
-        .catch((err) => {return err;})
-    let startingLocation = {
-        lat: hashedLat,
-        lng: hashedLng
+    let loction = null;
+    //Request came from non HTML5 browser, geolocation must be done manually
+    if (typeof req.body.startingLocation === 'string' || req.body.startingLocation instanceof String) {
+        //Detect location of user from request ip address
+        let ip = extractIp(req);
+        loction = JSON.parse(await geolocatev3(ip));
+    } else {
+        loction = req.body.startingLocation
+    }
+    //With HTML5 geolocation ip would be localhost
+    loction = JSON.parse(await geolocatev3(faker.internet.ip()));
+    let startingLoc = {
+        lat: hasher.encrypt(loction.lat+""),
+        lng: hasher.encrypt(loction.lng+"")
     }
     //reverse geocode the target location
     //Address is already validate
-    targetLoction = JSON.parse(await reverseGeolocate(req.body.targetLocation));
-    hashedLat = await bcrypt.hash(targetLoction.lat+"",salt)
-        .then((data) => {return data;})
-        .catch((err) => {return err;})
-    hashedLng = await bcrypt.hash(targetLoction.lon+"",salt)
-        .then((data) => {return data;})
-        .catch((err) => {return err;})
-    let targetLocation = {
-        lat: hashedLat,
-        lng: hashedLng
+    targetLoction = await reverseGeolocatev1(req.body.targetLocation);
+    console.log(targetLoction)
+    let targetLoc = {
+        lat: hasher.encrypt(targetLoction[1]+""),
+        lng: hasher.encrypt(targetLoction[0]+"")
     } 
     
     //Create a new request
     const parkingRequest = new Request({
-        startingLocation : startingLocation,
-        targetLocation : targetLocation,
+        startingLocation : startingLoc,
+        targetLocation : targetLoc,
         date : req.body.date,
         duration : req.body.duration,
         licensePlate: req.body.licensePlate,
-        status: 'Awaiting payment'
+        status: ""
     });
     try{
         const savedRequest = await parkingRequest.save();
         //Process the payment
-        return request.get(url.resolve('http://localhost:'+process.env.PORT,'/api/pay'))
-            .then((body) => res.send(body)) //Return the link to the confirmation payment page
-            .catch((err) => res.status(400).send(err))
+        console.log(savedRequest)
+        return request.get(url.resolve('http://localhost:'+process.env.PORT,'/api/pay'),{ headers: { "Cookie": savedRequest._id } },)
+            .then((link) => { 
+                res.send(link);
+            }) //Return the link to the confirmation payment page becusae using redirect gives error cors
+            .catch((err) => { return res.status(400).send(err) })
     }catch(err){
         res.status(400).send(err);
     }

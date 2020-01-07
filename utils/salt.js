@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
-const salt = null;
+let salt = null;
 const algorithm = 'aes-256-cbc';
 const key = crypto.randomBytes(32);
 const iv = crypto.randomBytes(16);

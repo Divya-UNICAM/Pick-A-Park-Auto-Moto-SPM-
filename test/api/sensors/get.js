@@ -6,31 +6,18 @@ const should = require('chai').should;
 const request = require('supertest');
 const db = require('../../../db/index');
 const Sensor = require('../../../db/models/Sensor');
+const SensorClass = require('../../../utils/sensors');
 const faker = require('faker');
 const server = require('../../../server');
 
-before((done) => {
-    db.connect()
-        .then(() => { console.log('Connected to test DB!'); done(); }) 
-        .catch((err) => { console.log(err); done(err)});
-})
-
+let refs = [];
 describe('GET /api/sensor', () => {
-
     beforeEach((done) => {
-        for(let i=0; i < 10; i++)
-            Sensor.create({
-                location: {
-                    lat: faker.address.latitude(),
-                    lng: faker.address.longitude()
-                },
-                date: faker.date.recent(2),
-                detected: 0,
-                status: "FREE"
-            });
+        for(let i = 0; i < 2; i++)
+            refs.push(new SensorClass());
         done();
-    })
-    it('should return all sensors', (done) => {
+    });
+    it('should create some jobs for officers', (done) => {
         request(server).get('/')
         .then((res) => {
             const body = res.body;
@@ -41,8 +28,7 @@ describe('GET /api/sensor', () => {
         .catch((err) => done(err))
     })
 })
-
 after((done) => {
-
-    db.close();
+    for(let i = 0; i<refs.length;i++)
+        refs.pop();
 })

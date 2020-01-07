@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const { MongoMemoryServer } = require('mongodb-memory-server');
+const User = require('./models/User');
 
 dotenv.config();
 
@@ -14,7 +15,14 @@ async function connect() {
             const port = await mongod.getPort();
             const dbPath = await mongod.getDbPath();
             const dbName = await mongod.getDbName();
-            mongoose.connect(uri, { useNewUrlParser:true, useUnifiedTopology:true });
+            connection = mongoose.connect(uri, { useNewUrlParser:true, useUnifiedTopology:true });
+            const PAPAdmin = await new User({
+                name: "PAP Admin",
+                email: "admin@automoto.pickapark.com",
+                password: "admin",
+                privileges: 5
+            }).save();
+            console.log("admin id: "+PAPAdmin.id);
             console.log(uri);
         }
         else //If it's a production environment

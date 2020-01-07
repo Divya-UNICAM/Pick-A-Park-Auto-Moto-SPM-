@@ -25,11 +25,25 @@ function geolocatev2(ip) {
 function geolocatev3(ip) {
     return request.get('https://freegeoip.app/json/'+ip)
         .then((body) => {
-            return body;
+            let loc = {
+                lat: body.latitude,
+                lng: body.longitude
+            };
+            return loc;
         })
         .catch((err) => {
             return err;
         })
 }
 
-module.exports = { geolocate, geolocatev2, geolocatev3 };
+function reverseGeolocatev1(address) {
+    return request.get('https://api.openrouteservice.org/geocode/search?api_key='+process.env.OPEN_ROUTE_API+'&text='+address)
+        .then((body) => {
+            return JSON.parse(body).features[0].geometry.coordinates; //return the array with geo coordinates of the location
+        })
+        .catch((err) => {
+            return err;
+        })
+}
+
+module.exports = { geolocate, geolocatev2, geolocatev3, reverseGeolocatev1 };

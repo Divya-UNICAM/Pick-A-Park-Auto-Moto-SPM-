@@ -160,44 +160,61 @@ hr {
     </fieldset>
 	
 	<button onclick="return results()" style="width:auto;" >Proceed</button>
-	<button type="button" style="width:auto;" class="cancelbtn">Cancel</button>
+  <button type="button" style="width:auto;" class="cancelbtn">Cancel</button>
+  
+  <div id="id01" class="modal">
+    <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">&times;</span>
+    <h1>Thank you for placing the request with us!</h1>
+		<p>Now, Please verify your request data</p>
+		
+		<h3>Here is your request:</h3>
+		
+		<div id="id01tl"></div>
+		<div id="id01dt"></div>
+		<div id="id01lp"></div>
+		<div id="id01dr"></div>
+		
+    <div>You will be soon redirected to the payment page</div>
+  </div>
 
 <script>
 
 	function results() {
-        let pos = locate();
-		    var targetlocation = document.getElementById("targetLocation").value;
+        let sl = null;
+        try {
+          //pos is a json
+          sl = JSON.parse(pos);
+        } catch (e) {
+          //pos is a string
+          sl = pos;
+        }
+        var targetlocation = document.getElementById("targetLocation").value;
         var date = document.getElementById("date").value;
         var licenseplate = document.getElementById("licensePlate").value;
         var duration = document.getElementById("duration").value;
-    
+
+        $('#id01tl').html('Target location: '+ targetlocation);
+        $('#id01dt').html('Date: '+ date);
+        $('#id01lp').html('License Plate: ' + licenseplate);
+        $('#id01dr').html('Duration: ' + duration);
+
+
         var json = {
-          "startingLocation": pos !== null ? JSON.parse(pos) : { lat: 0, lng: 0 },
+          "startingLocation": sl, //sl will either be a json or a string. if it's a string must be geolocated server side
           "targetLocation": targetlocation,
           "date": date,
           "licensePlate": licenseplate,
           "duration": duration
         }
-        console.log(json)
         
         httpClient.post("http://localhost:3001/api/request",json,(xhr) => {
           window.location.replace(xhr.response) //manual redirect to paypal webiste
         });
         
 
-    //This must become a popup div like for signup
-		document.write("<h1>Thank you for placing the request with us!</h1>");
-		document.write("<p>Now, Please verify your request data</p>");
+    //This now is a popup div like for signup
+    document.getElementById('id01').style.display="block";
 		
-		document.write("<h3>Here is your request:</h3>");
-		
-		document.write("Target Location:" + targetlocation + "<br/>");
-		document.write("Date:" + date + "<br/>");
-		document.write("License Plate :" + licenseplate + "<br/>");
-		document.write("Duration requested:" + duration + "<br/>");
-		
-		document.write("<button><b>Confirm the request<b></button>");
-		document.write("<button><b>Cancel<b></button>");
 		
 	}	
  
@@ -209,7 +226,7 @@ hr {
       // Try HTML5 geolocation.
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
-          let pos = {
+          pos = {
             lat: position.coords.latitude,
             lng: position.coords.longitude
           };
@@ -223,6 +240,11 @@ hr {
       }
       return pos;
     }
+
+    //try to geolocate the user as soon he/she asks for a request
+    $(window).on('load',function(){
+      locate();
+    });
 </script>
 
 </body>
