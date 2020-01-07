@@ -45,14 +45,13 @@ router.get('/parkingplaces/:postcode', async (req,res) => {
 			return res.status(404).send('Municipality not found');
 		const munId = mun._id;
 		const requestedParkingPlaces = await ParkingPlace.find({municipality: munId});
-		if(!requestedParkingPlaces)
+		if(requestedParkingPlaces.length <= 0)
 			return res.status(404).send('No parking places found in specified municipality');
 		console.log('Retrieved all parking places');
 		res.send(requestedParkingPlaces);
 	} catch (err) {
 		return res.status(500).send(err);
 	}
-    res.send(ParkingPlace.find());
 });
 
 //retrieve all police officers working on the municipality
@@ -77,7 +76,7 @@ router.get('/officers/:postcode', async (req,res) => {
 });
 
 //retrieve a single police officer in the specified municipality
-router.get('/officers/:postcode/:pid', async (req,res) => {
+router.get('/officers/:postcode/:badge', async (req,res) => {
 	const munPostcode = req.params.postcode;
 	const officerId = req.params.pid;
 	if(!req.cookies['auth_token'])
@@ -130,14 +129,12 @@ router.post('/parkingplaces/:postcode', async (req,res) => {
     const { error } = parkingPlaceValidation(req.body);
     if(error) return res.status(400).send(error.details[0].message);
 	const munPostcode = req.params.postcode;
-	console.log(munPostcode)
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
     try{
 		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
 			return res.status(404).send('Municipality not found');
-		console.log((req.body.location.address));
         const addedAParkingPlace = await new ParkingPlace({
 			municipality: requestedMunicipality.id,
 			//lat and lng are defined by the client issuing the request
@@ -166,7 +163,6 @@ router.put('/parkingplaces/:postcode/:address', async (req,res) => {
 	//so each address is "true and verified", at least it will encoded to escape special characters in URL
 	//when issueing the request, the address will be put in URL as is, just escaped characters
 	const parkAddress = decodeURI(req.params.address.toLowerCase());
-	console.log(parkAddress);
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
     try {
@@ -202,18 +198,17 @@ router.delete('/parkingplaces/:postcode/:address', async (req,res) => {
         const deletedParkPlace = await ParkingPlace.deleteOne({
 			municipality: munId,
 			'location.address': parkAddress
-		});
-		if(!parkPlace)
-			return res.status(404).send('Parking place not found');
+		})
+			.then((result) => res.send(result))
+			.catch((err) => res.status(500).send(err));
 		console.log('Parking place deleted');
-		res.send(deletedParkPlace);
     } catch (err) {
         return res.status(500).send(err);
     }
 });
 
 //adding a new sensor to a municipality
-router.post('sensors/:postcode/:address', async (req,res) => {
+router.post('/sensors/:postcode/:address', async (req,res) => {
 	const { error } = sensorValidation(req.body);
 	if(error) return res.status(400).send(error.details[0].message);
 	const munPostcode = req.params.postcode;
@@ -232,17 +227,13 @@ router.post('sensors/:postcode/:address', async (req,res) => {
 		if(!requestedParkingPlace)
 			return res.status(404).send('Parking place not found');
 		const addedSensor = await new Sensor({
-			municipality: munId,
-			parkingPlace: requestedParkingPlace._id,
-			update: req.body.update,
-			date: req.body.date,
-			detect: req.body.detect,
-			status: req.body.status
+			parkingPlace: requestedParkingPlace.id,
+			position: req.body.position
 		}).save();
 		console.log('Sensor added');
         res.send(addedSensor);
     } catch (err) {
-        res.status(400).send(err);
+        res.status(500).send(err);
     }
 });
 
@@ -267,8 +258,8 @@ router.put('sensors/:postcode/:address/:position', async (req,res) => {
 			return res.status(404).send('Parking place not found');
 		let requestedSensor = await Sensor.findOneAndUpdate(
 			{	
-				_id: sensorId, 
-				parkingPlace: requestedParkingPlace._id
+				position: sensorId, 
+				parkingPlace: requestedParkingPlace.id
 			},
 			req.body,{new:true});
         res.send(requestedSensor);
