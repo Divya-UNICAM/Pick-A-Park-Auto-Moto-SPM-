@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Inclusion of Parking place</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+		
+		body{
+			margin: 0;
+			font-family: sans-serif;
+		}
+		
+		h1{
+		  color: white;
+		  text-align: center;
+		  }
+		
+		label{
+			width: 450px;
+			display: block;
+			float: left;
+			}
+		
+		input{
+				width: 200px;
+			}
+		
+		header,footer,aside{
+			display: block;
+		}
+		
+		button{
+			font-size: 14px;
+			padding: 5px;
+			border-radius: 2px;
+			background: #ff0033;
+			color: #ffffff;
+			float: left;
+			width: 100px;
+			}
+		
+		table{
+			width: 400px;
+			border-collapse: collapse;
+			}
+			
+		th, td{
+			width: 10px;
+			border: 2px solid black;
+		}
+			
+		.container{
+				width: 1000px;
+				margin: 0 auto;
+				}
+		
+		.headerbar{
+				width: 1000px;
+				float: left;
+				}
+				
+		.headerbar.top{
+			background: #003333;
+			min-height: 100px;
+			}
+		
+		.headerbar.bottom{
+			background: #333300;
+			min-height: 100px;
+			}
+			
+		.leftbar{
+				width: 500px;
+				background: #4EBF87;
+				min-height: 600px;
+				float: left;
+				min-height: 100vh;
+				}
+		
+		.rightbar{
+				width: 500px;
+				background: #DCDCD4;
+				min-height: 600px;
+				float: left;
+				min-height: 100vh;
+				}
+		</style>
+        
+</head>
+
+    <body>
+        
+        <div class="container">
+            <header class="headerbar top"><h1>Parking Slots</h1></header>
+			<aside class="leftbar">
+				<div>
+		
+				<fieldset>
+				<label>Parking Area :</label>
+				<input type="text" placeholder="entry of name" name="area" id="area">
+				</fieldset>
+				
+				<fieldset>
+                <label>Slot number :</label>
+				<input type="Number" name="number" id="number">
+				</fieldset>
+				
+				<fieldset>
+				<label>Municipality :</label>
+				<input type="text" name="municipality" id="municipality">
+				</fieldset>
+								
+				<button id="submit" onclick="onaddPressed()">Add</button>
+				
+			</div>
+			
+			</aside>
+			
+			<aside class="rightbar">
+			<table id="parkingtable">
+				<thead>
+			        <tr>
+                        <th> Parking Area: </th>
+                        <th> Slot Number: </th>
+						<th> Municipality </th>
+					</tr>
+				</thead>
+            </table>
+			</aside>
+ 		
+</div>
+
+</body>
+
+<script>
+
+	var parkingArray= [];
+
+	function onaddPressed(){
+	
+	var Area = document.getElementById("area").value;
+    var Number = document.getElementById("number").value;
+	var Municipality = document.getElementById("municipality").value;
+	
+	var parkingobj = {area:Area,number:Number,municipality:Municipality};
+	
+	
+	console.log(parkingArray);
+	parkingArray.push(parkingobj);
+	parkingArray = JSON.parse(localStorage.getItem("parkingobj")) || [];
+	
+	localStorage.setItem("parkingobj",JSON.stringify(parkingArray));
+	parkingArray = localStorage.getItem("parkingobj");
+	parkingArray = JSON.parse(parkingArray);
+	prepareTableCell(Area,Number,Municipality);
+	
+	
+	//clear fields
+	document.getElementById("area").value = "";
+	document.getElementById("number").value = "";
+	document.getElementById("municipality").value = "";
+	
+    } 
+	function prepareTableCell(Area,Number,Municipality){
+	var table = document.getElementById("parkingtable");
+	var row = table.insertRow();
+	var AreaCell = row.insertCell(0);
+	var NumberCell = row.insertCell(1);
+	var MunicipalityCell = row.insertCell(2);	
+	AreaCell.innerHTML = Area;
+    NumberCell.innerHTML = Number;
+	MunicipalityCell.innerHTML = Municipality;
+		
+	}
+</script>
+
+
+</html>
