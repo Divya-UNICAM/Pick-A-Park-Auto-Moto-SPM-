@@ -9,7 +9,8 @@ const Municipality = require('../db/models/Municipality');
 const User = require('../db/models/User');
 const Cost = require('../db/models/Cost');
 const bcrypt = require('bcryptjs');
-const { policeOfficerValidation, sensorValidation, municipalityValidation, parkingPlaceValidation } = require('../validation');
+const jwt = require('jsonwebtoken');
+const { jobValidation,policeOfficerValidation, sensorValidation, municipalityValidation, parkingPlaceValidation } = require('../validation');
 const { reverseGeolocatev1 } = require('../utils/geolocator');
 
 //add a new municipality in the system (municipality purchased the service)
@@ -68,7 +69,7 @@ router.get('/officers/:postcode', async (req,res) => {
 		if(requestedPoliceOfficers.length <= 0)
 			return res.status(404).send('No police officers found in specified municipality');
 		console.log('Retrieved all police officers');
-		res.send(requestedParkingPlaces);
+		res.send(requestedPoliceOfficers);
         
     }catch(err) {
         return res.status(500).send(err);
@@ -227,10 +228,15 @@ router.post('/sensors/:postcode/:address', async (req,res) => {
 			return res.status(404).send('Parking place not found');
 		const addedSensor = await new Sensor({
 			parkingPlace: requestedParkingPlace.id,
-			position: req.body.position
+			position: req.body.position,
+			ipAddress: req.body.ipAddress
 		}).save();
 		console.log('Sensor added');
-        res.send(addedSensor);
+		//Create and assign a token for the sensor in order to make it able to send updates
+		const token = jwt.sign({id: addedSensor._id},process.env.TOKEN_SECRET);
+		res.cookie('sensor_token',token,{
+			expires:false, httpOnly: true
+		}).send(addedSensor);
     } catch (err) {
         res.status(500).send(err);
     }
@@ -334,12 +340,50 @@ router.post('/officers/:postcode', async (req,res) => {
 
 //Update an exisiting police officer
 router.put('/officers/:postcode/:badge', async (req,res) => {
-
+	const { error } = policeOfficerValidation(req.body);
+	if(error) return res.status(400).send(error.details[0].message);
+	const munPostcode = req.params.postcode;
+	const officerId = req.params.badge;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
+    try {
+        const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
+		if(!requestedMunicipality)
+			return res.status(404).send('Municipality not found');
+		let requestedPoliceOfficer = await PoliceOfficer.findOne(
+			{	
+				badge: officerId, 
+				municipality: requestedMunicipality.id
+			});
+		if(!requestedPoliceOfficer)
+			return res.status(404).send('Police officer not found in specified municipality');
+        res.send(await requestedPoliceOfficer.set(req.body).save());
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 //Delete an exisisting police officer
 router.delete('/officers/:postcode/:badge', async (req,res) => {
-
+	const munPostcode = req.params.postcode;
+	const officerId = req.params.badge;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
+    try {
+        const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
+		if(!requestedMunicipality)
+			return res.status(404).send('Municipality not found');
+		const deletedPoliceOfficer = await PoliceOfficer.deleteOne(
+			{
+				badge: officerId, 
+				municipality: requestedMunicipality._id
+			})
+			.then((result) => res.send(result))
+			.catch((err) => res.status(500).send(err));
+		console.log('Police officer deleted');
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 //retrieve all tasks assigned to police officers
@@ -352,12 +396,8 @@ router.get('officers/:postcode/jobs', async (req,res) => {
 		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
 			return res.status(404).send('Municipality not found');
-		const requestedParkingPlace = await ParkingPlace.findOne({municipality: requestedMunicipality._id, location:{address: parkAddress}});
-		if(!requestedParkingPlace)
-			return res.status(404).send('Parking place not found');
-		const jobs = Job.find({
+		const jobs = await Job.find({
 			municipality: requestedMunicipality.id,
-			parkingPlace: requestedParkingPlace.id,
 		});
         res.send(jobs);
 
@@ -368,8 +408,8 @@ router.get('officers/:postcode/jobs', async (req,res) => {
 
 //assign a new task to an existing police officer
 router.post('/officers/:postcode/:badge/job', async (req,res) => {
-    //const { error } = jobValidation(req.body);
-    //if(error) return res.status(400).send(error.details[0].message);
+    const { error } = jobValidation(req.body);
+    if(error) return res.status(400).send(error.details[0].message);
     const munPostcode = req.params.postcode;
 	const officerId = req.params.badge;
 	if(!req.cookies['auth_token'])
@@ -378,7 +418,10 @@ router.post('/officers/:postcode/:badge/job', async (req,res) => {
 		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
 			return res.status(404).send('Municipality not found');
-		const requestedParkingPlace = await ParkingPlace.findOne({municipality: requestedMunicipality._id, location:{address: parkAddress}});
+		//Check if the parking place in the request body exists
+		const requestedParkingPlace = await ParkingPlace.findOne({
+			municipality: requestedMunicipality._id, 
+			'location.address': decodeURI(req.body.address.toLowerCase())});
 		if(!requestedParkingPlace)
 			return res.status(404).send('Parking place not found');
 		const requestedPoliceOfficer = await PoliceOfficer.findOne({municipality: requestedMunicipality._id, _id: officerId});
@@ -399,19 +442,19 @@ router.post('/officers/:postcode/:badge/job', async (req,res) => {
 });
 
 //receive update from a single parking place
-//when a sensor detects a change in the parking place will send its data to this service
+//when a sensor detects a change in the parking place, it will send its data to this service
 //data will be then checked and if there is a violation, a new job will be added
-router.post('/parkingplaces/:postcode/:address/update', async (req,res) => {
+router.post('/parkingplaces/update', async (req,res) => {
     //const { error } = parkingUpdateValidation(req.body);
     //if(error) return res.status(400).send(error.details[0].message);
-    //const parkingUpdate = req.body;
     //check if plate number is legit or there is a running violation
-    
+    //sensors will be recognized by their token
     const munPostcode = req.params.postcode;
-	const parkAddress = req.params.address; //already in base64
-	if(!req.cookies['auth_token'])
+	const parkAddress = decodeURI(req.params.address.toLowerCase());
+	if(!req.cookies['sensor_token'])
 		return res.status(403).send('You are not authorized');
     try{
+		const updatingSensor = await Sensor.findOne({token: req.cookies['sensor_token']});
         const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
 			return res.status(404).send('Municipality not found');
