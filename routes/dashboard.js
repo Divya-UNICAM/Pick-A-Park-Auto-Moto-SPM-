@@ -78,7 +78,7 @@ router.get('/officers/:postcode', async (req,res) => {
 //retrieve a single police officer in the specified municipality
 router.get('/officers/:postcode/:badge', async (req,res) => {
 	const munPostcode = req.params.postcode;
-	const officerId = req.params.pid;
+	const officerId = req.params.badge;
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
 	try {
@@ -87,7 +87,7 @@ router.get('/officers/:postcode/:badge', async (req,res) => {
 			return res.status(404).send('Municipality not found');
 		const requestedOfficer = await PoliceOfficer.findOne({
 			municipality: requestedMunicipality._id,
-			_id: officerId
+			badge: officerId
 		});
 		if(!requestedOfficer)
 			return res.status(404).send('Police officer not found');
@@ -101,7 +101,7 @@ router.get('/officers/:postcode/:badge', async (req,res) => {
 router.get('/parkingplaces/:postcode/:address', async (req,res) => {
 	//Client side must validate the address with google maps Places API
 	const munPostcode = req.params.postcode;
-	const parkAddress = req.params.address; //already in base64
+	const parkAddress = decodeURI(req.params.address.toLowerCase());
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
     try {
@@ -111,9 +111,7 @@ router.get('/parkingplaces/:postcode/:address', async (req,res) => {
 		const munId = requestedMunicipality._id;
         const requestedParkingPlace = await ParkingPlace.findOne({
             municipality: munId,
-            location: {
-				address: parkAddress
-			}
+            'location.address': parkAddress
 		});
 		if(!requestedParkingPlace)
 			return res.status(404).send('Parking place not found');
@@ -222,7 +220,7 @@ router.post('/sensors/:postcode/:address', async (req,res) => {
 		const munId = requestedMunicipality._id;
 		const requestedParkingPlace = await ParkingPlace.findOne({
 			municipality: munId, 
-			'location:address': parkAddress
+			'location.address': parkAddress
 		});
 		if(!requestedParkingPlace)
 			return res.status(404).send('Parking place not found');
@@ -238,7 +236,7 @@ router.post('/sensors/:postcode/:address', async (req,res) => {
 });
 
 //update an existing sensor in the specified municipality
-router.put('sensors/:postcode/:address/:position', async (req,res) => {
+router.put('/sensors/:postcode/:address/:position', async (req,res) => {
 	const { error } = sensorValidation(req.body);
 	if(error) return res.send(400).send(error.details[0].message);
 	const munPostcode = req.params.postcode;
@@ -256,24 +254,23 @@ router.put('sensors/:postcode/:address/:position', async (req,res) => {
 		});
 		if(!requestedParkingPlace)
 			return res.status(404).send('Parking place not found');
-		let requestedSensor = await Sensor.findOneAndUpdate(
+		let requestedSensor = await Sensor.findOne(
 			{	
 				position: sensorId, 
 				parkingPlace: requestedParkingPlace.id
-			},
-			req.body,{new:true});
-        res.send(requestedSensor);
+			});
+		if(!requestedSensor)
+			return res.status(404).send('Sensor not found in specified position');
+        res.send(await requestedSensor.set(req.body).save());
     } catch (err) {
-        res.status(400).send(err);
+        res.status(500).send(err);
     }
 });
 
 //delete an existing sensor in the municipality
-router.delete('sensors/:postcode/:address/:position', async (req,res) => {
-    const { error } = sensorValidation(req.body);
-	if(error) return res.send(400).send(error.details[0].message);
+router.delete('/sensors/:postcode/:address/:position', async (req,res) => {
 	const munPostcode = req.params.postcode;
-	const parkAddress = req.params.address; //already in base64
+	const parkAddress = decodeURI(req.params.address.toLowerCase());
 	const sensorId = req.params.position;
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
@@ -283,16 +280,18 @@ router.delete('sensors/:postcode/:address/:position', async (req,res) => {
 			return res.status(404).send('Municipality not found');
 		const requestedParkingPlace = await ParkingPlace.findOne({
 			municipality: requestedMunicipality._id,
-			location: {
-				address: parkAddress
-			}
+			'location.address': parkAddress
 		});
 		if(!requestedParkingPlace)
 			return res.status(404).send('Parking place not found');
-		const requestedSensor = await Sensor.deleteOne({_id: sensorId, parkingPlace: requestedParkingPlace._id});
-		if(!requestedSensor)
-			return res.status(404).send('Sensor not found');
-		res.send(requestedSensor);
+		const requestedSensor = await Sensor.deleteOne(
+			{
+				position: sensorId, 
+				parkingPlace: requestedParkingPlace._id
+			})
+			.then((result) => res.send(result))
+			.catch((err) => res.status(500).send(err));
+		console.log('Sensor deleted');
     } catch (err) {
         res.status(400).send(err);
     }
