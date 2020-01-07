@@ -5,8 +5,13 @@ const sensorSchema = new mongoose.Schema({
     parkingPlace: {
         type: String
     },
+    position: {
+        type: Number,
+        required: true
+    },
     update: {
-        type: String
+        type: String,
+        default: ""
     },
     date: {
         type: Date,
@@ -18,7 +23,7 @@ const sensorSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        required: true
+        default: "FREE"
     }
 });
 
