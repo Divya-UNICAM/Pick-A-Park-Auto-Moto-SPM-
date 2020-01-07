@@ -15,6 +15,8 @@ const { reverseGeolocatev1 } = require('../utils/geolocator');
 router.post('/municipalities', async (req,res) => {
     const { error } = municipalityValidation(req.body);
 	if(error) return res.status(400).send(error.details[0].message);
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
 	try {
 		const addedMunicipality = await new Municipality({
 			name: req.body.name.toLowerCase(),
@@ -35,6 +37,8 @@ router.post('/municipalities', async (req,res) => {
 //retrieve all parking places in the system and display their status
 router.get('/parkingplaces/:postcode', async (req,res) => {
 	const munPostcode = req.params.postcode;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
 	try {
 		const mun = await Municipality.findOne({postcode: munPostcode});
 		if(!mun)
@@ -53,7 +57,9 @@ router.get('/parkingplaces/:postcode', async (req,res) => {
 
 //retrieve all police officers working on the municipality
 router.get('/officers/:postcode', async (req,res) => {
-    const munPostcode = req.params.postcode;
+	const munPostcode = req.params.postcode;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
     try{
         const mun = await Municipality.findOne({postcode: munPostcode});
 		if(!mun)
@@ -74,6 +80,8 @@ router.get('/officers/:postcode', async (req,res) => {
 router.get('/officers/:postcode/:pid', async (req,res) => {
 	const munPostcode = req.params.postcode;
 	const officerId = req.params.pid;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
 	try {
 		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
@@ -95,6 +103,8 @@ router.get('/parkingplaces/:postcode/:address', async (req,res) => {
 	//Client side must validate the address with google maps Places API
 	const munPostcode = req.params.postcode;
 	const parkAddress = req.params.address.toLowerCase();
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
     try {
 		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
@@ -120,6 +130,8 @@ router.post('/parkingplaces/:postcode', async (req,res) => {
     const { error } = parkingPlaceValidation(req.body);
     if(error) return res.status(400).send(error.details[0].message);
 	const munPostcode = req.params.postcode;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
     try{
 		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
@@ -132,7 +144,7 @@ router.post('/parkingplaces/:postcode', async (req,res) => {
             location: {
 				lat: req.body.location.lat,
 				lng: req.body.location.lng,
-				address: req.body.location.address.toLowerCase()
+				address: btoa(req.body.location.address.toLowerCase())
 			},
             sensors: req.body.sensors,
             date: req.body.date,
@@ -150,7 +162,9 @@ router.post('/parkingplaces/:postcode', async (req,res) => {
 router.put('/parkingplaces/:postcode/:address', async (req,res) => {
     const munPostcode = req.params.postcode;
     const parkAddress = req.params.address;
-    const toUpdate = req.body;
+	const toUpdate = req.body;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
     try {
 		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
@@ -173,7 +187,9 @@ router.put('/parkingplaces/:postcode/:address', async (req,res) => {
 //Delete an existing parking place
 router.delete('/parkingplaces/:postcode/:address', async (req,res) => {
     const munPostcode = req.params.postcode;
-    const parkAddress = req.params.address;
+	const parkAddress = req.params.address;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
     try {
         const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
@@ -198,6 +214,8 @@ router.post('sensors/:postcode/:address', async (req,res) => {
 	if(error) return res.status(400).send(error.details[0].message);
 	const munPostcode = req.params.postcode;
 	const parkAddress = req.params.address;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
     try {
 		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
@@ -227,7 +245,9 @@ router.put('sensors/:postcode/:address/:sid', async (req,res) => {
 	if(error) return res.send(400).send(error.details[0].message);
 	const munPostcode = req.params.postcode;
 	const parkAddress = req.params.address.toLowerCase();
-    const sensorId = req.params.sid;
+	const sensorId = req.params.sid;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
     try {
         const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
@@ -253,7 +273,9 @@ router.delete('sensors/:postcode/:address/:sid', async (req,res) => {
 	if(error) return res.send(400).send(error.details[0].message);
 	const munPostcode = req.params.postcode;
 	const parkAddress = req.params.address.toLowerCase();
-    const sensorId = req.params.sid;
+	const sensorId = req.params.sid;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
     try {
         const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
@@ -279,7 +301,9 @@ router.delete('sensors/:postcode/:address/:sid', async (req,res) => {
 router.post('/officers/:postcode', async (req,res) => {
     const { error } = policeOfficerValidation(req.body);
     if(error) return res.status(400).send(error.details[0].message);
-    const munPostcode = req.params.postcode;
+	const munPostcode = req.params.postcode;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
     try{
         const requestedMunicipality = await Municipality.findOne({name: munPostcode});
 		if(!requestedMunicipality)
@@ -310,7 +334,9 @@ router.post('/officers/:postcode', async (req,res) => {
 //retrieve all tasks assigned to police officers
 router.get('officers/:postcode/:address/jobs', async (req,res) => {
 	const munPostcode = req.params.postcode;
-    const officerId = req.params.pid;
+	const officerId = req.params.pid;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
     try{
 		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
@@ -334,7 +360,9 @@ router.post('/officers/:postcode/:address/:pid/job', async (req,res) => {
     //const { error } = jobValidation(req.body);
     //if(error) return res.status(400).send(error.details[0].message);
     const munPostcode = req.params.postcode;
-    const officerId = req.params.pid;
+	const officerId = req.params.pid;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
     try{
 		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
@@ -369,7 +397,9 @@ router.post('/parkingplaces/:postcode/:address/update', async (req,res) => {
     //check if plate number is legit or there is a running violation
     
     const munPostcode = req.params.postcode;
-    const parkAddress = btoa(req.params.address.toLowerCase());
+	const parkAddress = btoa(req.params.address.toLowerCase());
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
     try{
         const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
@@ -402,7 +432,9 @@ router.post('/parkingplaces/:postcode/:address/update', async (req,res) => {
 
 //retrieve all sensors from the current municipality
 router.get('/sensors/:postcode', async (req,res) => {
-    const munId = req.params.mid;
+	const munId = req.params.mid;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
     try {
         Municipality.findById(munId, (err,doc) => {
             return res.send(doc.sensors.lean());
@@ -415,7 +447,9 @@ router.get('/sensors/:postcode', async (req,res) => {
 //retrieve a sensor from the specfied municiaplity
 router.get('sensors/:mid/:sid',async (req,res) => {
     const munId = req.params.mid;
-    const sensId = req.params.sid;
+	const sensId = req.params.sid;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
     try {
         Municipality.findById(munId, (err,doc) => {
             if(err)
@@ -435,7 +469,9 @@ router.get('sensors/:mid/:sid',async (req,res) => {
 
 //Add a new municipality user to the platform
 router.post('/municipality/admin', async (req,res) => {
-    const body = req.body;
+	const body = req.body;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
     try{
         const addedAMunicipalityAdmin = await new User({
             name: body.name,
@@ -451,7 +487,9 @@ router.post('/municipality/admin', async (req,res) => {
 
 //Add a new parking company user to the platform
 router.post('/parkingcompany/admin', async (req,res) => {
-    const body = req.body;
+	const body = req.body;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
     try{
         const addedParkingCompanyAdmin = await new User({
             name: body.name,
@@ -466,7 +504,9 @@ router.post('/parkingcompany/admin', async (req,res) => {
 });
 
 router.put('/price', async (req,res) => {
-    const toUpdate = req.body;
+	const toUpdate = req.body;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
     try {
         const currentCost = Cost.find();
         const updated = await currentCost.set(toUpdate).save();

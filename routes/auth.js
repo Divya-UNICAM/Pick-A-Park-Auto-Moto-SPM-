@@ -30,7 +30,7 @@ router.post('/register', async (req, res) => {
         const savedUser = await user.save();
         res.send('now you can log in');
     }catch(err){
-        res.status(400).send(err);
+        res.status(500).send(err);
     }
 });
 
@@ -51,7 +51,9 @@ router.post('/login', async (req,res) => {
 
     //Create and assign a token
     const token = jwt.sign({id: user._id},process.env.TOKEN_SECRET);
-    res.cookie('auth_token',token).send('http://localhost:3001/dashboard');
+    res.cookie('auth_token',token,{
+        expires:false, httpOnly: true
+    }).send('http://localhost:3001/dashboard');
 });
 
 //Delete a user

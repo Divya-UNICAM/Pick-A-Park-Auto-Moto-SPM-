@@ -4,6 +4,7 @@ const db = require('./db/index.js');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 const paypal = require('paypal-rest-sdk');
 const hasher = require('./utils/salt');
@@ -25,7 +26,7 @@ paypal.configure({
     client_secret: process.env.PAYPAL_SECRET_ID});
 
 var port = process.env.PORT || 3001
-process.env.PORT = port
+//process.env.PORT = port
 
 //Init EJS
 app.set('view engine', 'ejs');
@@ -39,6 +40,7 @@ if(process.env.NODE_ENV !== 'test')
 //Use Middlewares
 app.use(bodyParser.json()); //Body-parser
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(cors());
 app.use('/static', express.static(__dirname + '/wwwroot/static'));
 
