@@ -191,7 +191,7 @@ router.put('/parkingplaces/:postcode/:address', async (req,res) => {
 //Delete an existing parking place
 router.delete('/parkingplaces/:postcode/:address', async (req,res) => {
     const munPostcode = req.params.postcode;
-	const parkAddress = req.params.address;
+	const parkAddress = decodeURI(req.params.address.toLowerCase());
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
     try {
@@ -244,12 +244,12 @@ router.post('sensors/:postcode/:address', async (req,res) => {
 });
 
 //update an existing sensor in the specified municipality
-router.put('sensors/:postcode/:address/:sid', async (req,res) => {
+router.put('sensors/:postcode/:address/:position', async (req,res) => {
 	const { error } = sensorValidation(req.body);
 	if(error) return res.send(400).send(error.details[0].message);
 	const munPostcode = req.params.postcode;
 	const parkAddress = req.params.address; //already in base64
-	const sensorId = req.params.sid;
+	const sensorId = req.params.position;
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
     try {
@@ -272,12 +272,12 @@ router.put('sensors/:postcode/:address/:sid', async (req,res) => {
     }
 });
 
-router.delete('sensors/:postcode/:address/:sid', async (req,res) => {
+router.delete('sensors/:postcode/:address/:position', async (req,res) => {
     const { error } = sensorValidation(req.body);
 	if(error) return res.send(400).send(error.details[0].message);
 	const munPostcode = req.params.postcode;
 	const parkAddress = req.params.address; //already in base64
-	const sensorId = req.params.sid;
+	const sensorId = req.params.position;
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
     try {
@@ -449,9 +449,10 @@ router.get('/sensors/:postcode', async (req,res) => {
 });
 
 //retrieve a sensor from the specfied municiaplity
-router.get('sensors/:mid/:sid',async (req,res) => {
-    const munId = req.params.mid;
-	const sensId = req.params.sid;
+router.get('sensors/:postcode/:address/:position',async (req,res) => {
+	const munPostcode = req.params.postcode;
+	const parkAddress = decodeURI(req.params.address.toLowerCase());
+	const sensId = req.params.position;
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
     try {
@@ -464,8 +465,8 @@ router.get('sensors/:mid/:sid',async (req,res) => {
                 }
             }
         })
-    } catch (error) {
-        res.status(400).send(error);
+    } catch (err) {
+        res.status(500).send(err);
     }
 });
 
