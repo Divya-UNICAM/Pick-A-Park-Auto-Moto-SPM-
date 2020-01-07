@@ -217,7 +217,7 @@ router.post('sensors/:postcode/:address', async (req,res) => {
 	const { error } = sensorValidation(req.body);
 	if(error) return res.status(400).send(error.details[0].message);
 	const munPostcode = req.params.postcode;
-	const parkAddress = req.params.address;
+	const parkAddress = decodeURI(req.params.address.toLowerCase());
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
     try {
@@ -225,7 +225,10 @@ router.post('sensors/:postcode/:address', async (req,res) => {
 		if(!requestedMunicipality)
 			return res.send(404).send('Municipality not found');
 		const munId = requestedMunicipality._id;
-		const requestedParkingPlace = await ParkingPlace.findOne({municipality: munId, location:{address: parkAddress}});
+		const requestedParkingPlace = await ParkingPlace.findOne({
+			municipality: munId, 
+			'location:address': parkAddress
+		});
 		if(!requestedParkingPlace)
 			return res.status(404).send('Parking place not found');
 		const addedSensor = await new Sensor({
@@ -248,7 +251,7 @@ router.put('sensors/:postcode/:address/:position', async (req,res) => {
 	const { error } = sensorValidation(req.body);
 	if(error) return res.send(400).send(error.details[0].message);
 	const munPostcode = req.params.postcode;
-	const parkAddress = req.params.address; //already in base64
+	const parkAddress = decodeURI(req.params.address.toLowerCase());
 	const sensorId = req.params.position;
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
@@ -258,13 +261,15 @@ router.put('sensors/:postcode/:address/:position', async (req,res) => {
 			return res.status(404).send('Municipality not found');
 		const requestedParkingPlace = await ParkingPlace.findOne({
 			municipality: requestedMunicipality._id,
-			location: {
-				address: parkAddress
-			}
+			'location.address': parkAddress
 		});
 		if(!requestedParkingPlace)
 			return res.status(404).send('Parking place not found');
-		let requestedSensor = await Sensor.findOneAndUpdate({_id: sensorId, parkingPlace: requestedParkingPlace._id},
+		let requestedSensor = await Sensor.findOneAndUpdate(
+			{	
+				_id: sensorId, 
+				parkingPlace: requestedParkingPlace._id
+			},
 			req.body,{new:true});
         res.send(requestedSensor);
     } catch (err) {
@@ -272,6 +277,7 @@ router.put('sensors/:postcode/:address/:position', async (req,res) => {
     }
 });
 
+//delete an existing sensor in the municipality
 router.delete('sensors/:postcode/:address/:position', async (req,res) => {
     const { error } = sensorValidation(req.body);
 	if(error) return res.send(400).send(error.details[0].message);
@@ -360,11 +366,11 @@ router.get('officers/:postcode/jobs', async (req,res) => {
 });
 
 //assign a new task to an existing police officer
-router.post('/officers/:postcode/:pid/job', async (req,res) => {
+router.post('/officers/:postcode/:badge/job', async (req,res) => {
     //const { error } = jobValidation(req.body);
     //if(error) return res.status(400).send(error.details[0].message);
     const munPostcode = req.params.postcode;
-	const officerId = req.params.pid;
+	const officerId = req.params.badge;
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
     try{
@@ -434,8 +440,8 @@ router.post('/parkingplaces/:postcode/:address/update', async (req,res) => {
     }
 });
 
-//retrieve all sensors from the current municipality
-router.get('/sensors/:postcode', async (req,res) => {
+//retrieve all sensors from the specified parking place in the specified municipality
+router.get('/sensors/:postcode/:address', async (req,res) => {
 	const munId = req.params.mid;
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
