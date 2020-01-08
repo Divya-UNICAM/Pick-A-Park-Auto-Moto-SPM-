@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="../../../utils/sensors.js"></script>
+        <script src="../../static/js/js/httpclient.js"></script>
+    </head>
+    <body>
+        <table id="sensors-table">
+            <tr>
+                <th>Parking Place</th>
+                <th>IP Address</th>
+                <th>Position</th>
+            </tr>
+            
+            
+        </table>
+        <button id="generate-sensor">Press Me to generate a sensor</button>
+
+        <script>
+            $('generate-sensor').click(() => {
+                //Retrieve a sensor from the database
+                httpClient.get('http://localhost:3001/api/dashboard/sensors')
+                $('sensor-table').append('<tr><td>')
+            })
+        </script>
+    </body>
+</html>
