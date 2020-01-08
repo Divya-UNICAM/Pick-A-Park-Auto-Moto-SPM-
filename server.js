@@ -15,7 +15,7 @@ const requestRoute = require('./routes/request');
 const paymentRoute = require('./routes/payment');
 //const sensorRoute = require('./routes/sensor');
 const directionsRoute = require('./routes/directions');
-const dashboardRoute = require('./routes/dashboard');
+const dashboardRoute = require('./routes/dashboard/dashboard');
 
 //Configurations
 hasher.generateSalt();
@@ -43,6 +43,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors());
 app.use('/static', express.static(__dirname + '/wwwroot/static'));
+app.use('/assets', express.static(__dirname + '/src/assets'));
 
 //Route Middlewares - where the user will navigate
 app.use('/api/users', authRoute);
@@ -56,6 +57,10 @@ app.get('/', (req,res) => {
     res.sendFile(path.join(__dirname + '/wwwroot/views/home/index.html'));
 });
 
+// app.get('/', (req, res) => {
+//     res.sendFile(path.join(__dirname + '/src/demo_1/index.html'));
+// });
+
 app.get('/request', (req,res) => {
     res.sendFile(path.join(__dirname + '/wwwroot/views/home/request.html'));
 });
@@ -64,12 +69,16 @@ app.get('/route', (req,res) => {
     res.sendFile(path.join(__dirname + '/wwwroot/views/maps/route.html'));
 });
 
+app.get('/register', (req, res) => {
+    res.sendFile(path.join(__dirname + '/src/signup/index.html'));
+});
+
 app.get('/login', (req,res) => {
-    res.sendFile(path.join(__dirname + '/wwwroot/views/home/login.html'));
+    res.sendFile(path.join(__dirname + '/src/login/index.html'));
 });
 
 app.get('/dashboard', (req,res) => {
-    res.sendFile(path.join(__dirname + '/wwwroot/views/home/dashboard.html'));
+    res.sendFile(path.join(__dirname + '/src/home/index.html'));
 });
 
 app.listen(port, () => {

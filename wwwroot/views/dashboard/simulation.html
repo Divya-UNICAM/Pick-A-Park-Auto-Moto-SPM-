@@ -1,20 +1,36 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <!-- Sensor classes -->
         <script src="../../../utils/sensors.js"></script>
+        <!-- AJAX calls to API -->
         <script src="../../static/js/js/httpclient.js"></script>
     </head>
     <body>
-        <table id="sensors-table">
-            <tr>
-                <th>Parking Place</th>
-                <th>IP Address</th>
-                <th>Position</th>
-            </tr>
-            
-            
-        </table>
-        <button id="generate-sensor">Press Me to generate a sensor</button>
+        <div>
+            <table>
+                <tr>
+                    <th></th>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <table id="sensors-table">
+                <tr>
+                    <th>SENSORS</th>    
+                </tr>
+                <tr>
+                    <th>Parking Place</th>
+                    <th>IP Address</th>
+                    <th>Position</th>
+                </tr>
+                
+                
+            </table>
+        </div>
+        <div><button id="generate-sensor">Press Me to generate a sensor</button></div>
+        </div>
+        
 
         <script>
             $('generate-sensor').click(() => {
