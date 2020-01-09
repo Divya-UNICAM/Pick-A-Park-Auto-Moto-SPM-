@@ -138,6 +138,10 @@ hr {
       <label for="name">Name:</label>
       <input  required="required" type="text" id="name" size="20" value=""  />
     </div>
+    <div id='divstloc' style="display: none;" class="elements">
+      <label for="startingLocation">Starting Location:</label>
+      <input required="required" type="text" id="targetLocation" name="targetLocation" value=""/>
+    </div>  
      <div class="elements">
       <label for="targetLocation">Target Location:</label>
       <input required="required" type="text" id="targetLocation" name="targetLocation" value=""/>
@@ -188,6 +192,7 @@ hr {
           //pos is a string
           sl = pos;
         }
+        console.log(sl);
         var targetlocation = document.getElementById("targetLocation").value;
         var date = document.getElementById("date").value;
         var licenseplate = document.getElementById("licensePlate").value;
@@ -231,12 +236,14 @@ hr {
             lng: position.coords.longitude
           };
 
-        }, function() {
-          
+        }, function() { //Error callback
+          alert('browser doesn\'t support geolocation\nyou need to input your starting location manually');
+          $('#divstloc').css('display','block');
         });
       } else {
         // Browser doesn't support Geolocation
         alert('browser doesn\'t support geolocation\nyou need to input your starting location manually');
+        $('divstloc').css('display','block');
       }
       return pos;
     }
