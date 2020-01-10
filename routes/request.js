@@ -55,9 +55,9 @@ router.post('/', async (req,res) => {
             .then((link) => { 
                 res.send(link);
             }) //Return the link to the confirmation payment page becusae using redirect gives error cors
-            .catch((err) => { return res.status(400).send(err) })
+            .catch((err) => { return res.status(500).send(err) })
     }catch(err){
-        res.status(400).send(err);
+        res.status(500).send(err);
     }
 });
 

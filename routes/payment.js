@@ -12,8 +12,8 @@ const { getDirections } = require('../utils/directions');
 dotenv.config();
 
 router.get('/', async (req,res) => {
-    id = req.headers.cookie;
-    let price = Cost.find().lean().pricePerMinute;
+    console.log(req.cookies);
+    const cost = Cost.findOne();
     price = Request.findById(id, (err, doc) => {
         price = price * doc.duration;
     });
