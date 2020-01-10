@@ -7,30 +7,27 @@ const Request = require('../../../db/models/Request');
 const db = require('../../../db/index');
 const server = require('../../../server');
 
+
+
 describe('POST /api/request', () => {
-    before((done) => {
-        db.connect('local').then(() => done()).catch((err) => done(err));
-    })
     after((done) => {
-        db.close().then(() => done()).catch((err) => done(err));
-    })
-    it('OK, sending a request works', (done) => {
+        db.close()
+        .then(() => done())
+        .catch((err) => done(err));
+    });
+    
+    it('after confirming a request, I receive the payment URL', (done) => {
         request(server).post('/api/request')
             .set('content-type','application/json')
             .send({
                 startingLocation: faker.address.city(),
                 targetLocation: faker.address.city(),
                 duration: faker.random.number(),
+                date: faker.date.recent(),
                 licensePlate: faker.random.alphaNumeric(7)
             })
             .then((res) => {
-                const body = res.body;
-                expect(body).to.contain.property('_id');
-                expect(body).to.contain.property('startingLocation');
-                expect(body).to.contain.property('targetLocation');
-                expect(body).to.contain.property('duration');
-                expect(body).to.contain.property('licensePlate');
-                expect(body).to.contain.property('status');
+                expect(res).to.have.property('status',200);
                 done();
             })
             .catch((err) => done(err));

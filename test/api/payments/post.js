@@ -36,23 +36,15 @@ const create_payment_json = {
 
 describe('POST /api/pay', () => {
     before((done) => {
-        db.connect('local').then(() => done()).catch((err) => done(err));
+        db.connect()
+        .then(() => done())
+        .catch((err) => done(err));
     })
-    after((done) => {
-        db.close().then(() => done()).catch((err) => done(err));
-    })
+    
     it('OK, sending a payment request works', (done) => {
-        request(server).post('/api/pay')
-            .set('content-type','application/json')
+        request(server).get('/api/pay')
             .then((res) => {
                 expect(res).to.have.property('status',200);
-                // const body = res.body;
-                // expect(body).to.contain.property('_id');
-                // expect(body).to.contain.property('startingLocation');
-                // expect(body).to.contain.property('targetLocation');
-                // expect(body).to.contain.property('duration');
-                // expect(body).to.contain.property('licensePlate');
-                // expect(body).to.contain.property('status');
                 done();
             })
             .catch((err) => done(err));

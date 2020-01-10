@@ -6,10 +6,9 @@ const { requestValidation } = require('../validation');
 const payment = require('./payment');
 
 router.post('/', async (req,res) => {
-    console.log(req.body);
     //Validate the req. data before creating a request
-    //const { error } = requestValidation(req.body);
-    //if(error) return res.status(400).send(error.details[0].message);
+    const { error } = requestValidation(req.body);
+    if(error) return res.status(400).send(error.details[0].message);
 
     //Create a new request
     const parkingRequest = new Request({
@@ -22,11 +21,12 @@ router.post('/', async (req,res) => {
     });
     try{
         const savedRequest = await parkingRequest.save();
-        return request.get(url.resolve('http://localhost:'+process.env.PORT,'api/pay'))
+        await request.get(url.resolve('http://localhost:'+process.env.PORT,'api/pay'))
             .then((body) => res.send(body))
-            .catch((err) => res.status(400).send(err))
+            .catch((err) => {console.log(err); res.status(500).send(err);})
     }catch(err){
-        res.status(400).send(err);
+        console.log(err);
+        res.status(500).send(err);
     }
 });
 
