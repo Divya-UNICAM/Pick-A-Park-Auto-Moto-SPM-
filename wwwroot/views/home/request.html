@@ -217,10 +217,38 @@ post: function(url, data, callback ) {
     </fieldset>
 	
 	<button onclick="return results()" style="width:auto;" >Proceed</button>
-	<button type="button" style="width:auto;" class="cancelbtn">Cancel</button>
+  <button type="button" style="width:auto;" class="cancelbtn">Cancel</button>
+
+	  
+  <div id="id01" class="modal">
+    <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">&times;</span>
+    <h1>Thank you for placing the request with us!</h1>
+    <p>Now, Please verify your request data</p>
+    
+    <h3>Here is your request:</h3>
+    
+    <div id="id01sl"></div>
+    <div id="id01tl"></div>
+    <div id="id01dt"></div>
+    <div id="id01lp"></div>
+    <div id="id01dr"></div>
+    
+    <div>Now you can confirm or cancel the payment</div>
+    <button onclick="return paymentConfirmed()" style="width:auto;" >Proceed</button>
+    <button onclick="return paymentCancelled()" type="button" style="width:auto;" class="cancelbtn">Cancel</button>
+  </div>
 
 
 <script>
+
+  function paymentConfirmed() {
+    let json = results();
+    return payment(json);
+  }
+
+  function paymentCancelled() {
+    window.location.replace('http://'+window.location.host+'/');
+  }
 
 	function results() {
 		var targetlocation = document.getElementById("targetLocation").value;
@@ -228,7 +256,11 @@ post: function(url, data, callback ) {
         var date = document.getElementById("date").value;
         var licenseplate = document.getElementById("licensePlate").value;
         var duration = document.getElementById("duration").value;
-    
+        $('#id01tl').html('Target location: '+ targetlocation);
+        $('#id01sl').html('Starting location: '+ startinglocation);
+	        $('#id01dt').html('Date: '+ date);
+	        $('#id01lp').html('License Plate: ' + licenseplate);
+	        $('#id01dr').html('Duration: ' + duration);
         var json = {
           "targetLocation":targetlocation,
           "startingLocation":startinglocation,
@@ -237,8 +269,15 @@ post: function(url, data, callback ) {
           "duration":duration
         }
         console.log(json)
-        httpClient.post("http://localhost:3001/api/request",json,(xhr) => {
-          window.location.replace(xhr.response) //manual redirect to paypal webiste
+
+        document.getElementById('id01').style.display="block";
+        return json;
+  }	
+  
+  function payment(json) {
+    httpClient.post("http://localhost:3001/api/request",json,(xhr) => {
+          window.location.replace(xhr.response);
+           //manual redirect to paypal webiste
         })
         $.ajax({
           url: window.location.host+'/api/request',
@@ -259,22 +298,7 @@ post: function(url, data, callback ) {
           }
         });
         console.log('ajax done')
-
-		document.write("<h1>Thank you for placing the request with us!</h1>");
-		document.write("<p>Now, Please verify your request data</p>");
-		
-		document.write("<h3>Here is your request:</h3>");
-		
-		document.write("Target Location:" + targetlocation + "<br/>");
-		document.write("Starting Location:" + startinglocation + "<br/>");
-		document.write("Date:" + date + "<br/>");
-		document.write("License Plate :" + licenseplate + "<br/>");
-		document.write("Duration requested:" + duration + "<br/>");
-		
-		document.write("<button><b>Confirm the request<b></button>");
-		document.write("<button><b>Cancel<b></button>");
-		
-	}	
+  }
  
 </script>
 
