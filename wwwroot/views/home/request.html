@@ -237,8 +237,8 @@ post: function(url, data, callback ) {
           "duration":duration
         }
         console.log(json)
-        httpClient.post("http://localhost:3001/api/request",json,(data) => {
-          $("html").html(data.response)
+        httpClient.post("http://localhost:3001/api/request",json,(xhr) => {
+          window.location.replace(xhr.response) //manual redirect to paypal webiste
         })
         $.ajax({
           url: window.location.host+'/api/request',

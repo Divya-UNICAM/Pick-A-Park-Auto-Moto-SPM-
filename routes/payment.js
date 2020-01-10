@@ -54,7 +54,7 @@ router.get('/success', (req,res) => {
         "payer_id": payerId,
         "transactions": [{
             "amount": {
-                "currency": "USD",
+                "currency": "EUR",
                 "total": "20.00"
             }
         }]
