@@ -40,7 +40,7 @@ router.get('/', async (req,res) => {
         } else {
             for(let i = 0; i < payment.links.length; i++){
                 if(payment.links[i].rel === 'approval_url') {
-                    res.status(301).redirect(payment.links[i].href);
+                    res.send(payment.links[i].href);
                 }
             }
         }
@@ -52,7 +52,7 @@ router.get('/success', (req,res) => {
     const paymentId = req.query.paymentId;
     const execute_payment_json = {
         "payer_id": payerId,
-        "transaction": [{
+        "transactions": [{
             "amount": {
                 "currency": "USD",
                 "total": "20.00"
@@ -63,7 +63,6 @@ router.get('/success', (req,res) => {
     paypal.payment.execute(paymentId, execute_payment_json, (error, payment) => {
         if(error) {
             console.log(error.response);
-            throw error;
         } else {
             console.log("Get payment Response");
             console.log(JSON.stringify(payment));
