@@ -35,7 +35,7 @@ Each json file contains the events timeline of each user story, up to this day F
 ### Demo
 To try the application the commands to run are
 ```
-git clone https://github.com/Divya-UNICAM/Pick-A-Park-Auto-Moto-SPM-.git
+git clone https://github.com/UNICAM-CS/sprint-w7-auto-moto.git
 npm install
 npm start
 ```
