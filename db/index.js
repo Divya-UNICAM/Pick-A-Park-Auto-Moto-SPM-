@@ -6,7 +6,7 @@ dotenv.config();
 var connection = null;
 var mongod = new MongoMemoryServer();
 
-async function connect(type) {
+async function connect() {
     if(connection === null)
         if(process.env.NODE_ENV !== 'production') {
             const uri = await mongod.getConnectionString();

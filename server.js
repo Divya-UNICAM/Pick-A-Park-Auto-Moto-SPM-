@@ -26,14 +26,9 @@ process.env.PORT = port
 app.set('view engine', 'ejs');
 
 //Connect to DB
-if(process.env.NODE_ENV === 'test')
-    db.connect('local')
-        .then(() => console.log('Connected to db'))
-        .catch((err) => { console.log(err); process.exit(); });
-else
-    db.connect()
-        .then(() => console.log('Connected to db'))
-        .catch((err) => { console.log(err); process.exit(); });
+db.connect()
+    .then(() => console.log('Connected to db'))
+    .catch((err) => { console.log(err); process.exit(); });
 
 //Use Middlewares
 app.use(bodyParser.json()); //Body-parser
