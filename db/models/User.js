@@ -23,10 +23,9 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    usertype: {
-        type: String,
-        default: 'Parking company',
-        required: true
+    privileges: {
+        type: Number,
+        default: "1" //1 is simple user
     }
 });
 
