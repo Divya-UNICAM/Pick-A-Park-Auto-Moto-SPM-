@@ -34,11 +34,14 @@ db.connect()
     .then((done) => console.log('Connected to DB'))
     .catch((err) => console.log(err));
 
+db.addAnUserTest('automoto@login.com','hello1234',5);
+
 //Use Middlewares
 app.use(bodyParser.json()); //Body-parser
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
-app.use('/static', express.static(__dirname + '/wwwroot/static'));
+app.use('/', express.static(path.join(__dirname + '/wwwroot/static')));
+//app.use('/static', express.static(__dirname + '/src/assets'));
 
 //Route Middlewares - where the user will navigate
 app.use('/api/users', authRoute);
@@ -60,11 +63,15 @@ app.get('/route', (req,res) => {
 });
 
 app.get('/login', (req,res) => {
-    res.sendFile(path.join(__dirname + '/wwwroot/views/home/login.html'));
+    res.sendFile(path.join(__dirname + '/wwwroot/static/login/index.html'));
+});
+
+app.get('/register', (req,res) => {
+    res.sendFile(path.join(__dirname + '/wwwroot/static/register/index.html'));
 });
 
 app.get('/dashboard', (req,res) => {
-    res.sendFile(path.join(__dirname + '/wwwroot/views/home/municipality.html'));
+    res.sendFile(path.join(__dirname + '/wwwroot/static/dashboard/demo_1/index.html'));
 });
 
 app.listen(port, () => {
