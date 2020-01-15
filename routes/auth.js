@@ -23,13 +23,14 @@ router.post('/register', async (req, res) => {
     const user = new User({
         name : req.body.name,
         email : req.body.email,
-        password : hashedPassword
+        password : hashedPassword,
+        privileges: req.body.privileges
     });
     try{
         const savedUser = await user.save();
-        res.send({user: user._id});
+        res.send('now you can log in');
     }catch(err){
-        res.status(400).send(err);
+        res.status(500).send(err);
     }
 });
 
@@ -50,43 +51,28 @@ router.post('/login', async (req,res) => {
 
     //Create and assign a token
     const token = jwt.sign({id: user._id},process.env.TOKEN_SECRET);
-    res.cookie('auth_token',token).send('http://localhost:3001/dashboard');
+    res.cookie('auth_token',token,{
+        expires:false, httpOnly: true
+    }).send('http://localhost:3001/dashboard');
 });
 
 //Delete a user
-router.delete('/delete', (req,res) => {
-    //check from which user the request comes based on the cookie token
+router.delete('/delete', async (req,res) => {
+    if(!req.cookies['auth_token'])
+        return res.status(403).send('You are not authorized');
     try {
-        let c = req.cookies.auth_token;
-        let userHasPrivileges = false;
-        if(c) {
             id = jwt.verify(c,process.env.TOKEN_SECRET);
-            User.findById(id).lean().exec((err,doc) => {
-                if(err) {
-                    res.status(400).send(err);
-                }
-                
-                switch(doc.usertype) {
-                    case 'Driver':
-                    case 'Parking company':
-                        userHasPrivileges = true;
-                    break;
-                    default:
-                        userHasPrivileges = false;
-                    break;
-                }
-            });
-            //User found
-            if(userHasPrivileges) {
-                const removedUser = User.remove({_id: id});
-                res.send(removedUser);
-            }
-        }
-    } catch (error) {
-        
+            const deletingUser = await User.findById(id);
+            if(!deletingUser) 
+                return res.status(403).send('You are not authorized');
+            if(deletingUser.privileges < 5) 
+                return res.status(403).send('You are not authorized');
+            
+            const deletedUser = await User.deleteOne(req.body.id);
+            res.send(deletedUser);
+    } catch (err) {
+        res.status(500).send(err);
     }
-    //if the request comes from the user itself, delete the user
-    //if the request comes from the root admin, delete the user
 });
 
 module.exports = router;
