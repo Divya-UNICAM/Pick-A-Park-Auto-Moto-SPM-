@@ -4,6 +4,7 @@ const db = require('./db/index.js');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 const paypal = require('paypal-rest-sdk');
 const hasher = require('./utils/salt');
@@ -14,6 +15,8 @@ const requestRoute = require('./routes/request');
 const paymentRoute = require('./routes/payment');
 const sensorRoute = require('./routes/sensor');
 const directionsRoute = require('./routes/directions');
+const placeRoute = require('./routes/place');
+const dashboardRoute = require('./routes/dashboard');
 
 //Configurations
 hasher.generateSalt();
@@ -39,9 +42,10 @@ db.addAnUserTest('automoto@login.com','hello1234',5);
 //Use Middlewares
 app.use(bodyParser.json()); //Body-parser
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(cors());
 app.use('/', express.static(path.join(__dirname + '/wwwroot/static')));
-//app.use('/static', express.static(__dirname + '/src/assets'));
+app.use('/assets', express.static(__dirname + '/wwwroot/static/dashboard/assets'));
 
 //Route Middlewares - where the user will navigate
 app.use('/api/users', authRoute);
@@ -49,13 +53,16 @@ app.use('/api/request', requestRoute);
 app.use('/api/pay',paymentRoute);
 app.use('/api/sensor',sensorRoute);
 app.use('/api/directions',directionsRoute);
+app.use('/api/place',placeRoute);
+app.use('/api/dashboard/municipalities',dashboardRoute.municipalityRoute);
+app.use('/api/dashboard/parkingplaces',dashboardRoute.parkingPlacesRoute);
 
 app.get('/', (req,res) => {
     res.sendFile(path.join(__dirname + '/wwwroot/views/home/index.html'));
 });
 
 app.get('/request', (req,res) => {
-    res.sendFile(path.join(__dirname + '/wwwroot/views/home/request.html'));
+    res.sendFile(path.join(__dirname + '/wwwroot/static/request/index.html'));
 });
 
 app.get('/route', (req,res) => {
@@ -71,6 +78,8 @@ app.get('/register', (req,res) => {
 });
 
 app.get('/dashboard', (req,res) => {
+    if(!req.cookies['auth_token'])
+        return res.redirect('/login');
     res.sendFile(path.join(__dirname + '/wwwroot/static/dashboard/demo_1/index.html'));
 });
 
