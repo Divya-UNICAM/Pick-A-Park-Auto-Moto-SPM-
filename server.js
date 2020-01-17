@@ -43,10 +43,10 @@ db.addAnUserTest('automoto@login.com','hello1234',5);
 app.use(bodyParser.json()); //Body-parser
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors());
 app.use('/', express.static(path.join(__dirname + '/wwwroot/static')));
 app.use('/assets', express.static(__dirname + '/wwwroot/static/dashboard/assets'));
 
+app.options("*",cors());
 //Route Middlewares - where the user will navigate
 app.use('/api/users', authRoute);
 app.use('/api/request', requestRoute);

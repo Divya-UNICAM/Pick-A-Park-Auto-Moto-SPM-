@@ -11,14 +11,44 @@
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
-    <script src="../../static/js/js/httpclient.js"></script>
-	
+	<script
+			  src="https://code.jquery.com/jquery-3.4.1.min.js"
+			  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+			  crossorigin="anonymous"></script>
 </head>
 <body>
 
 
 
 <div id="mapid" style="width: 600px; height: 400px;"></div>
+<script>
+	$.urlParam = function (name) {
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)')
+                      .exec(window.location.href);
+    if (results == null) {
+         return 0;
+    }
+    return results[1] || 0;
+}
+
+	//console.log($.urlParam('action')); //edit
+</script>
+<script>
+		async function getDirections(coord){
+		let response = await fetch('http://open.mapquestapi.com/directions/v2/route?key=EQGn6RdZOa3LaRlvqT3QYhpeCwKjoLhO', {
+			method: "post",
+			body: JSON.stringify({
+				locations: coord
+			})
+		});
+		if(response.ok) {
+			let body = await response.json();
+			console.log(body);
+		}	
+	}
+	
+	
+</script>
 <script>
 
 	var mymap = L.map('mapid').setView([51.505, -0.09], 13);
@@ -34,10 +64,18 @@
 	L.marker([51.5, -0.09]).addTo(mymap)
 		.bindPopup("<b>Hello world!</b><br />I am a popup.").openPopup();
 
-  var latlngs = document.cookie; //I get the directions from the cookie passed with the redirect from payment
-  var polyline = L.polyline(latlngs, {color: 'red'}).addTo(map);
+  var startingLocationLat = $.urlParam('startingLat');
+  var startingLocationLng = $.urlParam('startingLng');
+  var targetLocationLat = $.urlParam('targetLat');
+  var targetLocationLng = $.urlParam('targetLng');
+  var latLng = [
+	  [startingLocationLat, startingLocationLng],
+	  [targetLocationLat, targetLocationLng]
+  ]
+  getDirections(latLng);
+  var polyline = L.polyline(latLng, {color: 'red'}).addTo(mymap);
   // zoom the map to the polyline
-  map.fitBounds(polyline.getBounds());
+  mymap.fitBounds(polyline.getBounds());
 
 	var popup = L.popup();
 

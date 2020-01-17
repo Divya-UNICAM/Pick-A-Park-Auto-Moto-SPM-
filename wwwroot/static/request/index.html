@@ -8,6 +8,8 @@
 			  crossorigin="anonymous"></script>
     <!-- Javascript for client -->
     <script src="../httpclient.js"></script>
+    <!--Google Maps Places API library-->
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCtBtC_koG-Cmbikl2oAbZwXNxBjH_3gEQ&libraries=places"></script>
        
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Auto-Moto Request Form</title>
@@ -135,14 +137,13 @@ hr {
 	<div data-role="content">
 	
 	<div data-role="fieldcontain">
-	
     <div class="elements">
-      <label for="name">Name:</label>
-      <input  required="required" type="text" id="name" size="20" value=""  />
-    </div>
+      <label for="startingLocation">Starting Location:</label>
+      <input type="text" id="autocomplete1" name="startingLocation" value=""/>
+    </div>  
      <div class="elements">
       <label for="targetLocation">Target Location:</label>
-      <input required="required" type="text" id="targetLocation" name="targetLocation" value=""/>
+      <input required="required" type="text" id="autocomplete2" name="targetLocation" value=""/>
     </div>  
        
     <div class="elements">
@@ -165,7 +166,7 @@ hr {
 	<button type="button" style="width:auto;" class="cancelbtn">Cancel</button>
 
   <div id="id01" class="modal">
-    <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">&times;</span>
+    <span class="close" title="Close Modal">&times;</span>
     <h1>Thank you for placing the request with us!</h1>
     <p>Now, Please verify your request data</p>
     
@@ -182,92 +183,115 @@ hr {
     <button onclick="return paymentCancelled()" type="button" style="width:auto;" class="cancelbtn">Cancel</button>
   </div>
 <script>
+  var autocomplete1;
+  var autocomplete2;
+  
 
   //AJAX Lookup - loaded when page is loaded
   $(function() {
-    $('#targetLocation').autocomplete({
-    source: '/api/place/autocomplete/json',
-    onSelect: function (suggestion) {
-        alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
-    }
-  });
+    
+    autocomplete1 = new google.maps.places.Autocomplete(
+            /** @type {!HTMLInputElement} */ (
+                document.getElementById('autocomplete1')), {
+              
+            }
+            );
+            autocomplete2 = new google.maps.places.Autocomplete(
+            /** @type {!HTMLInputElement} */ (
+                document.getElementById('autocomplete2')), {
+              
+            }
+            );
   })
   
 
-  function googleLocate(place) {
-    httpClient.get('https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input='+place+
-      '&inputtype=textquery&key=AIzaSyCtBtC_koG-Cmbikl2oAbZwXNxBjH_3gEQ')
+  async function forwardGeocoding(place) {
+    let response = await fetch("http://www.mapquestapi.com/geocoding/v1/address?key=EQGn6RdZOa3LaRlvqT3QYhpeCwKjoLhO", {
+      method: "post",
+      headers: new Headers({
+        "Content-Type": "application/json"
+      }),
+      body: JSON.stringify({
+        location: place
+      })
+    });
+    if(response.ok) {
+      let body = await response.json();
+      return body.results[0].locations[0].latLng;
+    }
   }
 
-  function paymentConfirmed() {
-      let json = results();
-      return payment(json);
+  async function paymentConfirmed() {
+      let json = await results();
+      return await payment(json);
     }
 
   function paymentCancelled() {
     window.location.replace('http://'+window.location.host+'/');
   }
-	function results() {
-        let pos = locate();
-        let sl = null;
-        try {
-          //pos is a json
-          sl = JSON.parse(pos);
-        } catch (e) {
-          //pos is a string
-          sl = pos;
-        }
-        var targetlocation = document.getElementById("targetLocation").value;
-        var date = document.getElementById("date").value;
+	async function results() {
+        var startingLocation = document.getElementById("autocomplete1").value;
+        var targetlocation = document.getElementById("autocomplete2").value;
+        var datee = document.getElementById("date").value;
         var licenseplate = document.getElementById("licensePlate").value;
-        var duration = document.getElementById("duration").value;
+        var duratione = document.getElementById("duration").value;
         $('#id01tl').html('Target location: '+ targetlocation);
-        $('#id01sl').html('Starting location: '+ sl);
-        $('#id01dt').html('Date: '+ date);
+        $('#id01sl').html('Starting location: '+ startingLocation);
+        $('#id01dt').html('Date: '+ datee);
         $('#id01lp').html('License Plate: ' + licenseplate);
-        $('#id01dr').html('Duration: ' + duration);
+        $('#id01dr').html('Duration: ' + duratione);
 
-
+        var geoCode = await forwardGeocoding(startingLocation) ;
+        var geoCode2 = await forwardGeocoding(targetlocation);
         var json = {
-          "startingLocation": sl, //sl will either be a json or a string. if it's a string must be geolocated server side
-          "targetLocation": targetlocation,
-          "date": date,
+          "startingLocation": geoCode,
+          "targetLocation": geoCode2,
+          "date": datee,
           "licensePlate": licenseplate,
-          "duration": duration
+          "duration": duratione
         }
-
         document.getElementById('id01').style.display="block";
         return json;
 		
 	}
 
-  function payment(json) {
-    httpClient.post("http://localhost:3001/api/request",json,(xhr) => {
-          window.location.replace(xhr.response);
-           //manual redirect to paypal webiste
-        });
+  async function payment(json) {
+    let response = await fetch('http://localhost:3001/api/request',{
+      method: "post",
+      headers : new Headers({
+        "Content-Type": "application/json"
+      }),
+      body: JSON.stringify(json)
+    });
+    if(response.ok) {
+      let body = await response.text();
+      window.location.replace(body);
+    }
   }	
  
 </script>
 
 <script>
-  var pos = null;
-  function locate() {
+  $(function locate() {
       // Try HTML5 geolocation.
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
-          let pos = {
+          var pos = {
             lat: position.coords.latitude,
             lng: position.coords.longitude
           };
+          var circle = new google.maps.Circle({
+            center: pos, radius: position.coords.accuracy
+          });
+          autocomplete1.setBounds(circle.getBounds());
 
-        }, function() {
-          // Browser doesn't support Geolocation
-          alert('browser doesn\'t support geolocation\nyou need to input your starting location manually');
+        }, function(err) { //Error callback
+          console.log(err);
         });
       }
-      return pos;
-    }
+    });
+
+    
 </script>
 
 </body>

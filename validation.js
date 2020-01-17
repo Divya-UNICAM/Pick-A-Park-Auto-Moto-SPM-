@@ -37,13 +37,13 @@ const loginValidation = body => {
 const requestValidation = body => {
     const schema = Joi.object({
         startingLocation: Joi.object({
-            lat: Joi.string().required(),
-            lng: Joi.string().required()
-        }).required(),
+            lat: Joi.number(),
+            lng: Joi.number()
+        }),
         targetLocation: Joi.object({
-            lat: Joi.string().required(),
-            lng: Joi.string().required()
-        }).required(),
+            lat: Joi.number(),
+            lng: Joi.number()
+        }),
         date: Joi.date()
             .required(),
         licensePlate: Joi.string()
