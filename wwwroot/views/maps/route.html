@@ -43,7 +43,7 @@
 		});
 		if(response.ok) {
 			let body = await response.json();
-			console.log(body);
+			return body;
 		}	
 	}
 	
@@ -68,14 +68,31 @@
   var startingLocationLng = $.urlParam('startingLng');
   var targetLocationLat = $.urlParam('targetLat');
   var targetLocationLng = $.urlParam('targetLng');
-  var latLng = [
-	  [startingLocationLat, startingLocationLng],
-	  [targetLocationLat, targetLocationLng]
+  var coord = [
+	  startingLocationLat.toString()+','+startingLocationLng.toString(),
+	  targetLocationLat.toString()+','+targetLocationLng.toString()
   ]
-  getDirections(latLng);
-  var polyline = L.polyline(latLng, {color: 'red'}).addTo(mymap);
-  // zoom the map to the polyline
-  mymap.fitBounds(polyline.getBounds());
+  getDirections(coord)
+	.then((body) => {
+		var latLng = [
+			[startingLocationLat,startingLocationLng]
+		];
+		for(let i = 0; i<body.route.legs[0].maneuvers.length;i++) {
+			latLng.push([
+				body.route.legs[0].maneuvers[i].startPoint.lat,
+				body.route.legs[0].maneuvers[i].startPoint.lng,
+			]);
+		}
+		latLng.push([
+			targetLocationLat,targetLocationLng
+		]);
+		console.log(latLng)
+		var polyline = L.polyline(latLng, {color: 'red'}).addTo(mymap);
+		// zoom the map to the polyline
+		mymap.fitBounds(polyline.getBounds());
+	})
+	.catch((err) => console.log(err));
+  
 
 	var popup = L.popup();
 
