@@ -82,11 +82,14 @@
 				body.route.legs[0].maneuvers[i].startPoint.lat,
 				body.route.legs[0].maneuvers[i].startPoint.lng,
 			]);
+			var node = document.createElement("div");
+			var textNode = document.createTextNode(body.route.legs[0].maneuvers[i].narrative);
+			node.appendChild(textNode);
+			document.getElementById("narrative").appendChild(node);
 		}
 		latLng.push([
 			targetLocationLat,targetLocationLng
 		]);
-		console.log(latLng)
 		var polyline = L.polyline(latLng, {color: 'red'}).addTo(mymap);
 		// zoom the map to the polyline
 		mymap.fitBounds(polyline.getBounds());
@@ -106,7 +109,10 @@
   mymap.on('click', onMapClick);
 
 </script>
+<div>
+	<div id="narrative"></div>
 
+</div>
 
 
 </body>
