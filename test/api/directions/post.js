@@ -11,80 +11,37 @@ const db = require('../../../db/index');
 const server = require('../../../server');
 
 before((done) => {
-    db.connect('local').then(() => done()).catch((err) => done(err));
-})
-after((done) => {
-    db.close().then(() => done()).catch((err) => done(err));
+    db.connect()
+    .then(() => done())
+    .catch((err) => done(err));
 })
 
-describe('get directions', () => {
+describe('GET /directions', () => {
+    var sentRequestId;
     beforeEach((done) => {
         //Mock sensors and parking places
-        
-        
-        Municipality.create({
-            name: "Camerino",
-            province: "MC",
-            region: "Marche",
-            postcode: 60032,
-            parkingPlaces: [
-                ParkingPlace.create({
-                    sensors: [ 
-                        Sensor.create({
-                            location: {
-                                lat: faker.address.latitude(),
-                                lng: faker.address.longitude()
-                            },
-                            date: faker.date(),
-                            detected: 0,
-                            status: "FREE"
-                        }),Sensor.create({
-                            location: {
-                                lat: faker.address.latitude(),
-                                lng: faker.address.longitude()
-                            },
-                            date: faker.date(),
-                            detected: 0,
-                            status: "FREE"
-                        }),Sensor.create({
-                            location: {
-                                lat: faker.address.latitude(),
-                                lng: faker.address.longitude()
-                            },
-                            date: faker.date(),
-                            detected: 0,
-                            status: "FREE"
-                        })
-                    ],
-                    date: faker.date(),
-                    status: "FREE"
-                })
-            ],
-            policeofficers: [
-
-            ],
-            date: Date.now()
-            
-        });
-        
+        const sentRequest = new Request({
+            startingLocation: {
+                lat: faker.address.latitude(),
+                lng: faker.address.longitude()
+            },
+            targetLocation: {
+                lat: faker.address.latitude(),
+                lng: faker.address.longitude()
+            },
+            duration: 1,
+            licensePlate: "aaaaaaa",
+            date: faker.date.recent()
+        }).save()
+        .then((doc) => {
+            sentRequestId = doc.id;
+            done();
+        })
     });
-    it('should create a route between position and sensor', (done) => {
-        request(server).post('/api/request')
-            .set('content-type','application/json')
-            .send({
-                startingLocation: faker.address.city(),
-                targetLocation: faker.address.city(),
-                duration: faker.random.number(),
-                licensePlate: faker.random.alphaNumeric(7)
-            })
+    it('should create a route', (done) => {
+        request(server).get('/api/pay/test/success?id='+sentRequestId) //force payment success
             .then((res) => {
-                const body = res.body;
-                expect(body).to.contain.property('_id');
-                expect(body).to.contain.property('startingLocation');
-                expect(body).to.contain.property('targetLocation');
-                expect(body).to.contain.property('duration');
-                expect(body).to.contain.property('licensePlate');
-                expect(body).to.contain.property('status');
+                expect(res.status).to.be.equal(302);
                 done();
             })
             .catch((err) => done(err));
