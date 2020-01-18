@@ -20,7 +20,7 @@ On last but one day of the sprint we tested each functionality and wrapped up to
 * **21/12/19 - Sprint review**
 On the last day of the sprint we will discuss about what we achieved in this sprint, the obstacles met during the week and how we can improve the process in order to increase the velocity and achieve more story points.
 
-We would like to point out that even for this sprint we could not have constantly used the daily stand-up meeting technique due to one team member going to Naples for having medical examinations and the other team member being busy for the majority of hours  during the day following university classes.
+We would like to point out that even for this sprint we could not have constantly used the daily stand-up meeting technique due to one team member going to Naples for having medical examinations.
 One thing we can improve for the next sprint is to arrange stand-up meetings daily.
 
 ### User Stories
@@ -32,7 +32,7 @@ Each json file contains the events timeline of each user story, up to this day F
 ### Demo
 To try the application the commands to run are
 ```
-git clone https://github.com/Divya-UNICAM/Pick-A-Park-Auto-Moto-SPM-.git
+git clone https://github.com/UNICAM-CS/sprint-w8-auto-moto.git
 npm install
 npm start
 ```
