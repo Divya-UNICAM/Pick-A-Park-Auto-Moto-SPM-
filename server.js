@@ -56,6 +56,7 @@ app.use('/api/directions',directionsRoute);
 app.use('/api/place',placeRoute);
 app.use('/api/dashboard/municipalities',dashboardRoute.municipalityRoute);
 app.use('/api/dashboard/parkingplaces',dashboardRoute.parkingPlacesRoute);
+app.use('/api/dashboard/sensors',dashboardRoute.sensorRoute);
 
 app.get('/', (req,res) => {
     res.sendFile(path.join(__dirname + '/wwwroot/views/home/index.html'));
@@ -70,6 +71,8 @@ app.get('/route', (req,res) => {
 });
 
 app.get('/login', (req,res) => {
+    if(req.cookies['auth_token'])
+        return res.redirect('/dashboard');
     res.sendFile(path.join(__dirname + '/wwwroot/static/login/index.html'));
 });
 
