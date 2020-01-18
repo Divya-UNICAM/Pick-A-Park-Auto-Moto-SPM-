@@ -61,7 +61,7 @@ router.delete('/delete', async (req,res) => {
     if(!req.cookies['auth_token'])
         return res.status(403).send('You are not authorized');
     try {
-            id = jwt.verify(c,process.env.TOKEN_SECRET);
+            id = jwt.verify(req.cookies['auth_token'],process.env.TOKEN_SECRET);
             const deletingUser = await User.findById(id);
             if(!deletingUser) 
                 return res.status(403).send('You are not authorized');

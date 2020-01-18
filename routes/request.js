@@ -30,10 +30,10 @@ router.post('/', async (req,res) => {
         //Process the payment
         console.log(savedRequest);
         return request.get(url.resolve('http://localhost:'+process.env.PORT,'/api/pay?id='+savedRequest.id))
-            .then((link) => { 
-                res.send(link);
-            }) //Return the link to the confirmation payment page becusae using redirect gives error cors
-            .catch((err) => { return res.status(500).send(err) })
+                .then((link) => { 
+                    res.send(link);
+                }) //Return the link to the confirmation payment page becusae using redirect gives error cors
+                .catch((err) => { return res.status(500).send(err) });
     }catch(err){
         res.status(500).send(err);
     }

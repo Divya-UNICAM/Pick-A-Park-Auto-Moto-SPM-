@@ -75,6 +75,7 @@ router.get('/success', (req,res) => {
             
         } else {
             console.log('payment success');
+            
             //payment successful so post the request data to the route service
             //for creating the map with directions
             //I have to update the payment id with a non empty payment id
@@ -89,16 +90,6 @@ router.get('/success', (req,res) => {
                     targetLat: doc.targetLocation.lat,
                     targetLng: doc.targetLocation.lng
                 };
-                //Send the post to the directions api to retrieve the directions to the parking place
-                //Not needed becuase the route will be created in client's browser via google maps api
-                // let directions = null;
-                // getDirections(coordinates)
-                //     .then((res) => {
-                //         let routes = JSON.parse(res.body);
-                //         //directions is a JSON array with many sub arrays containing coordinates of each step
-                //         directions = routes.features.geometry.coordinates;
-                //     })
-                //     .catch((err) => console.log(err))
 
                 //Return map with directions
                 const query = querystring.stringify(coordinates);
@@ -108,6 +99,31 @@ router.get('/success', (req,res) => {
         }
     });
 });
+
+//TEST FOR FORCING PAYMENT
+router.get('/test/success', (req,res) => {
+    const reqId = req.query.id;
+    //payment successful so post the request data to the route service
+    //for creating the map with directions
+    //I have to update the payment id with a non empty payment id
+    Request.findOneAndUpdate({_id: reqId}, {
+        status: "PAID" //Set a payment id to show payment done
+    },{new: true, useFindAndModify: false}, (err, doc) => {
+        if(err)
+            return res.status(500).send(err);
+        coordinates = {
+            startingLat: doc.startingLocation.lat,
+            startingLng: doc.startingLocation.lng,
+            targetLat: doc.targetLocation.lat,
+            targetLng: doc.targetLocation.lng
+        };
+
+        //Return map with directions
+        const query = querystring.stringify(coordinates);
+        res.redirect('http://localhost:3001/route?'+query);
+        //Redirect to a successful checkout page and send invoice
+    });
+})
 
 router.get('/cancel', (req,res) => {
     res.send("Payment cancelled");
