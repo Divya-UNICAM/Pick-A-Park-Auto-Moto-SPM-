@@ -8,7 +8,6 @@ const paypal = require('paypal-rest-sdk');
 const request = require('request-promise');
 const { decrypt, encrypt } = require('../utils/salt');
 const { getDirections } = require('../utils/directions');
-const querystring = require('querystring');
 
 dotenv.config();
 

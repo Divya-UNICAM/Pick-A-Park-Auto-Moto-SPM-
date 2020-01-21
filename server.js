@@ -13,7 +13,6 @@ const hasher = require('./utils/salt');
 const authRoute = require('./routes/auth');
 const requestRoute = require('./routes/request');
 const paymentRoute = require('./routes/payment');
-//const sensorRoute = require('./routes/sensor');
 const directionsRoute = require('./routes/directions');
 const placeRoute = require('./routes/place');
 const dashboardRoute = require('./routes/dashboard');
@@ -52,12 +51,13 @@ app.options("*",cors());
 app.use('/api/users', authRoute);
 app.use('/api/request', requestRoute);
 app.use('/api/pay',paymentRoute);
-//app.use('/api/sensor',sensorRoute);
 app.use('/api/directions',directionsRoute);
 app.use('/api/place',placeRoute);
 app.use('/api/dashboard/municipalities',dashboardRoute.municipalityRoute);
 app.use('/api/dashboard/parkingplaces',dashboardRoute.parkingPlacesRoute);
 app.use('/api/dashboard/sensors',dashboardRoute.sensorRoute);
+app.use('/api/dashboard/officers',dashboardRoute.officerRoute);
+app.use('/api/dashboard/tasks',dashboardRoute.taskRoute);
 
 app.get('/', (req,res) => {
     res.sendFile(path.join(__dirname + '/wwwroot/views/home/index.html'));
