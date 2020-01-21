@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const User = require('../db/models/User');
 const faker = require('faker');
 const request = require('request-promise');
 const dotenv = require('dotenv');
