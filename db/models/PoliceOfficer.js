@@ -16,6 +16,10 @@ const policeOfficerSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    badge: {
+        type: String,
+        required: true
+    },
     date: {
         type: Date,
         default: Date.now

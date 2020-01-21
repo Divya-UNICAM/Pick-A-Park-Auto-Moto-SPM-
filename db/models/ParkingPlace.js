@@ -2,24 +2,21 @@ const mongoose = require('mongoose');
 
 const parkingPlaceSchema = new mongoose.Schema({
     municipality: {
-        type: Object
+        type: String
     },
     location: {
         lat: {
-            type: String,
+            type: Number,
             required: true
         },
         lng: {
-            type: String,
+            type: Number,
             required: true
         },
         address: {
             type: String,
             required: true
         }
-    },
-    sensors :{
-        type : Array
     },
     date: {
         type: Date,

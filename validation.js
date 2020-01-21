@@ -5,7 +5,7 @@ const Joi = require('@hapi/joi');
 const registerValidation = body => {
     const schema = Joi.object({
         name: Joi.string()
-            .min(6)
+            .min(4)
             .required(),
         email: Joi.string()
             .min(6)
@@ -13,7 +13,8 @@ const registerValidation = body => {
             .email(),
         password: Joi.string()
             .min(8)
-            .required()
+            .required(),
+        privileges: Joi.number()
     });
     return schema.validate(body);
 };
@@ -36,13 +37,13 @@ const loginValidation = body => {
 const requestValidation = body => {
     const schema = Joi.object({
         startingLocation: Joi.object({
-            lat: Joi.string().required(),
-            lng: Joi.string().required()
-        }).optional(),
-        startingLocation: Joi.string()
-            .optional(),
-        targetLocation: Joi.string()
-            .required(),
+            lat: Joi.number(),
+            lng: Joi.number()
+        }),
+        targetLocation: Joi.object({
+            lat: Joi.number(),
+            lng: Joi.number()
+        }),
         date: Joi.date()
             .required(),
         licensePlate: Joi.string()
@@ -57,13 +58,11 @@ const requestValidation = body => {
 //Sensor validation
 const sensorValidation = body => {
     const schema = Joi.object({
-        location: Joi.object({
-            lat: Joi.number(),
-            lng: Joi.number()
-        })
-        .required(),
-        date: Joi.date()
-            .required(),
+        parkingPlace: Joi.string().hex(),
+        position: Joi.number().required(),
+        ipAddress: Joi.string().ip().required(),
+        update: Joi.string(),
+        date: Joi.date(),
         detected: Joi.number(),
         status: Joi.string()
     });
@@ -83,7 +82,6 @@ const parkingPlaceValidation = body => {
             address: Joi.string()
                 .required()
         }),
-        sensors: Joi.array(),
         date: Joi.date(),
         status: Joi.string()
     });
@@ -111,9 +109,35 @@ const municipalityValidation = body => {
     return schema.validate(body);
 };
 
+//Police officers Validation
+const policeOfficerValidation = body => {
+    const schema = Joi.object({
+        name: Joi.string(),
+        email: Joi.string().email(),
+        password: Joi.string(),
+        badge: Joi.string(),
+        status: Joi.string()
+    });
+    return schema.validate(body);
+};
+
+//Job Validation
+const jobValidation = body => {
+    const schema = Joi.object({
+        municipality: Joi.string(),
+        policeOfficer: Joi.string(),
+        parkingPlace: Joi.string(),
+        date: Joi.date(),
+        status: Joi.string()
+    });
+    return schema.validate(body);
+};
+
 module.exports.registerValidation = registerValidation;
 module.exports.loginValidation = loginValidation;
 module.exports.requestValidation = requestValidation;
 module.exports.sensorValidation = sensorValidation;
 module.exports.parkingPlaceValidation = parkingPlaceValidation;
 module.exports.municipalityValidation = municipalityValidation;
+module.exports.policeOfficerValidation = policeOfficerValidation;
+module.exports.jobValidation = jobValidation;

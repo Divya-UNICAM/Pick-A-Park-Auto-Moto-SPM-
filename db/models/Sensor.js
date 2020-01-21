@@ -2,11 +2,20 @@ const mongoose = require('mongoose');
 const Municipality = require('./Municipality');
 
 const sensorSchema = new mongoose.Schema({
-    parkingPlace: {
+    parkingplace: {
         type: String
     },
+    position: {
+        type: Number,
+        required: true
+    },
+    ipAddress: { //Each sensor that is part of the same ParkingPlace shares the same Ip address
+        type: String,
+        required:true
+    },
     update: {
-        type: String
+        type: String,
+        default: ""
     },
     date: {
         type: Date,
@@ -18,7 +27,7 @@ const sensorSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        required: true
+        default: "FREE"
     }
 });
 

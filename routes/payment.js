@@ -8,6 +8,7 @@ const paypal = require('paypal-rest-sdk');
 const request = require('request-promise');
 const { decrypt, encrypt } = require('../utils/salt');
 const { getDirections } = require('../utils/directions');
+const querystring = require('querystring');
 
 dotenv.config();
 
@@ -23,8 +24,8 @@ router.get('/', async (req,res) => {
             "payment_method": "paypal"
         },
         "redirect_urls": {
-            "return_url": "http://localhost:"+process.env.PORT+"/api/pay/success",
-            "cancel_url": "http://localhost:"+process.env.PORT+"/api/pay/cancel"
+            "return_url": "http://localhost:"+process.env.PORT+"/api/pay/success?id="+reqId,
+            "cancel_url": "http://localhost:"+process.env.PORT+"/api/pay/cancel?id="+reqId
         },
         "transactions": [{
             "item_list": {
@@ -59,9 +60,9 @@ router.get('/', async (req,res) => {
 
 //After confirming the payment method in paypal, payment will apply
 router.get('/success', (req,res) => {
-    console.log(req.query)
     const payerId = req.query.PayerID;
     const paymentId = req.query.paymentId;
+    const reqId = req.query.id;
     const execute_payment_json = {
         "payer_id": payerId,
         "transactions": [{
@@ -79,49 +80,55 @@ router.get('/success', (req,res) => {
             
         } else {
             console.log('payment success');
+            
             //payment successful so post the request data to the route service
             //for creating the map with directions
             //I have to update the payment id with a non empty payment id
-            Request.findOneAndUpdate({_id: id}, {
-                status: id //Set a payment id to show payment done
-            },{new: true}, (err, doc) => {
+            Request.findOneAndUpdate({_id: reqId}, {
+                status: "PAID" //Set a payment id to show payment done
+            },{new: true, useFindAndModify: false}, (err, doc) => {
                 if(err)
-                    res.status(400).send(err);
-                coordinates = 
-                        [
-                            decrypt(doc.startingLocation.lat),
-                            decrypt(doc.startingLocation.lng)
-                        ],
-                        [
-                            decrypt(doc.targetLocation.lat),
-                            decrypt(doc.targetLocation.lng)
-                        ]
-                ;
-                console.log(coordinates)
-                //Send the post to the directions api to retrieve the directions to the parking place
-                let directions = null;
-                getDirections(coordinates)
-                    .then((res) => {
-                        let routes = JSON.parse(res.body);
-                        //directions is a JSON array with many sub arrays containing coordinates of each step
-                        directions = routes.features.geometry.coordinates;
-                        console.log(directions)
-                    })
-                    .catch((err) => console.log(err))
+                    return res.status(500).send(err);
+                coordinates = {
+                    startingLat: doc.startingLocation.lat,
+                    startingLng: doc.startingLocation.lng,
+                    targetLat: doc.targetLocation.lat,
+                    targetLng: doc.targetLocation.lng
+                };
 
-                //Return map with locations and from the js will ask directions
-                const query = querystring.stringify({
-                    "slat": coordinates[0][0],
-                    "slng": coordinates[0][1],
-                    "tlat": coordinates[1][0],
-                    "tlng": coordinates[1][1]
-                });
+                //Return map with directions
+                const query = querystring.stringify(coordinates);
                 res.redirect('http://localhost:3001/route?'+query);
                 //Redirect to a successful checkout page and send invoice
             });
         }
     });
 });
+
+//TEST FOR FORCING PAYMENT
+router.get('/test/success', (req,res) => {
+    const reqId = req.query.id;
+    //payment successful so post the request data to the route service
+    //for creating the map with directions
+    //I have to update the payment id with a non empty payment id
+    Request.findOneAndUpdate({_id: reqId}, {
+        status: "PAID" //Set a payment id to show payment done
+    },{new: true, useFindAndModify: false}, (err, doc) => {
+        if(err)
+            return res.status(500).send(err);
+        coordinates = {
+            startingLat: doc.startingLocation.lat,
+            startingLng: doc.startingLocation.lng,
+            targetLat: doc.targetLocation.lat,
+            targetLng: doc.targetLocation.lng
+        };
+
+        //Return map with directions
+        const query = querystring.stringify(coordinates);
+        res.redirect('http://localhost:3001/route?'+query);
+        //Redirect to a successful checkout page and send invoice
+    });
+})
 
 router.get('/cancel', (req,res) => {
     res.send("Payment cancelled");
