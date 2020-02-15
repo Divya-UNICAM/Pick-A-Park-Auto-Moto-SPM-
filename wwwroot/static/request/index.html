@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script
 			  src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"
@@ -130,6 +132,9 @@ hr {
 </style>
 
 <body bgcolor="skyblue">
+  <script
+    src="https://www.paypal.com/sdk/js?client-id=AQ6-n3AqT0cuxRDmllP2RMcn0jeVwK8HaxBo1Xfl-9MJoNFLe_GL8xUSxNMjUESyBQfnv5ejJGEmTKlV"> // Required. Replace SB_CLIENT_ID with your sandbox client ID.
+  </script>
   <fieldset>
     <legend>Parking Registration form  </legend>
     <p>Please fill out the details</p>
@@ -177,10 +182,9 @@ hr {
     <div id="id01dt"></div>
     <div id="id01lp"></div>
     <div id="id01dr"></div>
-    
+
     <div>Now you can confirm or cancel the payment</div>
-    <button onclick="return paymentConfirmed()" style="width:auto;" >Proceed</button>
-    <button onclick="return paymentCancelled()" type="button" style="width:auto;" class="cancelbtn">Cancel</button>
+    <div id="paypal-button-container"></div>
   </div>
 <script>
   var autocomplete1;
@@ -221,14 +225,7 @@ hr {
     }
   }
 
-  async function paymentConfirmed() {
-      let json = await results();
-      return await payment(json);
-    }
-
-  function paymentCancelled() {
-    window.location.replace('http://'+window.location.host+'/');
-  }
+  
 	async function results() {
         var startingLocation = document.getElementById("autocomplete1").value;
         var targetlocation = document.getElementById("autocomplete2").value;
@@ -250,8 +247,18 @@ hr {
           "licensePlate": licenseplate,
           "duration": duratione
         }
-        document.getElementById('id01').style.display="block";
-        return json;
+        
+        let response = await fetch('http://localhost:3001/api/request',{
+          method: "post",
+          headers : new Headers({
+            "Content-Type": "application/json"
+          }),
+          body: JSON.stringify(json)
+        });
+        if(response.ok) {
+          console.log(response)
+          document.getElementById('id01').style.display="block";
+        }
 		
 	}
 
@@ -293,6 +300,30 @@ hr {
 
     
 </script>
-
+<script>
+  paypal.Buttons({
+    createOrder: function() {
+      // This function sets up the details of the transaction, including the amount and line item details.
+      return fetch('/api/pay', {
+        method: "post",
+        headers: {
+          "content-type": "application/json"
+        }
+      }).then((res) => {
+        return res.json();
+      }).then((data) => {
+        return data.orderID;
+      })
+      .catch((err) => console.log(err));
+    },
+    onApprove: function(data, action) {
+      console.log(data)
+      fetch('/api/pay/success')
+        .then((res) => {
+          window.location.href = res.url;
+        })
+    }
+  }).render('#paypal-button-container');
+</script>
 </body>
 </html>
