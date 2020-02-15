@@ -6,9 +6,8 @@ const requestSchema = new mongoose.Schema({
         required: true
     },
     targetLocation: {
-        parkingPlace: {
-            type: String
-        }
+        type: Object,
+        required: true
     },
     duration: {
         type: Number,
@@ -17,6 +16,9 @@ const requestSchema = new mongoose.Schema({
     licensePlate: {
         type: String,
         required: true
+    },
+    assignedplace: {
+        type: Object
     },
     date: {
         type: Date,
