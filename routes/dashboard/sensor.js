@@ -13,14 +13,17 @@ const jwt = require('jsonwebtoken');
 const { jobValidation,policeOfficerValidation, sensorValidation, municipalityValidation, parkingPlaceValidation } = require('../../validation');
 const { reverseGeolocatev1 } = require('../../utils/geolocator');
 
-//adding a new sensor to a municipality
+//adding a new sensor to a parking place
 router.post('/:postcode/:address', async (req,res) => {
-	const { error } = sensorValidation(req.body);
-	if(error) return res.status(400).send(error.details[0].message);
-	const munPostcode = req.params.postcode;
-	const parkAddress = decodeURI(req.params.address.toLowerCase());
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
+
+	const { error } = sensorValidation(req.body);
+	if(error) return res.status(400).send(error.details[0].message);
+
+	const munPostcode = req.params.postcode;
+	const parkAddress = decodeURI(req.params.address.toLowerCase());
+	
     try {
 		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
@@ -33,13 +36,15 @@ router.post('/:postcode/:address', async (req,res) => {
 		if(!requestedParkingPlace)
 			return res.status(404).send('Parking place not found');
 		const addedSensor = await new Sensor({
-			parkingPlace: requestedParkingPlace.id,
+			parkingplace: requestedParkingPlace.id,
 			position: req.body.position,
 			ipAddress: req.body.ipAddress
 		}).save();
+		
 		console.log('Sensor added');
 		//Create and assign a token for the sensor in order to make it able to send updates
-		const token = jwt.sign({id: addedSensor._id},process.env.TOKEN_SECRET);
+		const token = jwt.sign({id: addedSensor.id},process.env.TOKEN_SECRET);
+		console.log(token);
 		res.cookie('sensor_token',token,{
 			expires:false, httpOnly: true
 		}).send(addedSensor);
@@ -48,7 +53,7 @@ router.post('/:postcode/:address', async (req,res) => {
     }
 });
 
-//retrieve a sensor from the specfied municiaplity
+//retrieve a sensor from the specfied parking place
 router.get('/:postcode/:address/:position',async (req,res) => {
 	const munPostcode = req.params.postcode;
 	const parkAddress = decodeURI(req.params.address.toLowerCase());
@@ -73,7 +78,7 @@ router.get('/:postcode/:address/:position',async (req,res) => {
 //retrieve all sensors from the specified parking place in the specified municipality
 router.get('/:postcode/:address', async (req,res) => {
     const munId = req.params.postcode;
-    const address = decodeURI(req.params.address.toLowerCase());
+	const address = decodeURI(req.params.address.toLowerCase());
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
     try {
@@ -81,8 +86,9 @@ router.get('/:postcode/:address', async (req,res) => {
         if(!requestedMunicipality)
             return res.status(404).send('Municipality not found');
         const requestedParkingPlace = await ParkingPlace.findOne({
+			municipality: requestedMunicipality.id,
             "location.address": address
-        });
+		});
         if(!requestedParkingPlace)
             return res.status(404).send('No parking place found in this address');
         const requestedSensors = await Sensor.find({
