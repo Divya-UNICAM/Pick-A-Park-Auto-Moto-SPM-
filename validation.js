@@ -14,7 +14,8 @@ const registerValidation = body => {
         password: Joi.string()
             .min(8)
             .required(),
-        privileges: Joi.number()
+        privileges: Joi.number(),
+        domain: Joi.string()
     });
     return schema.validate(body);
 };
@@ -103,7 +104,7 @@ const municipalityValidation = body => {
             lat: Joi.number().required(),
             lng: Joi.number().required()
         }),
-        policeOfficers: Joi.array(),
+        pricePerMinute: Joi.number(),
         date: Joi.date()
     });
     return schema.validate(body);

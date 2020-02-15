@@ -26,6 +26,10 @@ const userSchema = new mongoose.Schema({
     privileges: {
         type: Number,
         default: "1" //1 is simple user
+    },
+    domain: {
+        type: String,
+        default: '*'
     }
 });
 

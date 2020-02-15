@@ -24,7 +24,8 @@ router.post('/register', async (req, res) => {
         name : req.body.name,
         email : req.body.email,
         password : hashedPassword,
-        privileges: req.body.privileges
+        privileges: req.body.privileges,
+        domain: req.body.domain
     });
     try{
         const savedUser = await user.save();
@@ -50,9 +51,9 @@ router.post('/login', async (req,res) => {
     if(!validPassword) return res.status(400).send('Invalid password');
 
     //Create and assign a token
-    const token = jwt.sign({id: user._id},process.env.TOKEN_SECRET);
+    const token = jwt.sign({id: user._id, domain: user.domain},process.env.TOKEN_SECRET);
     res.cookie('auth_token',token,{
-        expires:false, httpOnly: true
+        expires:false, httpOnly: false
     }).send('http://localhost:3001/dashboard');
 });
 
