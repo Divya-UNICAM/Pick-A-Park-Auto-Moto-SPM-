@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const dotenv = require('dotenv');
 const request = require('request-promise');
 const Request = require('../../db/models/Request');
 const Sensor = require('../../db/models/Sensor');
@@ -12,9 +13,69 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { jobValidation,policeOfficerValidation, sensorValidation, municipalityValidation, parkingPlaceValidation } = require('../../validation');
 const { reverseGeolocatev1 } = require('../../utils/geolocator');
+dotenv.config();
+
+//retrieve all police officers (municipality is derived from the user cookie)
+router.get('/', async (req,res) => {
+	const isDetailed = req.query.detailed;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
+	try {
+		const domain = jwt.decode(req.cookies['auth_token']).domain;
+		const mun = await Municipality.findOne({postcode: domain});
+		const allOfficers = await PoliceOfficer.find({municipality: mun.id});
+		if(allOfficers.length <= 0)
+			return res.status(404).send('No officers found in specified municipality');
+		if(isDetailed) {
+			let detailedOfficers = [];
+			await Promise.all(allOfficers.map(async officer =>  {
+				let doc = officer.toJSON();
+				doc.municipality = mun.name;
+				detailedOfficers.push(doc);
+			}));
+			return res.send(detailedOfficers);
+			console.log('data sent')
+		}
+		console.log('Retrieved all officers');
+		res.send(allOfficers);
+	} catch (err) {
+		console.log(err);
+		res.status(500).send(err);
+	}
+});
+
+//add a new poilice officer
+router.post('/', async (req,res) => {
+	const { error } = policeOfficerValidation(req.body);
+    if(error) return res.status(400).send(error.details[0].message);
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
+	try {
+		const domain = jwt.decode(req.cookies['auth_token']).domain;
+		const mun = await Municipality.findOne({postcode: domain});
+		//Check if the user is already in the database
+		const emailExists = await PoliceOfficer.findOne({email: req.body.email});
+		if(emailExists) return res.status(400).send('Email already exists');
+	
+		//Hash the password
+		const salt = await bcrypt.genSalt(10);
+		const hashedPassword = await bcrypt.hash(req.body.password, salt);
+
+		const officer = await new PoliceOfficer({
+			municipality: mun.id,
+			name: req.body.name,
+			email: req.body.email,
+			password: hashedPassword,
+			badge: req.body.badge
+		}).save();
+		res.send(officer);
+	} catch (err) {
+		res.status(500).send(err);
+	}
+});
 
 //retrieve all police officers working on the municipality
-router.get('/officers/:postcode', async (req,res) => {
+router.get('/:postcode', async (req,res) => {
 	const munPostcode = req.params.postcode;
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
@@ -35,7 +96,7 @@ router.get('/officers/:postcode', async (req,res) => {
 });
 
 //retrieve a single police officer in the specified municipality
-router.get('/officers/:postcode/:badge', async (req,res) => {
+router.get('/:postcode/:badge', async (req,res) => {
 	const munPostcode = req.params.postcode;
 	const officerId = req.params.badge;
 	if(!req.cookies['auth_token'])
@@ -57,7 +118,7 @@ router.get('/officers/:postcode/:badge', async (req,res) => {
 });
 
 //add a new police officer in the system
-router.post('/officers/:postcode', async (req,res) => {
+router.post('/:postcode', async (req,res) => {
     const { error } = policeOfficerValidation(req.body);
     if(error) return res.status(400).send(error.details[0].message);
 	const munPostcode = req.params.postcode;
@@ -91,7 +152,7 @@ router.post('/officers/:postcode', async (req,res) => {
 });
 
 //Update an exisiting police officer
-router.put('/officers/:postcode/:badge', async (req,res) => {
+router.put('/:postcode/:badge', async (req,res) => {
 	const { error } = policeOfficerValidation(req.body);
 	if(error) return res.status(400).send(error.details[0].message);
 	const munPostcode = req.params.postcode;
@@ -116,7 +177,7 @@ router.put('/officers/:postcode/:badge', async (req,res) => {
 });
 
 //Delete an exisisting police officer
-router.delete('/officers/:postcode/:badge', async (req,res) => {
+router.delete('/:postcode/:badge', async (req,res) => {
 	const munPostcode = req.params.postcode;
 	const officerId = req.params.badge;
 	if(!req.cookies['auth_token'])
