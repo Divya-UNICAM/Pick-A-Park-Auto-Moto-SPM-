@@ -6,7 +6,7 @@ const request = require('supertest');
 const server = require('../../server');
 
 describe('GET /', () => {
-    it('should return Home page', (done) => {
+    it('OK, retrieving Home page works', (done) => {
         request(server).get('/')
         .then((res) => {
             const body = res.body;
