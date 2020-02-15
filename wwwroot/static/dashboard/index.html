@@ -1,7 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Municipality home page </title>
+  <script
+			  src="https://code.jquery.com/jquery-3.4.1.min.js"
+			  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+			  crossorigin="anonymous"></script>
+<!--Google Maps Places API library-->
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCtBtC_koG-Cmbikl2oAbZwXNxBjH_3gEQ&libraries=places"></script>
+        <title>Municipality home page </title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
@@ -134,10 +140,52 @@ body {
 </div>
 
 <div class="main">
-  <h2>Introduction</h2>
-  <p>Click on the dropdown button to open the dropdown menu inside the side navigation.</p>
-  <p>This sidebar is of full height (100%) and always shown.</p>
-  <p>Some random text..</p>
+  <div>Current Cost per hour</div>
+  <input id="price-div"/>
+  <button id="button-change-price">Change</button>
+
+  <div>
+    Realtime Parking Places Updates
+    <table id="parking-places-table">
+      <tr>
+        <th>Municipality</th>
+        <th>Address</th>
+        <th>Status</th>
+      </tr>
+    </table>
+  </div>
+  <span></span>
+  <div>
+    Realtime Police officers Updates
+    <table id="police-officers-table">
+      <tr>
+        <th>Municipality</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Badge</th>
+        <th>Status</th>
+      </tr>
+    </table>
+  <span></span>
+  <div>
+    <div>add a new Parking Place</div>
+    <div>
+      <input type="text" id="autocomplete"/>
+    </div>
+    <div>
+      <button id="button-confirm-parkingplace">Confirm</button>
+    </div>
+  </div>
+  <div>
+    <div>add a new police officer</div>
+    <input placeholder="name" id="name">
+    <input placeholder="email" id="email">
+    <input placeholder="password" id="password">
+    <input placeholder="badge" id="badge">
+  </div>
+  <div>
+    <button id="button-confirm-officer">Confirm</button>
+  </div>
 </div>
 
 <script>
@@ -157,6 +205,200 @@ for (i = 0; i < dropdown.length; i++) {
   });
 }
 </script>
+<script>
+  var autocomplete;
+  $(function() {
+    autocomplete = new google.maps.places.Autocomplete(
+            /** @type {!HTMLInputElement} */ (
+                document.getElementById('autocomplete')), {
+              
+            }
+            );
+  });
+  async function forwardGeocoding(place) {
+    let response = await fetch("http://www.mapquestapi.com/geocoding/v1/address?key=EQGn6RdZOa3LaRlvqT3QYhpeCwKjoLhO", {
+      method: "post",
+      headers: new Headers({
+        "Content-Type": "application/json"
+      }),
+      body: JSON.stringify({
+        location: place
+      })
+    });
+    if(response.ok) {
+      let body = await response.json();
+      console.log(body);
+      return body.results[0].locations[0].latLng;
+    }
+  }
+</script>
+<script>
+  async function addOfficer() {
+    var select = document.getElementById('officer-select-municipality');
+    let respose = await fetch('/api/dashboard/officers',{
+      method: "post",
+      headers: new Headers({
+        "Content-Type": "application/json",
+        "Cookie": document.cookie
+      }),
+      body: JSON.stringify({
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value,
+        badge: document.getElementById('badge').value
+      })
+    });
+    if(respose.ok) {
+      
+    }
+  }
 
+  async function addParkingPlace() {
+    var select = document.getElementById('parkingplace-select-municipality');
+    var address = document.getElementById('autocomplete').value;
+    var geocode = await forwardGeocoding(address);
+    let respose = await fetch('/api/dashboard/parkingplaces',{
+      method: "post",
+      headers: new Headers({
+        "Content-Type": "application/json",
+        "Cookie": document.cookie
+      }),
+      body: JSON.stringify({
+        location: {
+          lat: geocode.lat,
+          lng: geocode.lng,
+          address: address
+        }
+      })
+    });
+    if(respose.ok) {
+      
+    }
+  }
+
+  async function changePricePerMinute() {
+    var newPrice = document.getElementById('price-div').value;
+    let respose = await fetch('/api/dashboard/municipalities',{
+      method: "put",
+      headers: new Headers({
+        "Content-Type": "application/json",
+        "Cookie": document.cookie
+      }),
+      body: JSON.stringify({
+        pricePerMinute: newPrice
+      })
+    });
+    if(respose.ok) {
+      
+    }
+  }
+ 
+</script>
+<script>
+  async function municipalityPriceFetch() {
+    let response = await fetch('/api/dashboard/municipalities/', {
+      method: "get",
+      headers: new Headers({
+        "Cookie": document.cookie
+      })
+    });
+    if(response.ok) {
+      let body = await response.json();
+      console.log(body)
+      document.getElementById('price-div').value = body.pricePerMinute;
+    }
+  }
+
+  async function officersDataFetch() {
+    let response = await fetch('/api/dashboard/officers?detailed=true',{
+      method: "get",
+      headers: new Headers({
+        "Cookie": document.cookie
+      })
+    });
+    if(response.ok) {
+      let body = await response.json();
+      var table = document.getElementById('police-officers-table');
+      var rows = table.getElementsByTagName("tr");
+      while(rows.length > 1) {
+        rows[1].parentNode.removeChild(rows[1]);
+      }
+      body.forEach(element => {
+        //populate the table
+        var row = document.createElement('tr');
+        var cell = document.createElement('td');
+        var cellText = document.createTextNode(element.municipality);
+        cell.appendChild(cellText);
+        row.appendChild(cell);
+        var cellText = document.createTextNode(element.name);
+        var cell = document.createElement('td');
+        cell.appendChild(cellText);
+        row.appendChild(cell);
+        var cellText = document.createTextNode(element.email);
+        var cell = document.createElement('td');
+        cell.appendChild(cellText);
+        row.appendChild(cell);
+        var cellText = document.createTextNode(element.badge);
+        var cell = document.createElement('td');
+        cell.appendChild(cellText);
+        row.appendChild(cell);
+        var cell = document.createElement('td');
+        var cellText = document.createTextNode(element.status);
+        cell.appendChild(cellText);
+        row.appendChild(cell);
+        table.appendChild(row);
+      });
+    }
+    setTimeout(officersDataFetch,5000);
+  }
+
+  async function parkingPlacesDataFetch() {
+    let response = await fetch('/api/dashboard/parkingplaces?detailed=true',{
+      method: "get",
+      headers: new Headers({
+        "Cookie": document.cookie
+      })
+    });
+    if(response.ok) {
+      let body = await response.json();
+      var table = document.getElementById('parking-places-table');
+      var rows = table.getElementsByTagName("tr");
+      while(rows.length > 1) {
+        rows[1].parentNode.removeChild(rows[1]);
+      }
+      body.forEach(element => {
+        //populate the table
+        var row = document.createElement('tr');
+        var cell = document.createElement('td');
+        var cellText = document.createTextNode(element.municipality);
+        cell.appendChild(cellText);
+        row.appendChild(cell);
+        var cellText = document.createTextNode(element.location.address);
+        var cell = document.createElement('td');
+        cell.appendChild(cellText);
+        row.appendChild(cell);
+        var cell = document.createElement('td');
+        var cellText = document.createTextNode(element.status);
+        cell.appendChild(cellText);
+        row.appendChild(cell);
+        table.appendChild(row);
+      });
+    }
+    setTimeout(parkingPlacesDataFetch,5000);
+  }
+</script>
+<script>
+  $(function (){
+    $('#button-confirm-parkingplace').on('click',addParkingPlace);
+    $('#button-confirm-officer').on('click',addOfficer);
+    $('#button-change-price').on('click',changePricePerMinute);
+    setTimeout(officersDataFetch,5000);
+    setTimeout(parkingPlacesDataFetch,5000);
+    setTimeout(municipalityPriceFetch,1000);
+  })
+</script>
+<script>
+  
+</script>
 </body>
 </html> 
