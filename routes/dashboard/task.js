@@ -75,37 +75,46 @@ router.post('/parkingplaces/update', async (req,res) => {
     //const { error } = parkingUpdateValidation(req.body);
     //if(error) return res.status(400).send(error.details[0].message);
     //check if plate number is legit or there is a running violation
-    //sensors will be recognized by their token
-    const munPostcode = req.params.postcode;
-	const parkAddress = decodeURI(req.params.address.toLowerCase());
+	//sensors will be recognized by their ipAddress
+	//sensors update must come together with a token to represent it's from a legit device
+
 	if(!req.cookies['sensor_token'])
 		return res.status(403).send('You are not authorized');
     try{
-		const updatingSensor = await Sensor.findOne({ipAddress: req.cookies['sensor_token']});
-        const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
-		if(!requestedMunicipality)
-			return res.status(404).send('Municipality not found');
-		const requestedParkingPlace = await ParkingPlace.findOne({municipality: requestedMunicipality._id, location:{address: parkAddress}});
+		const sensorID = jwt.decode(req.cookies['sensor_token']).id;
+		const updatingSensor = await Sensor.findById(sensorID);
+		if(!updatingSensor)
+			return res.status(404).send('Sensor not found');
+		const requestedParkingPlace = await ParkingPlace.findById(updatingSensor.parkingplace);
 		if(!requestedParkingPlace)
 			return res.status(404).send('Parking place not found');
-		const requestedRequest = Request.findOne({targetLocation:{parkingPlace:requestedParkingPlace.id}});
-		if(!requestedRequest)
-			return res.status(404).send('Request not found');
-		if(requestedRequest.plateNumber !== req.body.plateNumber) {
-			const requestedPoliceOfficer = await PoliceOfficer.findOne();
-			if(!requestedPoliceOfficer)
-				return res.status(404).send('No police officers available for dispatch');
-			const jobToSend = await new Job({
-				municipality: requestedMunicipality.id,
-				parkingPlace: requestedParkingPlace.id,
-				policeOfficer: requestedPoliceOfficer.id,
-				date: Date.now(),
-				status: "VIOLATION"
-			}).save();
-			res.send(jobToSend);
-		} else {
-			res.send('Car is legit');
-		}
+		console.log(requestedParkingPlace)
+			const requestedMunicipality = await Municipality.findById(requestedParkingPlace.municipality);
+		if(!requestedMunicipality)
+			return res.status(404).send('Municipality not found');
+		console.log(requestedMunicipality)
+			//Get the plateNumber to compare with the one coming from the update
+		const involvedRequest = await Request.findOne({
+			"assignedplace.parkingplace": requestedParkingPlace.id
+		});
+		if(!involvedRequest)
+			return res.status(404).send('No request found involving this parking place');
+
+		if(involvedRequest.licensePlate === req.body.update.plateNumber)
+			return res.sendStatus(200);
+		const requestedPoliceOfficer = await PoliceOfficer.findOne({
+			status: "FREE"
+		});
+		if(!requestedPoliceOfficer)
+			return res.status(404).send('No police officers available for dispatch');
+		const jobToSend = await new Job({
+			municipality: requestedMunicipality.id,
+			parkingPlace: requestedParkingPlace.id,
+			policeOfficer: requestedPoliceOfficer.id,
+			date: Date.now(),
+			status: "VIOLATION"
+		}).save();
+		return res.status(401).json(jobToSend);
     }catch(err) {
         res.status(500).send(err);
     }
