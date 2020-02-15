@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const db = require('./db/index.js');
+const dbUtils = require('./utils/dbUtils');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -8,6 +9,7 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 const paypal = require('paypal-rest-sdk');
 const hasher = require('./utils/salt');
+const faker = require('faker');
 
 //Import routes
 const authRoute = require('./routes/auth');
@@ -37,7 +39,30 @@ if(process.env.NODE_ENV !== 'test')
         .then((done) => console.log('Connected to DB'))
         .catch((err) => console.log(err));
 
-db.addAnUserTest('automoto@login.com','hello1234',5);
+dbUtils.addAUserTest('automoto@login.com','hello1234',5,'*')
+    .then((res) => console.log(res))
+    .catch((err) => console.log(err));
+dbUtils.addAUserTest('camerino@login.com','hello1234',4,'62032')
+dbUtils.addAUserTest('camerano@login.com','hello1234',4,'60021')
+    dbUtils.addAMunicipalityTest("Camerino","MC","Marche","62032",43.140362,13.068770,1)
+        .then((mun) => {
+            return dbUtils.addAParkingPlaceTest(mun.postcode,43.132590,13.064660,'Via le mosse, 23')
+            .then((parking) => {
+                return dbUtils.addASensorTest(mun.postcode,parking.location.address,'193.145.200.2',0)
+            })
+        
+        }).catch((err) => console.log(err));
+    dbUtils.addAMunicipalityTest("Camerano","AN","Marche","60021",43.529940,13.547900,2)
+        .then((mun) => {
+            return dbUtils.addAParkingPlaceTest(mun.postcode,43.5279754,13.5420382,"Via dante alighieri, 1")
+            .then((parking) => {
+                return dbUtils.addASensorTest(mun.postcode,parking.location.address,'192.168.100.1',1)
+            })
+        }).catch((err) => console.log(err));
+    
+
+    dbUtils.addAnOfficerTest('James','james.officer@62032.com','hello1234',"JM-001","62032")
+    dbUtils.addAnOfficerTest('Lawrence','lawrence.officer@60021.com','hello1234',"LR-001","60021")
 
 //Use Middlewares
 app.use(bodyParser.json()); //Body-parser
@@ -90,5 +115,7 @@ app.get('/dashboard', (req,res) => {
 app.listen(port, () => {
     console.log('Server Up and running!');
 });
+
+//sensorUtils.simulate(10);
 
 module.exports = app;

@@ -2,6 +2,14 @@ const router = require('express').Router();
 const Municipality = require('../db/models/Municipality');
 const ParkingPlace = require('../db/models/ParkingPlace');
 
+const deg2rad = (deg) => {
+    return deg * (Math.PI/180);
+};
+
+const rad2deg = (rad) => {
+    return rad * (180/Math.PI);
+};
+
 router.get('/autocomplete/:output', async (req,res) => {
     let places = [];
     const output = req.params.output;
@@ -63,6 +71,20 @@ router.get('/autocomplete/:output', async (req,res) => {
         
         res.send(places);
     }
+});
+
+router.get('/distance', async (req,res) => {
+    const stLat = req.query.stLat;
+    const stLng = req.query.stLng;
+    const tgLat = req.query.tgLat;
+    const tgLng = req.query.tgLng;
+    const theta = stLng - tgLng;
+    let distance = Math.sin(deg2rad(stLat)) * Math.sin(deg2rad(tgLat))
+        + Math.cos(deg2rad(stLat)) * Math.cos(deg2rad(tgLat)) * Math.cos(theta);
+    distance = Math.acos(distance);
+    distance = rad2deg(distance);
+    distance = distance * 60 * 1.1515 * 1.609344;
+    res.send(distance);
 });
 
 module.exports = router;
