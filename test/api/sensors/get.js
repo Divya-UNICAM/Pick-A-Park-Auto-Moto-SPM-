@@ -1,69 +1,58 @@
 process.env.NODE_ENV = 'test';
 
-const mongoose = require('mongoose');
 const expect = require('chai').expect;
-const should = require('chai').should;
-const request = require('supertest');
-const db = require('../../../db/index');
+const request = require('request-promise');
+const dbUtils = require('../../../utils/dbUtils');
 const Sensor = require('../../../db/models/Sensor');
 const Municipality = require('../../../db/models/Municipality');
 const ParkingPlace = require('../../../db/models/ParkingPlace');
 const faker = require('faker');
-const server = require('../../../server');
 
-before((done) => {
-    db.connect()
-        .then(() => done()) 
-        .catch((err) => done(err));
-})
-after((done) => {
-    db.close()
-    .then(() => done())
-    .catch((err) => done(err));
-})
-
-describe('GET /api/sensor', () => {
-    beforeEach((done) => {
-        const municpt1 = new Municipality({
-            name: 'Camerino',
-            province: 'MC',
-            region: 'Marche',
-            postcode: 62032,
-            location: {
-                lat: faker.address.latitude(),
-                lng: faker.address.longitude()
-            }
-        }).save();
-        municpt1.then((doc) => {
-            new ParkingPlace({
-                municipality: doc.id,
-                location: {
-                    lat: faker.address.latitude(),
-                    lng: faker.address.longitude(),
-                    address: 'aaa'
-                }
-            }).save().then((doc) => {
-                new Sensor({
-                    parkingplace: doc.id,
-                    position: 0,
-                    ipAddress: faker.internet.ip()
-                }).save().then((doc) => {
-                    done();
-                }).catch((err) => done(err));
-            }).catch((err) => done(err));
+describe('GET /api/dashboard/sensors/:postcode/:address', () => {
+    var postcode, address;
+    before((done) => {
+        dbUtils.addAMunicipalityTest(
+            faker.address.city(),
+            faker.address.countryCode(),
+            faker.address.country(),
+            faker.address.zipCode(),
+            faker.address.latitude(),
+            faker.address.longitude(),
+            faker.commerce.price()
+        ).then((mun) => {
+            postcode = mun.postcode;
+            address = faker.address.streetAddress();
+            dbUtils.addAParkingPlaceTest(
+                mun.postcode,
+                faker.address.latitude(),
+                faker.address.longitude(),
+                address
+            ).then((pp) => {
+                dbUtils.addASensorTest(
+                    postcode,
+                    address,
+                    faker.internet.ip(),
+                    0
+                ).then(() => done())
+                .catch((err) => done(err));
+            })
+            .catch((err) => done(err));
         }).catch((err) => done(err));
     })
-    it('should return all sensors', (done) => {
-        request(server).get('/api/dashboard/sensors/62032/aaa')
-        .set("Cookie",'auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9')
+    it('OK, retrieving all sensors from a parking place in a municipality', (done) => {
+        var options = {
+            uri: 'http://localhost:3001/api/dashboard/sensors/'+postcode+'/'+address,
+            method: "GET",
+            resolveWithFullResponse: true,
+            headers: {
+                "Cookie": process.env.AUTH_TOKEN
+            }
+        }
+        request(options)
         .then((res) => {
-            expect(res.status).to.be.equal(200);
+            expect(res.statusCode).to.be.equal(200);
             done()
         })
         .catch((err) => done(err))
     })
-})
-after((done) => {
-    for(let i = 0; i<refs.length;i++)
-        refs.pop();
 })

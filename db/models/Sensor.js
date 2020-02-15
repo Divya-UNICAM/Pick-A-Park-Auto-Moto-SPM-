@@ -14,20 +14,15 @@ const sensorSchema = new mongoose.Schema({
         required:true
     },
     update: {
-        type: String,
-        default: ""
+        type: Object
     },
     date: {
         type: Date,
         default: Date.now
     },
-    detected: {
-        type: Number,
-        default: 0
-    },
     status: {
         type: String,
-        default: "FREE"
+        default: "WORKING"
     }
 });
 
