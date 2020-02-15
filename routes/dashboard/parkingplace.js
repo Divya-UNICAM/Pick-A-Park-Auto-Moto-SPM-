@@ -13,6 +13,57 @@ const jwt = require('jsonwebtoken');
 const { jobValidation,policeOfficerValidation, sensorValidation, municipalityValidation, parkingPlaceValidation } = require('../../validation');
 const { reverseGeolocatev1 } = require('../../utils/geolocator');
 
+//retrieve all parking places from all municipalities
+router.get('/', async (req,res) => {
+	const isDetailed = req.query.detailed;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
+	try {
+		const domain = jwt.decode(req.cookies['auth_token']).domain;
+		const mun = await Municipality.findOne({postcode: domain});
+		if(!mun)
+			return res.status(404).send('No municipality found');
+		const allParkingPlaces = await ParkingPlace.find({municipality: mun.id});
+		if(allParkingPlaces.length <= 0)
+			return res.status(404).send('No parking places found in specified municipality');
+		if(isDetailed) {
+			let detailedPlaces = [];
+			//if details are requested, i send also the municipality name
+			await Promise.all(allParkingPlaces.map(async place => {
+				let doc = place.toJSON();
+				doc.municipality = mun.name;
+				detailedPlaces.push(doc);
+			}));
+			
+			//console.log('Retrieved all parking places');
+			return res.send(detailedPlaces);
+		}
+		console.log('Retrieved all parking places');
+		res.send(allParkingPlaces);
+	} catch (err) {
+		return res.status(500).send(err);
+	}
+});
+
+//Add a new parking place to a municipality
+router.post('/', async (req,res) => {
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
+	const { error } = parkingPlaceValidation(req.body);
+    if(error) return res.status(400).send(error.details[0].message);
+	try {
+		const domain = jwt.decode(req.cookies['auth_token']).domain;
+		const mun = await Municipality.findOne({postcode: domain});
+		const parkingPlace = await new ParkingPlace({
+			municipality: mun.id,
+			location: req.body.location
+		}).save();
+		res.send(parkingPlace);
+	} catch (err) {
+		return res.status(500).send(err);
+	}
+});
+
 //retrieve all parking places in the system and display their status
 router.get('/:postcode', async (req,res) => {
 	const munPostcode = req.params.postcode;
@@ -35,11 +86,11 @@ router.get('/:postcode', async (req,res) => {
 
 //retrieve a single parking place from the specified municipality in the specified address
 router.get('/:postcode/:address', async (req,res) => {
-	//Client side must validate the address with google maps Places API
-	const munPostcode = req.params.postcode;
-	const parkAddress = decodeURI(req.params.address.toLowerCase());
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
+	const munPostcode = req.params.postcode;
+	const parkAddress = decodeURI(req.params.address.toLowerCase());
+	
     try {
 		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
 		if(!requestedMunicipality)
