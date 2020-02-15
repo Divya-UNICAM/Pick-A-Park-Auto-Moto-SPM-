@@ -29,28 +29,6 @@ async function connect() {
     return connection;
 };
 
-//Quick user creation for testing functionalities
-async function addAnUserTest(email, password, privileges) {
-    const user = {
-        name: faker.name.firstName(),
-        email: email,
-        password: password,
-        privileges: privileges
-    };
-    var options = {
-        method: 'POST',
-        uri: 'http://localhost:3001/api/users/register',
-        body: user,
-        json: true // Automatically stringifies the body to JSON
-    };
-    //console.log('User added '+addedUser.password);
-    return request.post('http://localhost:3001/api/users/register',options)
-        .then((res) => {
-            console.log(res);
-        })
-        .catch((err) => console.log(err));
-}
-
 async function close() {
     if(connection !== null) {
         if(mongod)
@@ -59,4 +37,4 @@ async function close() {
     }
 }
 
-module.exports = { connect, close, connection, addAnUserTest };
+module.exports = { connect, close, connection };
