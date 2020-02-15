@@ -31,6 +31,10 @@ const municipalitySchema = new mongoose.Schema({
             required: true
         }
     },
+    pricePerMinute: {
+        type: Number,
+        default: 1
+    },
     date: {
         type: Date,
         default: Date.now

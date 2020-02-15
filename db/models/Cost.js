@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const costSchema = new mongoose.Schema({
+    municipality: {
+        type: String,
+        required: true
+    },
     pricePerMinute: {
         type: Number,
         required: true
