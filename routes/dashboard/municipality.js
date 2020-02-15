@@ -36,11 +36,29 @@ router.post('/', async (req,res) => {
 	}
 });
 
+//Get all municipalities from the domain inferred by the authentication cookie
 router.get('/', async (req,res) => {
 	if(!req.cookies['auth_token'])
 		return res.status(403).send('You are not authorized');
+	const domain = jwt.decode(req.cookies['auth_token']).domain;
 	try {
-		const requestedMunicipalities = await Municipality.find();
+		const requestedMunicipality = await Municipality.findOne({postcode: domain});
+		if(!requestedMunicipality)
+			return res.status(404).send('No municipalities found');
+		res.send(requestedMunicipality);
+	} catch (err) {
+		res.status(500).send(err);
+	}
+});
+
+router.put('/', async (req,res) => {
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
+	const domain = jwt.decode(req.cookies['auth_token']).domain;
+	try {
+		const requestedMunicipalities = await Municipality.findOneAndUpdate({postcode: domain},{
+			pricePerMinute: req.body.pricePerMinute
+		});
 		if(requestedMunicipalities.length <= 0)
 			return res.status(404).send('No municipalities found');
 		res.send(requestedMunicipalities);
