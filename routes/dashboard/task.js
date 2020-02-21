@@ -68,6 +68,30 @@ router.post('/officers/:postcode/:badge/job', async (req,res) => {
     }
 });
 
+//retrieve all tasks assigned to a single police officer
+router.get('/officers/:postcode/:badge/jobs', async (req,res) => {
+	const munPostcode = req.params.postcode;
+	const officerId = req.params.badge;
+	if(!req.cookies['auth_token'])
+		return res.status(403).send('You are not authorized');
+    try{
+		const requestedMunicipality = await Municipality.findOne({postcode: munPostcode});
+		if(!requestedMunicipality)
+			return res.status(404).send('Municipality not found');
+		const requestedPoliceOfficer = await PoliceOfficer.findOne({municipality: requestedMunicipality._id, badge: officerId});
+		if(!requestedPoliceOfficer)
+			return res.status(404).send('Police officer not found');
+		const assignedJobs = await Job.find({
+			policeOfficer: requestedPoliceOfficer.id,
+			municipality: requestedMunicipality.id
+		});
+        res.send(assignedJobs);
+
+    }catch(err) {
+        res.status(500).send(err);
+    }
+});
+
 //receive update from a single parking place
 //when a sensor detects a change in the parking place, it will send its data to this service
 //data will be then checked and if there is a violation, a new job will be added
@@ -79,7 +103,7 @@ router.post('/parkingplaces/update', async (req,res) => {
 	//sensors update must come together with a token to represent it's from a legit device
 
 	if(!req.cookies['sensor_token'])
-		return res.status(403).send('You are not authorized');
+		return res.status(403).send('sensor is not authorized');
     try{
 		const sensorID = jwt.decode(req.cookies['sensor_token']).id;
 		const updatingSensor = await Sensor.findById(sensorID);
@@ -88,11 +112,9 @@ router.post('/parkingplaces/update', async (req,res) => {
 		const requestedParkingPlace = await ParkingPlace.findById(updatingSensor.parkingplace);
 		if(!requestedParkingPlace)
 			return res.status(404).send('Parking place not found');
-		console.log(requestedParkingPlace)
 			const requestedMunicipality = await Municipality.findById(requestedParkingPlace.municipality);
 		if(!requestedMunicipality)
 			return res.status(404).send('Municipality not found');
-		console.log(requestedMunicipality)
 			//Get the plateNumber to compare with the one coming from the update
 		const involvedRequest = await Request.findOne({
 			"assignedplace.parkingplace": requestedParkingPlace.id
@@ -100,21 +122,36 @@ router.post('/parkingplaces/update', async (req,res) => {
 		if(!involvedRequest)
 			return res.status(404).send('No request found involving this parking place');
 
-		if(involvedRequest.licensePlate === req.body.update.plateNumber)
+		//Legit car enters in a free parking place
+		if(involvedRequest.licensePlate === req.body.update.plateNumber && requestedParkingPlace.status === 'FREE' && req.body.update.direction === 'entering') {
+			await requestedParkingPlace.update({
+				status: 'OCCUPIED'
+			});
 			return res.sendStatus(200);
-		const requestedPoliceOfficer = await PoliceOfficer.findOne({
-			status: "FREE"
-		});
-		if(!requestedPoliceOfficer)
-			return res.status(404).send('No police officers available for dispatch');
-		const jobToSend = await new Job({
-			municipality: requestedMunicipality.id,
-			parkingPlace: requestedParkingPlace.id,
-			policeOfficer: requestedPoliceOfficer.id,
-			date: Date.now(),
-			status: "VIOLATION"
-		}).save();
-		return res.status(401).json(jobToSend);
+		//Legit car leaves from an occupied parking place
+		} else if(involvedRequest.licensePlate === req.body.update.plateNumber && requestedParkingPlace.status === 'OCCUPIED' && req.body.update.direction === 'leaving') {
+			await requestedParkingPlace.update({
+				status: 'FREE'
+			});
+			return res.sendStatus(304); 
+		//Not allowed car enters in a free parking place
+		} else if(involvedRequest.licensePlate !== req.body.update.plateNumber && requestedParkingPlace.status === 'FREE' && req.body.update.direction === 'entering') {
+			const requestedPoliceOfficer = await PoliceOfficer.findOne({
+				status: "FREE"
+			});
+			if(!requestedPoliceOfficer)
+				return res.status(404).send('No police officers available for dispatch');
+			const jobToSend = await new Job({
+				municipality: requestedMunicipality.id,
+				parkingPlace: requestedParkingPlace.id,
+				policeOfficer: requestedPoliceOfficer.id,
+				date: Date.now(),
+				status: "VIOLATION"
+			}).save();
+			return res.status(401).json(jobToSend);
+		} else {// any other case is an error
+			throw 'Unexpected behaviour from sensor, please manually check';
+		}
     }catch(err) {
         res.status(500).send(err);
     }
