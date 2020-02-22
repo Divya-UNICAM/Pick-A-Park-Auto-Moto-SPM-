@@ -3,18 +3,26 @@ process.env.NODE_ENV = 'test';
 const expect = require('chai').expect;
 const request = require('request-promise');
 const faker = require('faker');
-const Request = require('../../../db/models/Request');
-const SensorModel = require('../../../db/models/Sensor');
-const ParkingPlace = require('../../../db/models/ParkingPlace');
-const Municipality = require('../../../db/models/Municipality');
 const dbUtils = require('../../../utils/dbUtils');
 const db = require('../../../db/index');
-const server = require('../../../server');
+const { MongoMemoryServer } = require('mongodb-memory-server');
+const mongoose = require('mongoose');
 
-before(done => {
-    db.connect()
-        .then(() => done())
-        .catch((err) => done(err));
+let mongoServer;
+const opts = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+};
+
+before(async () => {
+    mongoServer = new MongoMemoryServer();
+    const mongoUri = await mongoServer.getUri();
+    await mongoose.connect(mongoUri, opts)
+});
+
+after(async () => {
+    await mongoose.disconnect();
+    await mongoServer.stop();
 })
 
 describe('GET /route', () => {
