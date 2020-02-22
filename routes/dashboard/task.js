@@ -157,4 +157,14 @@ router.post('/parkingplaces/update', async (req,res) => {
     }
 });
 
+router.post('/officers/resolve', async (req,res) => {
+	if(!req.body.jobId)
+		return res.status(400).send('Job id is missing');
+	const jobId = req.body.jobId;
+	const updatedJob = await Job.findByIdAndUpdate(jobId, {
+		status: 'RESOLVED'
+	});
+	res.status(200).send(updatedJob);
+});
+
 module.exports = router;
