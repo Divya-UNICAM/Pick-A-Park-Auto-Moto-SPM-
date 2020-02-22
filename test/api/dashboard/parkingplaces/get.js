@@ -3,9 +3,26 @@ process.env.NODE_ENV = 'test';
 const expect = require('chai').expect;
 const request = require('request-promise');
 const faker = require('faker');
-const ParkingPlace = require('../../../../db/models/ParkingPlace');
-const Municipality = require('../../../../db/models/Municipality');
 const dbUtils = require('../../../../utils/dbUtils');
+const { MongoMemoryServer } = require('mongodb-memory-server');
+const mongoose = require('mongoose');
+
+let mongoServer;
+const opts = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+};
+
+before(async () => {
+    mongoServer = new MongoMemoryServer();
+    const mongoUri = await mongoServer.getUri();
+    await mongoose.connect(mongoUri, opts)
+});
+
+after(async () => {
+    await mongoose.disconnect();
+    await mongoServer.stop();
+})
 
 describe('GET /api/dashboard/parkingplaces', () => {
     var cookie, email, password;
