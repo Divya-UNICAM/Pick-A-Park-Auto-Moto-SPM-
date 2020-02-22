@@ -34,12 +34,12 @@ router.get('/', async (req,res) => {
 				detailedOfficers.push(doc);
 			}));
 			return res.send(detailedOfficers);
-			console.log('data sent')
+			//console.log('data sent')
 		}
-		console.log('Retrieved all officers');
+		//console.log('Retrieved all officers');
 		res.send(allOfficers);
 	} catch (err) {
-		console.log(err);
+		//console.log(err);
 		res.status(500).send(err);
 	}
 });
@@ -86,7 +86,7 @@ router.get('/:postcode', async (req,res) => {
 		const requestedPoliceOfficers = await PoliceOfficer.find({municipality: mun.id});
 		if(requestedPoliceOfficers.length <= 0)
 			return res.status(404).send('No police officers found in specified municipality');
-		console.log('Retrieved all police officers');
+		//console.log('Retrieved all police officers');
 		res.send(requestedPoliceOfficers);
         
     }catch(err) {
@@ -143,7 +143,7 @@ router.post('/:postcode', async (req,res) => {
 			password: hashedPassword,
 			badge: req.body.badge
         }).save();
-        console.log('Added a new police officer');
+        //console.log('Added a new police officer');
         res.send(addedPoliceOfficer);
 
     }catch(err) {
