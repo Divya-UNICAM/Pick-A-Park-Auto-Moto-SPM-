@@ -41,10 +41,10 @@ router.post('/:postcode/:address', async (req,res) => {
 			ipAddress: req.body.ipAddress
 		}).save();
 		
-		console.log('Sensor added');
+		//console.log('Sensor added');
 		//Create and assign a token for the sensor in order to make it able to send updates
 		const token = jwt.sign({id: addedSensor.id},process.env.TOKEN_SECRET);
-		console.log(token);
+		//console.log(token);
 		res.cookie('sensor_token',token,{
 			expires:false, httpOnly: true
 		}).send(addedSensor);
@@ -158,7 +158,7 @@ router.delete('/:postcode/:address/:position', async (req,res) => {
 			})
 			.then((result) => res.send(result))
 			.catch((err) => res.status(500).send(err));
-		console.log('Sensor deleted');
+		//console.log('Sensor deleted');
     } catch (err) {
         res.status(400).send(err);
     }
