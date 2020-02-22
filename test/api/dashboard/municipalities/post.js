@@ -5,6 +5,25 @@ const request = require('request-promise');
 const faker = require('faker');
 const dbUtils = require('../../../../utils/dbUtils');
 const tough = require('tough-cookie').Cookie;
+const { MongoMemoryServer } = require('mongodb-memory-server');
+const mongoose = require('mongoose');
+
+let mongoServer;
+const opts = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+};
+
+before(async () => {
+    mongoServer = new MongoMemoryServer();
+    const mongoUri = await mongoServer.getUri();
+    await mongoose.connect(mongoUri, opts)
+});
+
+after(async () => {
+    await mongoose.disconnect();
+    await mongoServer.stop();
+})
 
 describe('POST /api/dashboard/municipalities', () => {
 
