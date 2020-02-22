@@ -3,10 +3,26 @@ process.env.NODE_ENV = 'test';
 const expect = require('chai').expect;
 const request = require('request-promise');
 const dbUtils = require('../../../utils/dbUtils');
-const Sensor = require('../../../db/models/Sensor');
-const Municipality = require('../../../db/models/Municipality');
-const ParkingPlace = require('../../../db/models/ParkingPlace');
 const faker = require('faker');
+const { MongoMemoryServer } = require('mongodb-memory-server');
+const mongoose = require('mongoose');
+
+let mongoServer;
+const opts = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+};
+
+before(async () => {
+    mongoServer = new MongoMemoryServer();
+    const mongoUri = await mongoServer.getUri();
+    await mongoose.connect(mongoUri, opts)
+});
+
+after(async () => {
+    await mongoose.disconnect();
+    await mongoServer.stop();
+})
 
 describe('GET /api/dashboard/tasks/parkingplaces/update', () => {
     var cookie, address, postcode, lat, lng;
@@ -39,7 +55,7 @@ describe('GET /api/dashboard/tasks/parkingplaces/update', () => {
                 })
                 .catch((err) => done(err));
     })
-    it('OK, sending updates with the right license plate from sensor to municipality works', (done) => {
+    it('OK, car approaching with the right license plate is allowed to park, works', (done) => {
         const licensePlate = '1111111';
         
         var options = {
@@ -52,7 +68,8 @@ describe('GET /api/dashboard/tasks/parkingplaces/update', () => {
             },
             body: {
                 update: {
-                    plateNumber: licensePlate
+                    plateNumber: licensePlate,
+                    direction: "entering"
                 }
             },
             json:true
@@ -65,7 +82,33 @@ describe('GET /api/dashboard/tasks/parkingplaces/update', () => {
         .catch((err) => done(err))
     });
 
-    it('OK, sending updates with the wrong license plate from sensor to municipality issues a violation resolution', (done) => {
+    it('OK, legit car leaving from a parking place make the parking place status FREE', (done) => {
+        const licensePlate = "1111111";
+        var options = {
+            uri: 'http://localhost:3001/api/dashboard/tasks/parkingplaces/update',
+            method: "POST",
+            resolveWithFullResponse: true,
+            simple: false, //enable the usage of status codes other than 2xx
+            headers: {
+                "Cookie": cookie
+            },
+            body: {
+                update: {
+                    plateNumber: licensePlate,
+                    direction: "leaving"
+                }
+            },
+            json:true
+        }
+        request(options)
+        .then((res) => {
+            expect(res.statusCode).to.be.equal(304);
+            done()
+        })
+        .catch((err) => done(err))
+    });
+
+    it('OK, car entering with a wrong license plate is not allowed and issues a violation resolution', (done) => {
         const licensePlate = 'abcdefg';
         
         var options = {
@@ -78,7 +121,8 @@ describe('GET /api/dashboard/tasks/parkingplaces/update', () => {
             },
             body: {
                 update: {
-                    plateNumber: licensePlate
+                    plateNumber: licensePlate,
+                    direction: "entering"
                 }
             },
             json:true
@@ -89,5 +133,5 @@ describe('GET /api/dashboard/tasks/parkingplaces/update', () => {
             done()
         })
         .catch((err) => done(err))
-    })
+    });
 })
