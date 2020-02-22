@@ -3,11 +3,29 @@ process.env.NODE_ENV = 'test';
 const expect = require('chai').expect;
 const request = require('request-promise');
 const faker = require('faker');
-const Request = require('../../../db/models/Request');
 const db = require('../../../db/index');
 const dbUtils = require('../../../utils/dbUtils');
-const server = require('../../../server');
 const tough = require('tough-cookie').Cookie;
+const { MongoMemoryServer } = require('mongodb-memory-server');
+const mongoose = require('mongoose');
+
+let mongoServer;
+const opts = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+};
+
+before(async () => {
+    mongoServer = new MongoMemoryServer();
+    const mongoUri = await mongoServer.getUri();
+    console.log(await mongoServer.getConnectionString());
+    await mongoose.connect(mongoUri, opts)
+});
+
+after(async () => {
+    await mongoose.disconnect();
+    await mongoServer.stop();
+})
 
 describe('POST /api/pay', () => {
     var cookie;
