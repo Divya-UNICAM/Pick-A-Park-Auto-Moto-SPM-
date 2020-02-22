@@ -4,7 +4,8 @@
   <script
 			  src="https://code.jquery.com/jquery-3.4.1.min.js"
 			  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-			  crossorigin="anonymous"></script>
+        crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 <!--Google Maps Places API library-->
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCtBtC_koG-Cmbikl2oAbZwXNxBjH_3gEQ&libraries=places"></script>
         <title>Municipality home page </title>
@@ -101,7 +102,8 @@ body {
 <body>
 
 <div id="header">
-<h1><i>Welcome!! Municipality Admin<i></h1>
+<!--Welcome!! Municipality Admin-->
+<h1><i id="italic_landing"><i></h1>
 </div>
 
 <div class="sidenav">
@@ -140,10 +142,26 @@ body {
 </div>
 
 <div class="main">
-  <div>Current Cost per hour</div>
+  <div id="price-show-div">
+    <div>Current Cost per KM</div>
   <input id="price-div"/>
   <button id="button-change-price">Change</button>
+  </div>
 
+  <div id="municipalities-updates">
+    Realtime Municipalities Updates
+    <table id="municipalities-table">
+      <tr>
+        <th>Municipality</th>
+        <th>Province</th>
+        <th>Region</th>
+        <th>Postcode</th>
+        <th>Location</th>
+        <th>Price</th>
+      </tr>
+    </table>
+  </div>
+  <span></span>
   <div>
     Realtime Parking Places Updates
     <table id="parking-places-table">
@@ -167,7 +185,7 @@ body {
       </tr>
     </table>
   <span></span>
-  <div>
+  <div id="add-parking-place-div">
     <div>add a new Parking Place</div>
     <div>
       <input type="text" id="autocomplete"/>
@@ -176,16 +194,19 @@ body {
       <button id="button-confirm-parkingplace">Confirm</button>
     </div>
   </div>
-  <div>
+  <div id="add-police-officer-div">
     <div>add a new police officer</div>
     <input placeholder="name" id="name">
     <input placeholder="email" id="email">
     <input placeholder="password" id="password">
     <input placeholder="badge" id="badge">
+    <div>
+      <div>
+        <button id="button-confirm-officer">Confirm</button>
+      </div>
+    </div>
   </div>
-  <div>
-    <button id="button-confirm-officer">Confirm</button>
-  </div>
+  
 </div>
 
 <script>
@@ -309,6 +330,54 @@ for (i = 0; i < dropdown.length; i++) {
     }
   }
 
+  async function municipalitiesDataFetch() {
+    let response = await fetch('/api/dashboard/municipalities', {
+      method: "get",
+      headers: new Headers({
+        "Cookie": document.cookie
+      })
+    });
+    if(response.ok) {
+      let body = await response.json();
+      var table = document.getElementById('municipalities-table');
+      var rows = table.getElementsByTagName('tr');
+      while(rows.length > 1) {
+        rows[1].parentNode.removeChild(rows[1]);
+      }
+      body.forEach(element => {
+        //populate the table
+        var row = document.createElement('tr');
+        var cell = document.createElement('td');
+        var cellText = document.createTextNode(element.name);
+        cell.appendChild(cellText);
+        row.appendChild(cell);
+        var cellText = document.createTextNode(element.province);
+        var cell = document.createElement('td');
+        cell.appendChild(cellText);
+        row.appendChild(cell);
+        var cellText = document.createTextNode(element.region);
+        var cell = document.createElement('td');
+        cell.appendChild(cellText);
+        row.appendChild(cell);
+        var cellText = document.createTextNode(element.postcode);
+        var cell = document.createElement('td');
+        cell.appendChild(cellText);
+        row.appendChild(cell);
+        var cellText = document.createTextNode('('+element.location.lat+','+element.location.lng+')');
+        //cellText = '('+cellText.lat+','+cellText.lng+')';
+        var cell = document.createElement('td');
+        cell.appendChild(cellText);
+        row.appendChild(cell);
+        var cell = document.createElement('td');
+        var cellText = document.createTextNode(element.pricePerMinute);
+        cell.appendChild(cellText);
+        row.appendChild(cell);
+        table.appendChild(row);
+      });
+    }
+    setTimeout(municipalitiesDataFetch,5000);
+  }
+
   async function officersDataFetch() {
     let response = await fetch('/api/dashboard/officers?detailed=true',{
       method: "get",
@@ -388,13 +457,43 @@ for (i = 0; i < dropdown.length; i++) {
   }
 </script>
 <script>
+  function parseJwt (token) {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
+};
+</script>
+<script>
   $(function (){
-    $('#button-confirm-parkingplace').on('click',addParkingPlace);
-    $('#button-confirm-officer').on('click',addOfficer);
-    $('#button-change-price').on('click',changePricePerMinute);
-    setTimeout(officersDataFetch,5000);
-    setTimeout(parkingPlacesDataFetch,5000);
-    setTimeout(municipalityPriceFetch,1000);
+    if(parseJwt($.cookie('auth_token')).domain === '*'){
+      document.getElementById('italic_landing').innerHTML = 'Welcome!! Parking Company Admin';
+      document.getElementById('municipalities-updates').style.display = 'block';
+      document.getElementById('price-show-div').style.display = 'none';
+      document.getElementById('add-police-officer-div').style.display = 'none';
+      document.getElementById('add-parking-place-div').style.display = 'none';
+      setTimeout(municipalitiesDataFetch,1000);
+      setTimeout(officersDataFetch,1000);
+      setTimeout(parkingPlacesDataFetch,1000);
+      window.document.title = 'Parking Company Home Page';
+    } else {
+      document.getElementById('italic_landing').innerHTML = 'Welcome!! Municipality Admin';
+      document.getElementById('municipalities-updates').style.display = 'none';
+      document.getElementById('price-show-div').style.display = 'block';
+      document.getElementById('add-police-officer-div').style.display = 'block';
+      document.getElementById('add-parking-place-div').style.display = 'block';
+      $('#button-confirm-parkingplace').on('click',addParkingPlace);
+      $('#button-confirm-officer').on('click',addOfficer);
+      $('#button-change-price').on('click',changePricePerMinute);
+      setTimeout(officersDataFetch,1000);
+      setTimeout(parkingPlacesDataFetch,1000);
+      setTimeout(municipalityPriceFetch,1000);
+      window.document.title = 'Municipality Home Page';
+    }
+    
   })
 </script>
 <script>
