@@ -125,11 +125,10 @@ const policeOfficerValidation = body => {
 //Job Validation
 const jobValidation = body => {
     const schema = Joi.object({
-        municipality: Joi.string(),
-        policeOfficer: Joi.string(),
-        parkingPlace: Joi.string(),
-        date: Joi.date(),
-        status: Joi.string()
+        municipality: Joi.string().required(),
+        policeOfficer: Joi.string().required(),
+        parkingPlace: Joi.string().required(),
+        status: Joi.string().required()
     });
     return schema.validate(body);
 };
