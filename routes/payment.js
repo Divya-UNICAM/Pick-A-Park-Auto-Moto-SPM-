@@ -56,8 +56,8 @@ router.post('/', async (req,res) => {
 
     // 6. Save the transaction in your database
     const transaction = await new Transaction(order.result).save();
-    console.log(order)
-    requestedRequest.update({
+    //console.log(order)
+    await requestedRequest.updateOne({
         status: order.result.id
     });
     await requestedRequest.save();
@@ -81,15 +81,15 @@ router.get('/success', (req,res) => {
         coordinates = {
             startingLat: doc.startingLocation.lat,
             startingLng: doc.startingLocation.lng,
-            targetLat: doc.targetLocation.lat,
-            targetLng: doc.targetLocation.lng
+            targetLat: doc.assignedplace.place.lat,
+            targetLng: doc.assignedplace.place.lng
         };
         //Get the nearest parking place for the specified destination
         
 
         //Return map with directions
         const query = querystring.stringify(coordinates);
-        res.redirect('http://localhost:3001/route?'+query);
+        res.cookie("reqId",reqId).redirect('http://localhost:3001/route?'+query);
         //Redirect to a successful checkout page and send invoice
     });
 });
