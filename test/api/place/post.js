@@ -17,7 +17,6 @@ const opts = {
 
 before(async () => {
     mongoServer = new MongoMemoryServer();
-    console.log(await mongoServer.getConnectionString());
     const mongoUri = await mongoServer.getUri();
     await mongoose.connect(mongoUri, opts)
 });

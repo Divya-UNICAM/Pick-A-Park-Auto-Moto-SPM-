@@ -39,7 +39,7 @@ if(process.env.NODE_ENV !== 'test')
         .then((done) => console.log('Connected to DB'))
         .catch((err) => console.log(err));
 
-if(process.env.NODE_ENV !== 'production') {
+if(process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
     dbUtils.addAUserTest('automoto@login.com','hello1234',5,'*')
         .then((res) => console.log(res))
         .catch((err) => console.log(err));
