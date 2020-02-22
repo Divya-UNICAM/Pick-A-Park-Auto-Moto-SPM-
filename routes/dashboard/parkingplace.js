@@ -38,7 +38,7 @@ router.get('/', async (req,res) => {
 			//console.log('Retrieved all parking places');
 			return res.send(detailedPlaces);
 		}
-		console.log('Retrieved all parking places');
+		//console.log('Retrieved all parking places');
 		res.send(allParkingPlaces);
 	} catch (err) {
 		return res.status(500).send(err);
@@ -77,7 +77,7 @@ router.get('/:postcode', async (req,res) => {
 		const requestedParkingPlaces = await ParkingPlace.find({municipality: munId});
 		if(requestedParkingPlaces.length <= 0)
 			return res.status(404).send('No parking places found in specified municipality');
-		console.log('Retrieved all parking places');
+		//console.log('Retrieved all parking places');
 		res.send(requestedParkingPlaces);
 	} catch (err) {
 		return res.status(500).send(err);
@@ -131,7 +131,7 @@ router.post('/:postcode', async (req,res) => {
 				address: req.body.location.address.toLowerCase()
 			}
         }).save();
-        console.log('Added a new parking place');
+        //console.log('Added a new parking place');
         res.send(addedAParkingPlace);
 
     }catch(err) {
@@ -162,7 +162,7 @@ router.put('/:postcode/:address', async (req,res) => {
 		if(!parkPlace)
 			return res.status(404).send('Parking place not found');
         const updated = await parkPlace.set(req.body).save();
-		console.log('Parking place updated');
+		//console.log('Parking place updated');
 		res.send(updated);
     } catch (err) {
         return res.status(500).send(err);
@@ -186,7 +186,7 @@ router.delete('/:postcode/:address', async (req,res) => {
 		})
 			.then((result) => res.send(result))
 			.catch((err) => res.status(500).send(err));
-		console.log('Parking place deleted');
+		//console.log('Parking place deleted');
     } catch (err) {
         return res.status(500).send(err);
     }
