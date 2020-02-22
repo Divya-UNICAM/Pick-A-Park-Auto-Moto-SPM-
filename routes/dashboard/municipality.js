@@ -29,7 +29,7 @@ router.post('/', async (req,res) => {
 			policeOfficers: req.body.policeOfficers,
 			date: req.body.date
 		}).save();
-		console.log('Added a new municipality');
+		//console.log('Added a new municipality');
 		res.send(addedMunicipality);	
 	} catch (err) {
 		return res.status(500).send(err);
@@ -65,6 +65,14 @@ router.put('/', async (req,res) => {
 	} catch (err) {
 		res.status(500).send(err);
 	}
+});
+
+//retrieve all tasks that are open and must be resolved
+router.get('/tasks', async (req,res) => {
+	const openJobs = await Job.find({
+		status: 'VIOLATION'
+	});
+	res.send(openJobs);
 });
 
 module.exports = router;
