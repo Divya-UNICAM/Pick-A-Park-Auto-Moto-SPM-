@@ -26,7 +26,6 @@ router.post('/', async (req,res) => {
     if(!req.cookies['auth_token'])
         return res.sendStatus(403);
     try {
-        console.log(req.body)
         const curst = await new Cost(req.body).save();
         res.send(curst);
     } catch (err) {
