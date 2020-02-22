@@ -20,26 +20,43 @@ router.get('/', async (req,res) => {
 		return res.status(403).send('You are not authorized');
 	try {
 		const domain = jwt.decode(req.cookies['auth_token']).domain;
-		const mun = await Municipality.findOne({postcode: domain});
-		if(!mun)
-			return res.status(404).send('No municipality found');
-		const allParkingPlaces = await ParkingPlace.find({municipality: mun.id});
-		if(allParkingPlaces.length <= 0)
-			return res.status(404).send('No parking places found in specified municipality');
-		if(isDetailed) {
-			let detailedPlaces = [];
-			//if details are requested, i send also the municipality name
-			await Promise.all(allParkingPlaces.map(async place => {
-				let doc = place.toJSON();
-				doc.municipality = mun.name;
-				detailedPlaces.push(doc);
-			}));
-			
+		if(domain === '*') {
+			const allParkingPlaces = await ParkingPlace.find();
+			if(allParkingPlaces.length <= 0)
+				return res.status(404).send('No parking places found');
+			if(isDetailed) {
+				let detailedPlaces = [];
+				await Promise.all(allParkingPlaces.map(async place => {
+					let doc = place.toJSON();
+					const mun = await Municipality.findById(doc.municipality);
+					doc.municipality = mun.name;
+					detailedPlaces.push(doc);
+				}));
+				return res.send(detailedPlaces);
+			}
+			return res.send(allParkingPlaces);
+		} else {
+			const mun = await Municipality.findOne({postcode: domain});
+			if(!mun)
+				return res.status(404).send('No municipality found');
+			const allParkingPlaces = await ParkingPlace.find({municipality: mun.id});
+			if(allParkingPlaces.length <= 0)
+				return res.status(404).send('No parking places found in specified municipality');
+			if(isDetailed) {
+				let detailedPlaces = [];
+				//if details are requested, i send also the municipality name
+				await Promise.all(allParkingPlaces.map(async place => {
+					let doc = place.toJSON();
+					doc.municipality = mun.name;
+					detailedPlaces.push(doc);
+				}));
+				
+				//console.log('Retrieved all parking places');
+				return res.send(detailedPlaces);
+			}
 			//console.log('Retrieved all parking places');
-			return res.send(detailedPlaces);
+			res.send(allParkingPlaces);
 		}
-		//console.log('Retrieved all parking places');
-		res.send(allParkingPlaces);
 	} catch (err) {
 		return res.status(500).send(err);
 	}
