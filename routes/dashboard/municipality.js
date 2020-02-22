@@ -42,10 +42,18 @@ router.get('/', async (req,res) => {
 		return res.status(403).send('You are not authorized');
 	const domain = jwt.decode(req.cookies['auth_token']).domain;
 	try {
-		const requestedMunicipality = await Municipality.findOne({postcode: domain});
-		if(!requestedMunicipality)
-			return res.status(404).send('No municipalities found');
-		res.send(requestedMunicipality);
+		if(domain === '*') {
+			const requestedMunicipalities = await Municipality.find();
+			if(requestedMunicipalities.length <= 0)
+				return res.status(404).send('No municipalities found');
+			return res.send(requestedMunicipalities);
+		} else {
+			const requestedMunicipality = await Municipality.findOne({postcode: domain});
+			if(!requestedMunicipality)
+				return res.status(404).send('No municipalities found');
+			return res.send(requestedMunicipality);
+		}
+		
 	} catch (err) {
 		res.status(500).send(err);
 	}
