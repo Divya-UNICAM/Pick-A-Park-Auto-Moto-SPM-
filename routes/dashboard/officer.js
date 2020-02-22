@@ -22,24 +22,42 @@ router.get('/', async (req,res) => {
 		return res.status(403).send('You are not authorized');
 	try {
 		const domain = jwt.decode(req.cookies['auth_token']).domain;
-		const mun = await Municipality.findOne({postcode: domain});
-		const allOfficers = await PoliceOfficer.find({municipality: mun.id});
-		if(allOfficers.length <= 0)
-			return res.status(404).send('No officers found in specified municipality');
-		if(isDetailed) {
-			let detailedOfficers = [];
-			await Promise.all(allOfficers.map(async officer =>  {
-				let doc = officer.toJSON();
-				doc.municipality = mun.name;
-				detailedOfficers.push(doc);
-			}));
-			return res.send(detailedOfficers);
-			//console.log('data sent')
-		}
-		//console.log('Retrieved all officers');
-		res.send(allOfficers);
+		if(domain === '*') {
+			const allOfficers = await PoliceOfficer.find();
+			if(allOfficers.length <= 0)
+				return res.status(404).send('No officers found in specified municipality');
+			if(isDetailed) {
+				let detailedOfficers = [];
+				await Promise.all(allOfficers.map(async officer => {
+					let doc = officer.toJSON();
+					const mun = await Municipality.findById(doc.municipality);
+					doc.municipality = mun.name;
+					detailedOfficers.push(doc);
+				}));
+				return res.send(detailedOfficers);
+			}
+			return res.send(allOfficers);
+		} else {
+			const mun = await Municipality.findOne({postcode: domain});
+			const allOfficers = await PoliceOfficer.find({municipality: mun.id});
+			if(allOfficers.length <= 0) 
+				return res.status(404).send('No officers found in specified municipality');
+			if(isDetailed) {
+				let detailedOfficers = [];
+				await Promise.all(allOfficers.map(async officer =>  {
+					let doc = officer.toJSON();
+					doc.municipality = mun.name;
+					detailedOfficers.push(doc);
+				}));
+				return res.send(detailedOfficers);
+				//console.log('data sent')
+			}
+			//console.log('Retrieved all officers');
+			return res.send(allOfficers);
+			}
+		
 	} catch (err) {
-		//console.log(err);
+		console.log(err);
 		res.status(500).send(err);
 	}
 });
