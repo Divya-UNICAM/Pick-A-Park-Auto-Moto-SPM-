@@ -3,6 +3,7 @@ const request = require('request-promise');
 const faker = require('faker');
 const Municipality = require('../db/models/Municipality');
 const ParkingPlace = require('../db/models/ParkingPlace');
+const Request = require('../db/models/Request');
 
 const deg2rad = (deg) => {
     return deg * (Math.PI/180);
@@ -73,6 +74,7 @@ async function authenticateAUserTest(email, password, fullResponse=false) {
         uri: "http://localhost:3001/api/users/login",
         body: body,
         json: true,
+        jar: true,
         resolveWithFullResponse: fullResponse
     }
     return request(options);
@@ -126,13 +128,14 @@ async function addAMunicipalityTest(name, province, region, postcode, latitude, 
 }
 
 //Quick parking place creation for testing functionalities
-async function addAParkingPlaceTest(postcode, latitude, longitude, address, fullResponse=false) {
+async function addAParkingPlaceTest(postcode, latitude, longitude, address, fullResponse=false, status='FREE') {
     const parkingPlace = {
         location: {
             lat: latitude,
             lng: longitude,
             address: address
-        }
+        },
+        status: status
     };
     var options = {
         method: "POST",
@@ -194,7 +197,9 @@ async function getNearParkingPlaces(destination) {
     //For each parking place compute the distance with the destination
     //Pick as possible candidates only those below a certain distance threshold
     try {
-        const possibleParkingPlaces = await ParkingPlace.find();
+        const possibleParkingPlaces = await ParkingPlace.find({
+            status: 'FREE'
+        });
         if(possibleParkingPlaces.length > 0) {
             await Promise.all(possibleParkingPlaces.map(async element => {
                     const mun = await Municipality.findById(element.municipality);
@@ -204,8 +209,39 @@ async function getNearParkingPlaces(destination) {
                         "parkingplace": element.id,
                         "price": mun.pricePerMinute,
                         "place": element.location,
-                        "distance":getDistance(element.location.lat,element.location.lng,
-                            destination.lat,destination.lng)
+                        "distance":getDistance(destination.lat,destination.lng,
+                            element.location.lat,element.location.lng)
+                    });
+                })
+            );
+        }
+        if(places.length <= 0)
+            return "target location too far";
+        return places;
+    } catch (err) {
+        return err;
+    }
+}
+
+async function getNearParkingPlacesByAStartingLocation(startingLocation) {
+    let places = [];
+    //For each parking place compute the distance with the destination
+    //Pick as possible candidates only those below a certain distance threshold
+    try {
+        const possibleParkingPlaces = await ParkingPlace.find({
+            status: 'FREE'
+        });
+        if(possibleParkingPlaces.length > 0) {
+            await Promise.all(possibleParkingPlaces.map(async element => {
+                    const mun = await Municipality.findById(element.municipality);
+                    places.push({
+                        "municipality": element.municipality,
+                        "postcode": mun.postcode,
+                        "parkingplace": element.id,
+                        "price": mun.pricePerMinute,
+                        "place": element.location,
+                        "distance":getDistance(startingLocation.lat,startingLocation.lng,
+                            element.location.lat,element.location.lng)
                     });
                 })
             );
@@ -226,5 +262,6 @@ module.exports = {
     addAParkingPlaceTest,
     addARequestTest,
     addASensorTest,
-    getNearParkingPlaces 
+    getNearParkingPlaces,
+    getDistanceBetween: getNearParkingPlacesByAStartingLocation
 };
