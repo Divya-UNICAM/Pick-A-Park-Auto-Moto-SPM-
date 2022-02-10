@@ -80,7 +80,7 @@
     "mocha": "^6.2.2",
     "mongodb-memory-server": "^6.0.2",
     "ngrok": "^3.2.7",
-    "node-sass": "^4.5.3",
+    "node-sass": "^7.0.0",
     "nodemon": "^2.0.2",
     "random-location": "^1.1.2",
     "require-dir": "^1.0.0",
